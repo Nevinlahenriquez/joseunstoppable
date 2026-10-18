@@ -25,7 +25,7 @@ function initials(name: string): string {
   return name.trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('') || '?'
 }
 
-const AVATAR_COLORS = ['#7b2fff', '#0891b2', 'var(--os-warn)', 'var(--os-good)', '#db2777', 'var(--os-accent)', '#9333ea']
+const AVATAR_COLORS = ['#0E71AC', '#0891b2', 'var(--os-warn)', 'var(--os-good)', '#db2777', 'var(--os-accent)', '#0E71AC']
 function avatarColor(id: string): string {
   let h = 0
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0
@@ -503,7 +503,7 @@ export default function DealsPage() {
                 <button className="os-btn os-btn-sm" onClick={() => convertToProposal(selected)} style={{ background: 'var(--os-deep)', color: 'var(--os-on-deep)', flex: 1, minWidth: 165 }}>
                   <i className="ti ti-file-export" /> Convert to Proposal
                 </button>
-                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Get this client's onboarding link" style={{ background: '#eaa92e', color: '#3a2600', flex: 1, minWidth: 140 }}>
+                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Get this client's onboarding link" style={{ background: '#2A98D6', color: '#3a2600', flex: 1, minWidth: 140 }}>
                   <i className="ti ti-clipboard-check" /> Onboarding
                 </button>
                 <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => setStage(selected, 'completed')} style={{ color: 'var(--os-good)', borderColor: '#bbf7d0' }}><i className="ti ti-trophy" /> Won</button>
@@ -575,7 +575,7 @@ function OnboardingLinkModal({ link, onClose }: {
               {deal.clientName}{deal.clientRole ? ` · ${deal.clientRole}` : ''}
             </div>
           </div>
-          <button onClick={onClose} style={{ width:32, height:32, border:'none', background:'rgba(124,77,214,.1)', borderRadius:8, cursor:'pointer', fontSize:14, color:'var(--os-accent)' }}>✕</button>
+          <button onClick={onClose} style={{ width:32, height:32, border:'none', background:'rgba(14,113,172,.1)', borderRadius:8, cursor:'pointer', fontSize:14, color:'var(--os-accent)' }}>✕</button>
         </div>
 
         {link.state === 'loading' && (

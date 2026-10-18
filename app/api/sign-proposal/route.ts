@@ -234,13 +234,13 @@ export async function POST(req: NextRequest) {
     <img src="https://joseunstoppable.com/icon.png" width="64" height="64" alt="José Unstoppable" style="border:0;border-radius:13px;display:block;margin:0 auto 12px;" />
     <div style="color:#c4b5fd;font-size:11px;font-weight:700;letter-spacing:3px;">José Unstoppable</div>
   </td></tr>
-  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px 32px;border:1px solid #ede8fb;border-top:none;border-radius:0 0 12px 12px;">
-    <h2 style="font-size:22px;font-weight:800;color:#0f0020;margin:0 0 12px;">${es ? `Listo, ${firstName}.` : `You are in, ${firstName}.`}</h2>
+  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px 32px;border:1px solid #E4F4FD;border-top:none;border-radius:0 0 12px 12px;">
+    <h2 style="font-size:22px;font-weight:800;color:#0C2A43;margin:0 0 12px;">${es ? `Listo, ${firstName}.` : `You are in, ${firstName}.`}</h2>
     <p style="color:#4a4359;margin:0 0 20px;">${es ? `Tu acuerdo <strong>${eTitle}</strong> está firmado y recibido. Este es el resumen:` : `Your agreement for <strong>${eTitle}</strong> has been signed and received. Here is the summary:`}</p>
     <table role="presentation" style="width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:24px;">
       <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${es ? 'Referencia' : 'Reference'}</td><td style="padding:8px 0;font-weight:600;color:#241a33;border-bottom:1px solid #f0eafc;text-align:right;">${eRef}</td></tr>
       <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${es ? 'Cliente' : 'Client'}</td><td style="padding:8px 0;font-weight:600;color:#241a33;border-bottom:1px solid #f0eafc;text-align:right;">${eClientName}${clientCompany ? ` / ${eClientCompany}` : ''}</td></tr>
-      <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${escapeHtml(feeLabel)}</td><td style="padding:8px 0;font-weight:600;color:#7C3AED;border-bottom:1px solid #f0eafc;text-align:right;">${escapeHtml(feeValue(0))}</td></tr>
+      <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${escapeHtml(feeLabel)}</td><td style="padding:8px 0;font-weight:600;color:#0E71AC;border-bottom:1px solid #f0eafc;text-align:right;">${escapeHtml(feeValue(0))}</td></tr>
       <tr><td style="padding:8px 0;color:#7b7288;">${es ? 'Firmado' : 'Signed'}</td><td style="padding:8px 0;font-weight:600;color:#241a33;text-align:right;">${escapeHtml(signedAt)} (hora de España)</td></tr>
     </table>
     <p style="color:#4a4359;margin:0 0 8px;">${es
@@ -267,14 +267,14 @@ export async function POST(req: NextRequest) {
     <img src="https://joseunstoppable.com/icon.png" width="64" height="64" alt="José Unstoppable" style="border:0;border-radius:13px;display:block;margin:0 auto 12px;" />
     <div style="color:#c4b5fd;font-size:11px;font-weight:700;letter-spacing:3px;">José Unstoppable</div>
   </td></tr>
-  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px 32px;border:1px solid #ede8fb;border-top:none;border-radius:0 0 12px 12px;">
-    <h2 style="font-size:22px;font-weight:800;color:#0f0020;margin:0 0 12px;">You are in, ${firstName}.</h2>
+  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px 32px;border:1px solid #E4F4FD;border-top:none;border-radius:0 0 12px 12px;">
+    <h2 style="font-size:22px;font-weight:800;color:#0C2A43;margin:0 0 12px;">You are in, ${firstName}.</h2>
     <p style="color:#4a4359;margin:0 0 20px;">Your agreement for <strong>${eTitle}</strong> has been signed and received. Here is a summary of what we agreed to:</p>
     <table role="presentation" style="width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:24px;">
       <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">Reference</td><td style="padding:8px 0;font-weight:600;color:#241a33;border-bottom:1px solid #f0eafc;text-align:right;">${eRef}</td></tr>
       <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">Client</td><td style="padding:8px 0;font-weight:600;color:#241a33;border-bottom:1px solid #f0eafc;text-align:right;">${eClientName}${clientCompany ? ` / ${eClientCompany}` : ''}</td></tr>
       <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">Engagement</td><td style="padding:8px 0;font-weight:600;color:#241a33;border-bottom:1px solid #f0eafc;text-align:right;">${eTitle}</td></tr>
-      <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${feeLabel}</td><td style="padding:8px 0;font-weight:700;color:#7C3AED;border-bottom:1px solid #f0eafc;text-align:right;">${escapeHtml(feeValue(monthlyAmount))}</td></tr>
+      <tr><td style="padding:8px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${feeLabel}</td><td style="padding:8px 0;font-weight:700;color:#0E71AC;border-bottom:1px solid #f0eafc;text-align:right;">${escapeHtml(feeValue(monthlyAmount))}</td></tr>
       <tr><td style="padding:8px 0;color:#7b7288;">Signed</td><td style="padding:8px 0;font-weight:600;color:#241a33;text-align:right;">${escapeHtml(signedAt)} (hora de España)</td></tr>
     </table>
     <p style="color:#4a4359;margin:0 0 8px;">Your first invoice is on its way in a separate email right now, with the payment details. Once it is settled, we begin within 48 hours.</p>
@@ -292,8 +292,8 @@ export async function POST(req: NextRequest) {
         preview: `${clientName} signed ${cleanTitle}.`,
         card: `
 <table role="presentation" class="e-wrap" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;">
-  <tr><td bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #ede8fb;border-radius:12px;padding:28px 32px;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#241a33;line-height:1.7;">
-    <h2 style="font-size:20px;color:#0f0020;margin:0 0 16px;">Proposal signed: ${eRef}</h2>
+  <tr><td bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #E4F4FD;border-radius:12px;padding:28px 32px;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#241a33;line-height:1.7;">
+    <h2 style="font-size:20px;color:#0C2A43;margin:0 0 16px;">Proposal signed: ${eRef}</h2>
     <table role="presentation" style="border-collapse:collapse;font-size:14px;width:100%;">
       ${[
         ['Client', `${eClientName}${clientCompany ? ` / ${eClientCompany}` : ''}`],
@@ -327,14 +327,14 @@ export async function POST(req: NextRequest) {
     <img src="https://joseunstoppable.com/icon.png" width="56" height="56" alt="José Unstoppable" style="border:0;border-radius:12px;display:block;margin:0 auto 10px;" />
     <div style="color:#c4b5fd;font-size:11px;font-weight:700;letter-spacing:2px;">Invoice${eInvNum ? ` #${eInvNum}` : ''}</div>
   </td></tr>
-  <tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:34px 30px;border:1px solid #ede8fb;border-top:none;border-radius:0 0 12px 12px;">
+  <tr><td bgcolor="#ffffff" style="background-color:#ffffff;padding:34px 30px;border:1px solid #E4F4FD;border-top:none;border-radius:0 0 12px 12px;">
     <p style="color:#4a4359;margin:0 0 20px;">Hi ${firstName}, here is your first invoice for <strong>${eTitle}</strong>.</p>
     <table role="presentation" style="width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:22px;">
-      <tr><td style="padding:9px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${eInvLabel}</td><td style="padding:9px 0;font-weight:700;color:#7C3AED;border-bottom:1px solid #f0eafc;text-align:right;">${escapeHtml(fmtMoney(monthlyAmount))}</td></tr>
+      <tr><td style="padding:9px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">${eInvLabel}</td><td style="padding:9px 0;font-weight:700;color:#0E71AC;border-bottom:1px solid #f0eafc;text-align:right;">${escapeHtml(fmtMoney(monthlyAmount))}</td></tr>
       ${invDueLabel ? `<tr><td style="padding:9px 0;color:#7b7288;">Due</td><td style="padding:9px 0;font-weight:600;color:#241a33;text-align:right;">${escapeHtml(invDueLabel)}</td></tr>` : ''}
     </table>
-    ${bankInfo ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:22px;"><tr><td><div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#8b839a;margin-bottom:8px;">Payment details</div><div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#4a4359;white-space:pre-wrap;background:#faf8ff;border:1px solid #ede8fb;border-radius:8px;padding:14px 16px;line-height:1.8;">${eBank}</div></td></tr></table>` : ''}
-    ${invoiceId ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 22px;"><tr><td bgcolor="#7C3AED" style="background-color:#7C3AED;border-radius:100px;"><a href="https://joseunstoppable.com/invoice/${encodeURIComponent(invoiceId)}" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:14px 30px;border-radius:100px;text-decoration:none;">View and pay invoice</a></td></tr></table>` : ''}
+    ${bankInfo ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:22px;"><tr><td><div style="font-size:10px;font-weight:700;letter-spacing:1.5px;color:#8b839a;margin-bottom:8px;">Payment details</div><div style="font-family:Helvetica,Arial,sans-serif;font-size:13px;color:#4a4359;white-space:pre-wrap;background:#F1F8FD;border:1px solid #E4F4FD;border-radius:8px;padding:14px 16px;line-height:1.8;">${eBank}</div></td></tr></table>` : ''}
+    ${invoiceId ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 22px;"><tr><td bgcolor="#0E71AC" style="background-color:#0E71AC;border-radius:100px;"><a href="https://joseunstoppable.com/invoice/${encodeURIComponent(invoiceId)}" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:14px 30px;border-radius:100px;text-decoration:none;">View and pay invoice</a></td></tr></table>` : ''}
     <p style="margin:0;font-size:12px;color:#8b839a;text-align:center;">Net 7. Late payments incur 2% monthly interest.</p>
     <p style="margin:6px 0 0;font-size:12px;color:#8b839a;text-align:center;">José Unstoppable &middot; hola@joseunstoppable.com</p>
   </td></tr>
@@ -358,29 +358,29 @@ export async function POST(req: NextRequest) {
     <p style="margin:0 0 16px;font-size:15.5px;line-height:1.7;color:#2f2a3d;">Thank you for signing, and thank you for the conversation. I really enjoyed hearing about${company ? ' ' + escapeHtml(company) : ' your business'} and I am looking forward to building this${forCompany}.</p>
     <p style="margin:0 0 20px;font-size:15.5px;line-height:1.7;color:#2f2a3d;">Here is everything I need from you so we can start. None of it is urgent today, but the sooner it arrives, the sooner your setup call turns into a finished site.</p>
 
-    <div style="background:#faf8ff;border:1px solid #ede8fb;border-radius:10px;padding:20px 22px;margin:0 0 20px;">
-      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#7c3aed;">1. Your images and videos</p>
+    <div style="background:#F1F8FD;border:1px solid #E4F4FD;border-radius:10px;padding:20px 22px;margin:0 0 20px;">
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0E71AC;">1. Your images and videos</p>
       <p style="margin:0 0 10px;font-size:14.5px;line-height:1.65;color:#4a4459;">Photos of you, your space, your work, your team, and any video you would like on the site. I need the <strong>original full quality files</strong>, not anything already posted to Instagram or Facebook. Social platforms compress heavily, and a compressed photo looks soft and pixelated the moment it fills a laptop screen.</p>
       <p style="margin:0 0 10px;font-size:14.5px;line-height:1.65;color:#4a4459;"><strong>Please do not attach them to an email.</strong> Email silently shrinks images and will not carry video at all. Use one of these instead, both free:</p>
       <p style="margin:0 0 16px;font-size:14.5px;line-height:1.75;color:#4a4459;">
-        <strong>Google Drive</strong> (best if you have a lot, or will send more later): go to <a href="https://drive.google.com" style="color:#7c3aed;font-weight:600;">drive.google.com</a>, make a new folder, drop everything in, then click Share, set it to <em>Anyone with the link</em>, and send me that link.<br>
-        <strong>WeTransfer</strong> (easiest for a one off): go to <a href="https://wetransfer.com" style="color:#7c3aed;font-weight:600;">wetransfer.com</a>, drag your files in, enter my email, and send. No account needed.
+        <strong>Google Drive</strong> (best if you have a lot, or will send more later): go to <a href="https://drive.google.com" style="color:#0E71AC;font-weight:600;">drive.google.com</a>, make a new folder, drop everything in, then click Share, set it to <em>Anyone with the link</em>, and send me that link.<br>
+        <strong>WeTransfer</strong> (easiest for a one off): go to <a href="https://wetransfer.com" style="color:#0E71AC;font-weight:600;">wetransfer.com</a>, drag your files in, enter my email, and send. No account needed.
       </p>
 
-      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#7c3aed;">2. Your logo and brand files</p>
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0E71AC;">2. Your logo and brand files</p>
       <p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;color:#4a4459;">If you have a logo, send the original file. If you have brand colours or fonts you already use, send those too. If you have none of this, that is completely fine and we will sort it on the call.</p>
 
-      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#7c3aed;">3. Access to your domain</p>
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0E71AC;">3. Access to your domain</p>
       <p style="margin:0 0 10px;font-size:14.5px;line-height:1.65;color:#4a4459;">I need to point your web address at the finished site. <strong>Just reply and tell me where you bought the domain</strong>, for example GoDaddy, Namecheap, Squarespace, Google Domains or Hostinger, and I will send you the exact click by click steps for that company.</p>
       <p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;color:#4a4459;">Most of them have an <em>invite a delegate</em> or <em>add user</em> option, which is safer than sharing a password and takes about a minute. If you would rather not give access at all, that is fine too: I will send you two settings to paste in yourself. And if you do not have a domain yet, say so and we will choose one together on the call.</p>
 
-      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#7c3aed;">4. Access to your business email</p>
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0E71AC;">4. Access to your business email</p>
       <p style="margin:0 0 10px;font-size:14.5px;line-height:1.65;color:#4a4459;">For the build period only. This lets me create your hosting accounts in your name rather than mine, which is what makes the site genuinely yours at the end.</p>
       <p style="margin:0 0 16px;font-size:14.5px;line-height:1.65;color:#4a4459;">If you use Google Workspace, the simplest way is to add me as a delegate: open Gmail, click the gear icon, <em>See all settings</em>, then <em>Accounts</em>, then <em>Grant access to your account</em>, and add my address. I only ever use it to confirm the signup emails for your hosting. <strong>You can remove me the day we finish, in the same place, in one click.</strong></p>
 
-      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#7c3aed;">5. A Claude subscription</p>
+      <p style="margin:0 0 6px;font-size:13px;font-weight:700;color:#0E71AC;">5. A Claude subscription</p>
       <p style="margin:0 0 10px;font-size:14.5px;line-height:1.65;color:#4a4459;">This is the tool you will use to update your own site after our training session, and it is why you will never need to pay anyone for a small change again.</p>
-      <p style="margin:0;font-size:14.5px;line-height:1.65;color:#4a4459;">Sign up at <a href="https://claude.ai/upgrade" style="color:#7c3aed;font-weight:600;">claude.ai/upgrade</a> and choose the <strong>Pro plan, about twenty dollars a month</strong>. Use the same professional email address as your website. You can do it any time before our training call, and it is the only tool you need.</p>
+      <p style="margin:0;font-size:14.5px;line-height:1.65;color:#4a4459;">Sign up at <a href="https://claude.ai/upgrade" style="color:#0E71AC;font-weight:600;">claude.ai/upgrade</a> and choose the <strong>Pro plan, about twenty dollars a month</strong>. Use the same professional email address as your website. You can do it any time before our training call, and it is the only tool you need.</p>
     </div>
 
     <p style="margin:0 0 16px;font-size:15.5px;line-height:1.7;color:#2f2a3d;"><strong>What happens next:</strong> once you have sent the files above, we book your setup call. About a week after that call your site is built, then we go through it together on the revision call, and finally I show you how to run it yourself.</p>

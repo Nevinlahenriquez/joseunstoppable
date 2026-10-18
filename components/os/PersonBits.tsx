@@ -28,7 +28,7 @@ export function initialsOf(name: string) {
 }
 
 export function avatarBgOf(seed: string) {
-  const colors = ['#7b2fff', '#0891b2', '#d97706', '#16a34a', '#db2777', '#9333ea']
+  const colors = ['#0E71AC', '#0891b2', '#d97706', '#16a34a', '#db2777', '#0E71AC']
   let h = 0
   for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0
   return colors[h % colors.length]

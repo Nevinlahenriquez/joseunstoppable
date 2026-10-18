@@ -93,7 +93,7 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
   /* ── Meta row ── */
   .meta-row { display: flex; gap: 0; margin-bottom: 26px; }
   .meta-box { flex: 1; }
-  .meta-box + .meta-box { padding-left: 28px; border-left: 1px solid #ede8fb; margin-left: 28px; }
+  .meta-box + .meta-box { padding-left: 28px; border-left: 1px solid #E4F4FD; margin-left: 28px; }
   .meta-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #bbb; margin-bottom: 6px; }
   .meta-value { font-size: 10pt; font-weight: 700; color: #212A4D; line-height: 1.5; }
   .meta-sub { font-size: 9pt; color: #888; margin-top: 2px; }
@@ -106,7 +106,7 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
   .td-main { padding: 10px 12px; border-bottom: 1px solid #f0eafc; vertical-align: top; }
   .td-num { padding: 10px 12px; border-bottom: 1px solid #f0eafc; text-align: right; vertical-align: top; white-space: nowrap; }
   .td-bold { font-weight: 700; }
-  .li-name { font-weight: 600; color: #0f0020; font-size: 10pt; }
+  .li-name { font-weight: 600; color: #0C2A43; font-size: 10pt; }
   .li-desc { font-size: 8.5pt; color: #999; margin-top: 2px; }
 
   /* ── Totals ── */
@@ -116,7 +116,7 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
 
   .notes { background: #f0fdf4; border-left: 3px solid #16a34a; padding: 12px 16px; border-radius: 0 6px 6px 0; font-size: 9pt; color: #14532d; margin-bottom: 20px; line-height: 1.7; }
 
-  .footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #ede8fb; display: flex; justify-content: space-between; align-items: center; font-size: 8pt; color: #bbb; }
+  .footer { margin-top: auto; padding-top: 20px; border-top: 1px solid #E4F4FD; display: flex; justify-content: space-between; align-items: center; font-size: 8pt; color: #bbb; }
 </style>
 </head>
 <body>

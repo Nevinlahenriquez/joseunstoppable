@@ -991,7 +991,7 @@ function applyVars(text: string, name: string, title?: string): string {
 
 function messageToHtml(message: string): string {
   const esc = (t: string) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  const link = (t: string) => t.replace(/https?:\/\/[^\s<]+[^\s<.,;:!?)]/g, u => `<a href="${u}" style="color:#7C3AED">${u}</a>`)
+  const link = (t: string) => t.replace(/https?:\/\/[^\s<]+[^\s<.,;:!?)]/g, u => `<a href="${u}" style="color:#0E71AC">${u}</a>`)
   return message.trim().split(/\n{2,}/)
     .map(para => `<p style="margin:0 0 14px">${link(esc(para)).replace(/\n/g, '<br>')}</p>`)
     .join('')

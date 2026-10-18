@@ -24,12 +24,12 @@ export function LifecycleFlow({ steps }: { steps: LifecycleStep[] }) {
   const allDone = firstPending === -1
 
   return (
-    <div style={{ background: '#fff', border: '1px solid #ede8fb', borderRadius: 16, padding: '20px 24px', overflowX: 'auto' }}>
+    <div style={{ background: '#fff', border: '1px solid #E4F4FD', borderRadius: 16, padding: '20px 24px', overflowX: 'auto' }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', minWidth: 'min-content' }}>
         {steps.map((s, i) => {
           const done = !!s.at
           const current = !done && i === firstPending
-          const color = done ? '#16a34a' : current ? '#7c3aed' : '#cbb8e8'
+          const color = done ? '#16a34a' : current ? '#0E71AC' : '#cbb8e8'
           const isLast = i === steps.length - 1
 
           const connectorDone = !!steps[i + 1]?.at || (done && allDone)
@@ -40,9 +40,9 @@ export function LifecycleFlow({ steps }: { steps: LifecycleStep[] }) {
                 <div style={{
                   width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: done ? '#16a34a' : current ? '#f5f0ff' : '#f6f4fb',
-                  border: current ? '2px solid #7c3aed' : done ? 'none' : '2px solid #ece6f7',
+                  border: current ? '2px solid #0E71AC' : done ? 'none' : '2px solid #ece6f7',
                   color: done ? '#fff' : color, fontSize: 16,
-                  boxShadow: current ? '0 0 0 4px rgba(124,77,214,.12)' : 'none',
+                  boxShadow: current ? '0 0 0 4px rgba(14,113,172,.12)' : 'none',
                 }}>
                   <i className={`ti ${done ? 'ti-check' : s.icon}`} />
                 </div>

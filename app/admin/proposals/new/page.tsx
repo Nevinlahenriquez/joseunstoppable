@@ -376,7 +376,7 @@ export default function NewProposalPage() {
                         return (
                           <button key={o.id} type="button" onClick={() => pickOffer(o)}
                             style={{ textAlign: 'left', padding: '18px 20px', background: 'var(--os-card)', border: '2px solid var(--os-line)', borderRadius: 14, cursor: 'pointer', transition: 'all .15s' }}
-                            onMouseEnter={e => { e.currentTarget.style.borderColor = cat.color; e.currentTarget.style.background = '#faf8ff' }}
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = cat.color; e.currentTarget.style.background = '#F1F8FD' }}
                             onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--os-line)'; e.currentTarget.style.background = '#fff' }}>
                             <div style={{ width: 38, height: 38, borderRadius: 10, background: cat.color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, marginBottom: 10 }}>{cat.icon}</div>
                             <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-text)', marginBottom: 3 }}>{o.name}</div>
@@ -400,7 +400,7 @@ export default function NewProposalPage() {
             {TEMPLATES.map(t => (
               <button key={t.id} type="button" onClick={() => pickTemplate(t)}
                 style={{ textAlign: 'left', padding: '18px 20px', background: 'var(--os-card)', border: '2px solid var(--os-line)', borderRadius: 14, cursor: 'pointer', transition: 'all .15s' }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = t.color; e.currentTarget.style.background = '#faf8ff' }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = t.color; e.currentTarget.style.background = '#F1F8FD' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--os-line)'; e.currentTarget.style.background = '#fff' }}>
                 <div style={{ width: 38, height: 38, borderRadius: 10, background: t.color + '18', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10 }}>
                   <i className={`ti ${t.icon}`} style={{ fontSize: 18, color: t.color }} />

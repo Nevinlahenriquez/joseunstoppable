@@ -138,9 +138,9 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
       {downloading && (
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none' }}>
           {}
-          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(124,58,237,0.15)' }}>
+          <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(14,113,172,0.15)' }}>
             <div style={{
-              height: '100%', background: 'linear-gradient(90deg, #7c3aed, #a855f7, #7c3aed)',
+              height: '100%', background: 'linear-gradient(90deg, #0E71AC, #a855f7, #0E71AC)',
               backgroundSize: '200% 100%',
               animation: 'pdfSlide 1.4s ease-in-out infinite',
               width: '60%',
@@ -296,14 +296,14 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
             {}
             <div className="no-break inv-bill" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 36 }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 10 }}>Bill To</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>Bill To</div>
                 <div style={{ fontWeight: 700, fontSize: 14, color: '#12002a', marginBottom: 2 }}>{invoice.clientName}</div>
                 {invoice.clientCompany && <div style={{ fontWeight: 600, fontSize: 13, color: '#333' }}>{invoice.clientCompany}</div>}
                 {invoice.clientAddress && <div style={{ fontSize: 12.5, color: '#666', whiteSpace: 'pre-line', marginTop: 4, lineHeight: 1.7 }}>{invoice.clientAddress}</div>}
               </div>
               {(invoice.clientEmail || invoice.clientPhone) && (
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 10 }}>Contact</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>Contact</div>
                   {invoice.clientEmail && <div style={{ fontSize: 12.5, color: '#555', lineHeight: 1.8 }}>{invoice.clientEmail}</div>}
                   {invoice.clientPhone && <div style={{ fontSize: 12.5, color: '#555' }}>{invoice.clientPhone}</div>}
                   {invoice.clientVat && <div style={{ fontSize: 12.5, color: '#555' }}>VAT ID: {invoice.clientVat}</div>}
@@ -322,18 +322,18 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
             {proposal && (
               <>
                 {proposal.intro && (
-                  <div className="no-break" style={{ marginBottom: 28, padding: '20px 24px', background: '#faf8ff', border: '1px solid #ede8fb', borderLeft: '4px solid #7c3aed', borderRadius: 4, fontSize: 13, color: '#333', lineHeight: 1.9, whiteSpace: 'pre-line' }}>
+                  <div className="no-break" style={{ marginBottom: 28, padding: '20px 24px', background: '#F1F8FD', border: '1px solid #E4F4FD', borderLeft: '4px solid #0E71AC', borderRadius: 4, fontSize: 13, color: '#333', lineHeight: 1.9, whiteSpace: 'pre-line' }}>
                     {proposal.intro}
                   </div>
                 )}
 
                 {proposal.services.length > 0 && (
                   <div className="no-break" style={{ marginBottom: 24 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 12 }}>Services Included</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Services Included</div>
                     <ul style={{ margin: 0, padding: '0 0 0 18px', listStyle: 'none' }}>
                       {proposal.services.map((s, i) => (
                         <li key={i} style={{ fontSize: 13, color: '#444', lineHeight: 1.8, paddingLeft: 4, position: 'relative' }}>
-                          <span style={{ position: 'absolute', left: -14, color: '#7c3aed', fontWeight: 900 }}>·</span>
+                          <span style={{ position: 'absolute', left: -14, color: '#0E71AC', fontWeight: 900 }}>·</span>
                           {s}
                         </li>
                       ))}
@@ -343,11 +343,11 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
                 {proposal.deliverables.length > 0 && (
                   <div className="no-break" style={{ marginBottom: 28 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 12 }}>What You Walk Away With</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>What You Walk Away With</div>
                     <ul style={{ margin: 0, padding: '0 0 0 18px', listStyle: 'none' }}>
                       {proposal.deliverables.map((d, i) => (
                         <li key={i} style={{ fontSize: 13, color: '#444', lineHeight: 1.8, paddingLeft: 4, position: 'relative' }}>
-                          <span style={{ position: 'absolute', left: -14, color: '#7c3aed', fontWeight: 900 }}>·</span>
+                          <span style={{ position: 'absolute', left: -14, color: '#0E71AC', fontWeight: 900 }}>·</span>
                           {d}
                         </li>
                       ))}
@@ -357,11 +357,11 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
                 {proposal.paymentSchedule.length > 1 && (
                   <div className="no-break" style={{ marginBottom: 28 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 12 }}>Full Engagement Roadmap</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Full Engagement Roadmap</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
                       {proposal.paymentSchedule.map((phase, i) => (
-                        <div key={i} style={{ background: i === (invoice as Invoice).phaseIndex ? '#12002a' : '#faf8ff', border: `1px solid ${i === (invoice as Invoice).phaseIndex ? '#12002a' : '#ede8fb'}`, borderRadius: 8, padding: '12px 14px' }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: i === (invoice as Invoice).phaseIndex ? '#c4b5fd' : '#7c3aed', marginBottom: 4 }}>{phase.label}</div>
+                        <div key={i} style={{ background: i === (invoice as Invoice).phaseIndex ? '#12002a' : '#F1F8FD', border: `1px solid ${i === (invoice as Invoice).phaseIndex ? '#12002a' : '#E4F4FD'}`, borderRadius: 8, padding: '12px 14px' }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: i === (invoice as Invoice).phaseIndex ? '#c4b5fd' : '#0E71AC', marginBottom: 4 }}>{phase.label}</div>
                           <div style={{ fontSize: 16, fontWeight: 800, color: i === (invoice as Invoice).phaseIndex ? '#fff' : '#12002a' }}>{fmt(phase.amount, proposal.currency)}<span style={{ fontSize: 11, fontWeight: 500, opacity: 0.6 }}>/mo</span></div>
                           {phase.note && <div style={{ fontSize: 11, color: i === (invoice as Invoice).phaseIndex ? '#c4b5fd' : '#999', marginTop: 5, lineHeight: 1.5 }}>{phase.note}</div>}
                         </div>
@@ -372,7 +372,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                 )}
 
                 <div style={{ borderTop: '2px solid #12002a', marginBottom: 24 }} />
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 12 }}>This Invoice</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>This Invoice</div>
               </>
             )}
 
@@ -390,7 +390,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
               </thead>
               <tbody>
                 {invoice.lineItems.map((li, i) => (
-                  <tr key={li.id} className="no-break" style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#faf8ff' }}>
+                  <tr key={li.id} className="no-break" style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
                     <td style={{ padding: '14px 14px' }}>
                       <div style={{ fontWeight: 700, fontSize: 13.5, color: '#12002a' }}>{li.name}</div>
                       {li.description && <div style={{ fontSize: 12, color: '#888', marginTop: 4, lineHeight: 1.6 }}>{li.description}</div>}
@@ -437,14 +437,14 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
             {}
             {invoice.notes && (
-              <div className="no-break" style={{ marginBottom: 32, padding: '20px 24px', background: '#faf8ff', border: '1px solid #ede8fb', borderLeft: '4px solid #7c3aed', borderRadius: 4, fontSize: 13.5, color: '#333', lineHeight: 1.85, fontStyle: 'italic' }}>
+              <div className="no-break" style={{ marginBottom: 32, padding: '20px 24px', background: '#F1F8FD', border: '1px solid #E4F4FD', borderLeft: '4px solid #0E71AC', borderRadius: 4, fontSize: 13.5, color: '#333', lineHeight: 1.85, fontStyle: 'italic' }}>
                 {invoice.notes}
               </div>
             )}
 
             {}
             <div className="no-break" style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 16 }}>Payment Methods</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 16 }}>Payment Methods</div>
 
               {}
               {}
@@ -479,7 +479,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
               {}
               {invoice.cardPayment !== false && (
-              <div className="no-print" style={{ marginBottom: 20, background: 'linear-gradient(135deg,#f5f0ff,#ede8fb)', border: '1px solid #d9cef7', borderRadius: 10, padding: '20px 22px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="no-print" style={{ marginBottom: 20, background: 'linear-gradient(135deg,#f5f0ff,#E4F4FD)', border: '1px solid #d9cef7', borderRadius: 10, padding: '20px 22px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <div style={{ fontSize: 13.5, fontWeight: 700, color: '#12002a', marginBottom: 3 }}>Pay by card, instantly</div>
                   <div style={{ fontSize: 12, color: '#5b5470' }}>Secure checkout by Stripe. No bank details to copy.</div>
@@ -515,7 +515,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                 return (
               <div className="inv-pay-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 20 }}>
                 {wants('wise') && (
-                <div style={{ background: '#faf8ff', border: '1px solid #ede8fb', borderRadius: 8, padding: '18px 20px' }}>
+                <div style={{ background: '#F1F8FD', border: '1px solid #E4F4FD', borderRadius: 8, padding: '18px 20px' }}>
                   <div style={{ fontSize: 11, fontWeight: 700, color: '#12002a', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Bank transfer</div>
                   {}
                   <div style={{ fontSize: 12, color: '#555', lineHeight: 1.9 }}>
@@ -541,7 +541,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
             {}
             <div className="no-break">
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 14 }}>Terms & Conditions</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>Terms & Conditions</div>
               <div style={{ fontSize: 12, color: '#666', lineHeight: 1.95 }}>
                 <p style={{ margin: '0 0 10px' }}><strong style={{ color: '#333' }}>Payment Policy:</strong> Net 7. Payment is due within 7 days of the invoice date. Late payments incur a <strong style={{ color: '#333' }}>2% monthly interest fee</strong> on the outstanding balance. For monthly retainers, failure to communicate or pay within 7 days may result in immediate suspension of services.</p>
                 {}
@@ -551,7 +551,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
             </div>
 
             {}
-            <div className="inv-foot" style={{ marginTop: 48, paddingTop: 20, borderTop: '1px solid #ede8fb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="inv-foot" style={{ marginTop: 48, paddingTop: 20, borderTop: '1px solid #E4F4FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontSize: 11, color: '#bbb' }}>
                 <div style={{ fontWeight: 600, color: '#888', marginBottom: 2 }}>José Lorenso Antonio Unstoppable</div>
                 <div>{BIZ.email} · {BIZ.website}</div>

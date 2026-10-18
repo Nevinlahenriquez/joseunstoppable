@@ -176,7 +176,7 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
           <div className="os-page-title">
             Edit Proposal
             {(proposal.version ?? 1) > 1 && (
-              <span style={{ marginLeft: 10, background: '#7b2fff', color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, letterSpacing: 0.5 }}>
+              <span style={{ marginLeft: 10, background: '#0E71AC', color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, letterSpacing: 0.5 }}>
                 v{proposal.version}
               </span>
             )}

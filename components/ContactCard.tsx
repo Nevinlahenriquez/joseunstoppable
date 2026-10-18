@@ -79,7 +79,7 @@ function initials(name: string) {
   return name.split(' ').slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?'
 }
 function avatarColor(id: string) {
-  const colors = ['#7b2fff', '#0891b2', '#d97706', '#16a34a', '#db2777', '#9333ea']
+  const colors = ['#0E71AC', '#0891b2', '#d97706', '#16a34a', '#db2777', '#0E71AC']
   let h = 0
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0
   return colors[h % colors.length]

@@ -178,7 +178,7 @@ export const STATES_BY_STAGE: Record<PersonStatus, StateOption[]> = {
   client: [
     S('active', 'Active', 'Delivering now', '#1f8a5b'),
     S('paused', 'Paused', 'Still a client, work on hold', '#e8a516'),
-    S('upsell', 'Upsell', 'Ready for the next level', '#7c4dd6'),
+    S('upsell', 'Upsell', 'Ready for the next level', '#0E71AC'),
   ],
   'past-client': [
     S('reengage', 'Re-engage', 'Worth reaching out to again', '#0891b2'),

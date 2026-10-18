@@ -53,8 +53,8 @@ export async function POST(req: NextRequest) {
   </td></tr>
 
   <!-- Body -->
-  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px;border:1px solid #ede8fb;border-top:none;border-radius:0 0 12px 12px;">
-    <p style="margin:0 0 20px;font-size:15px;color:#0f0020;">Hi ${firstName},</p>
+  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px;border:1px solid #E4F4FD;border-top:none;border-radius:0 0 12px 12px;">
+    <p style="margin:0 0 20px;font-size:15px;color:#0C2A43;">Hi ${firstName},</p>
     <p style="margin:0 0 20px;font-size:14.5px;color:#4a4359;line-height:1.75;">
       I have put together a proposal for ${eCompany ? `<strong>${eCompany}</strong>` : 'you'}, <strong>${eTitle}</strong>.
       The full scope, the payment schedule and the terms are on the page behind the button.
@@ -65,13 +65,13 @@ export async function POST(req: NextRequest) {
 
     <!-- CTA -->
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:26px auto 30px;">
-      <tr><td bgcolor="#7b2fff" style="background-color:#7b2fff;border-radius:100px;">
+      <tr><td bgcolor="#0E71AC" style="background-color:#0E71AC;border-radius:100px;">
         <a href="${signingLink}" class="e-cta" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:16px 36px;border-radius:100px;text-decoration:none;letter-spacing:0.2px;">Review and sign the proposal</a>
       </td></tr>
     </table>
 
     <p style="font-size:13px;color:#5f5670;margin:0 0 6px;">Or copy this link into your browser:</p>
-    <p style="font-size:12.5px;color:#7b2fff;margin:0 0 28px;word-break:break-all;">${signingLink}</p>
+    <p style="font-size:12.5px;color:#0E71AC;margin:0 0 28px;word-break:break-all;">${signingLink}</p>
 
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #f0eafc;">
       <tr><td style="padding-top:20px;">

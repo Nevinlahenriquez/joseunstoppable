@@ -43,7 +43,7 @@ export function OfferLadderEditor() {
     return `${t.color} ${start}deg ${end}deg`
   }).join(', ')
 
-  const sel: React.CSSProperties = { border: '1.5px solid var(--os-line)', borderRadius: 8, padding: '7px 10px', fontSize: 12.5, color: '#1c1133', background: 'var(--os-card)', outline: 'none', cursor: 'pointer' }
+  const sel: React.CSSProperties = { border: '1.5px solid var(--os-line)', borderRadius: 8, padding: '7px 10px', fontSize: 12.5, color: '#0C2A43', background: 'var(--os-card)', outline: 'none', cursor: 'pointer' }
 
   return (
     <>
@@ -72,14 +72,14 @@ export function OfferLadderEditor() {
 
         {}
         <div style={{ background: 'var(--os-card)', border: '1px solid rgba(34,27,61,.08)', borderRadius: 16, padding: '18px 20px' }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: '#1c1133', marginBottom: 14 }}>People by area</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: '#0C2A43', marginBottom: 14 }}>People by area</div>
           {totalPeople === 0 ? (
             <div style={{ color: 'var(--os-text-faint)', fontSize: 13, padding: '30px 0', textAlign: 'center' }}>No leads tagged to an offer yet. As deals come in and get tagged to your offers, they show up here by rung.</div>
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
               <div style={{ width: 120, height: 120, borderRadius: '50%', background: `conic-gradient(${slices})`, flexShrink: 0, position: 'relative' }}>
                 <div style={{ position: 'absolute', inset: 22, background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', borderRadius: '50%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: '#1c1133', lineHeight: 1 }}>{totalPeople}</div>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: '#0C2A43', lineHeight: 1 }}>{totalPeople}</div>
                   <div style={{ fontSize: 9.5, color: 'var(--os-text-faint)', textTransform: 'uppercase', letterSpacing: 0.5 }}>people</div>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export function OfferLadderEditor() {
                   <div key={t.key} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5 }}>
                     <span style={{ width: 10, height: 10, borderRadius: 3, background: t.color, flexShrink: 0 }} />
                     <span style={{ flex: 1, color: '#4b5563', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.label}</span>
-                    <span style={{ fontWeight: 700, color: '#1c1133' }}>{counts[t.key]}</span>
+                    <span style={{ fontWeight: 700, color: '#0C2A43' }}>{counts[t.key]}</span>
                   </div>
                 ))}
               </div>
@@ -113,7 +113,7 @@ export function OfferLadderEditor() {
             <div key={t.key} className="os-card" style={{ padding: 0, overflow: 'hidden' }}>
               <button onClick={() => setOpen(o => ({ ...o, [t.key]: !isOpen }))} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
                 <span style={{ width: 8, height: 28, borderRadius: 4, background: t.color, flexShrink: 0 }} />
-                <span style={{ fontWeight: 800, fontSize: 13.5, color: '#1c1133', flex: 1 }}>{t.label}</span>
+                <span style={{ fontWeight: 800, fontSize: 13.5, color: '#0C2A43', flex: 1 }}>{t.label}</span>
                 <span style={{ fontSize: 11.5, color: 'var(--os-text-faint)' }}>{placed.length} offer{placed.length === 1 ? '' : 's'}</span>
                 <i className={`ti ti-chevron-${isOpen ? 'up' : 'down'}`} style={{ color: '#c4b5d4', fontSize: 15 }} />
               </button>

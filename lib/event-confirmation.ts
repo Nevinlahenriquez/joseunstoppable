@@ -22,7 +22,7 @@ function defaultConfirmationBody(vars: { name: string; eventTitle: string; date:
 
   const join = vars.joinUrl
     ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:8px auto 24px;">
-  <tr><td bgcolor="#7C3AED" style="background-color:#7C3AED;border-radius:12px;">
+  <tr><td bgcolor="#0E71AC" style="background-color:#0E71AC;border-radius:12px;">
     <a href="${vars.joinUrl}" style="display:inline-block;padding:17px 42px;font-family:Helvetica,Arial,sans-serif;font-size:16.5px;font-weight:800;color:#ffffff;text-decoration:none;border-radius:12px;">Entrar a la llamada</a>
   </td></tr>
 </table>

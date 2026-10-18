@@ -112,7 +112,7 @@ export default function OsDashboard() {
   const signedProposals = proposals.filter(p => p.status === 'signed')
 
   const statCards = [
-    { label: 'Total leads',    value: String(leads.filter(l => !isLikelySpam(l)).length), note: 'All time, spam excluded', icon: 'applications' as const, bg: 'rgba(124,77,214,.12)' },
+    { label: 'Total leads',    value: String(leads.filter(l => !isLikelySpam(l)).length), note: 'All time, spam excluded', icon: 'applications' as const, bg: 'rgba(14,113,172,.12)' },
     { label: 'Active deals',   value: String(activeDeals.length),     note: 'In pipeline',        icon: 'hot' as const, bg: 'rgba(232,165,22,.16)' },
     { label: 'Pipeline value', value: fmt(pipelineValue),             note: 'USD',                icon: 'money' as const, bg: 'rgba(31,138,91,.14)'  },
     { label: 'Signed',         value: String(signedProposals.length), note: 'Proposals closed',   icon: 'signed' as const, bg: 'rgba(224,104,63,.14)' },
@@ -124,7 +124,7 @@ export default function OsDashboard() {
     .slice(0, 3)
     .map((d, i) => {
       const avatarColors = [
-        'linear-gradient(150deg,var(--os-bad),#eaa92e)',
+        'linear-gradient(150deg,var(--os-bad),#2A98D6)',
         'linear-gradient(150deg,var(--os-accent),#b06fd6)',
         'linear-gradient(150deg,var(--os-good),var(--os-accent))',
       ]
@@ -135,7 +135,7 @@ export default function OsDashboard() {
   const stBadge = (s: string) =>
     s === 'signed' ? { sc: 'var(--os-good)', sbg: 'rgba(31,138,91,.12)' } :
     s === 'sent'   ? { sc: 'var(--os-warn)', sbg: 'rgba(232,165,22,.16)' } :
-                     { sc: 'var(--os-accent)', sbg: 'rgba(124,77,214,.12)' }
+                     { sc: 'var(--os-accent)', sbg: 'rgba(14,113,172,.12)' }
 
   const realLeads = leads.filter(l => !isLikelySpam(l))
   const hiddenSpam = leads.length - realLeads.length
@@ -144,7 +144,7 @@ export default function OsDashboard() {
 
   const leadAvatarColors = [
     'linear-gradient(150deg,var(--os-accent),#b06fd6)',
-    'linear-gradient(150deg,var(--os-bad),#eaa92e)',
+    'linear-gradient(150deg,var(--os-bad),#2A98D6)',
     'linear-gradient(150deg,var(--os-good),var(--os-accent))',
     'linear-gradient(150deg,var(--os-warn),var(--os-bad))',
     'linear-gradient(150deg,var(--os-accent),var(--os-accent))',
@@ -272,7 +272,7 @@ export default function OsDashboard() {
                       >{lead.name}</div>
                       <div style={{ fontSize: 12, color: 'var(--os-text-faint)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><EmailText email={lead.email} /></div>
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: 'rgba(124,77,214,.1)', color: 'var(--os-accent)' }}>
+                    <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 20, background: 'rgba(14,113,172,.1)', color: 'var(--os-accent)' }}>
                       {lead.source || 'website'}
                     </span>
                   </div>

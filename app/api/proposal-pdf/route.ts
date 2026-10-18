@@ -54,7 +54,7 @@ body {
   font-weight: 800;
   letter-spacing: 2.5px;
   text-transform: uppercase;
-  color: #7c3aed;
+  color: #0E71AC;
   margin-bottom: 8px;
 }
 .section-title {
@@ -75,7 +75,7 @@ body {
 
 hr.rule {
   border: none;
-  border-top: 1px solid #ede8fb;
+  border-top: 1px solid #E4F4FD;
   margin: 20px 0;
 }
 
@@ -91,7 +91,7 @@ hr.rule {
 .brand-name { font-size: 14pt; font-weight: 800; color: #212A4D; margin-bottom: 5px; }
 .brand-meta { font-size: 8.5pt; color: #888; line-height: 1.8; }
 .doc-type { text-align: right; }
-.doc-label { font-size: 7pt; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #7c3aed; margin-bottom: 4px; }
+.doc-label { font-size: 7pt; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #0E71AC; margin-bottom: 4px; }
 .doc-ref { font-size: 18pt; font-weight: 800; color: #212A4D; line-height: 1; }
 
 /* ── Meta bar ── */
@@ -99,12 +99,12 @@ hr.rule {
   display: flex;
   gap: 0;
   margin-bottom: 28px;
-  background: #faf8ff;
+  background: #F1F8FD;
   border-radius: 10px;
   padding: 18px 20px;
 }
 .meta-col { flex: 1; }
-.meta-col + .meta-col { padding-left: 22px; border-left: 1px solid #ede8fb; margin-left: 22px; }
+.meta-col + .meta-col { padding-left: 22px; border-left: 1px solid #E4F4FD; margin-left: 22px; }
 .meta-label { font-size: 7pt; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; color: #bbb; margin-bottom: 5px; }
 .meta-value { font-size: 10.5pt; font-weight: 700; color: #212A4D; line-height: 1.4; }
 .meta-sub { font-size: 9pt; color: #888; margin-top: 2px; }
@@ -140,7 +140,7 @@ hr.rule {
   flex-shrink: 0;
   width: 20px;
   height: 20px;
-  background: #7c3aed;
+  background: #0E71AC;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -164,7 +164,7 @@ hr.rule {
 }
 .check-icon {
   width: 18px; height: 18px; flex-shrink: 0;
-  background: #7c3aed;
+  background: #0E71AC;
   border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-size: 8pt; color: #fff; font-weight: 700; line-height: 1;
@@ -195,8 +195,8 @@ hr.rule {
 
 /* ── Terms / bank boxes ── */
 .terms-box {
-  background: #faf8ff;
-  border-left: 3px solid #7c3aed;
+  background: #F1F8FD;
+  border-left: 3px solid #0E71AC;
   border-radius: 0 8px 8px 0;
   padding: 12px 16px;
   font-size: 9pt;
@@ -205,12 +205,12 @@ hr.rule {
   margin-bottom: 16px;
 }
 .bank-box {
-  border: 1px solid #ede8fb;
+  border: 1px solid #E4F4FD;
   border-radius: 10px;
   padding: 14px 18px;
   margin-bottom: 16px;
 }
-.bank-box-title { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7c3aed; margin-bottom: 8px; }
+.bank-box-title { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #0E71AC; margin-bottom: 8px; }
 .bank-box-body { font-size: 9pt; color: #555; line-height: 1.9; }
 
 /* ── Signature ── */
@@ -223,13 +223,13 @@ hr.rule {
 .sig-line { border-top: 1px solid #212A4D; padding-top: 6px; font-size: 8.5pt; color: #999; }
 
 .sig-box {
-  background: #faf8ff;
+  background: #F1F8FD;
   border: 1.5px solid #d4b8ff;
   border-radius: 12px;
   padding: 20px 24px;
   margin-bottom: 20px;
 }
-.sig-box-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7c3aed; margin-bottom: 10px; }
+.sig-box-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #0E71AC; margin-bottom: 10px; }
 .sig-img { height: 72px; display: block; margin-bottom: 10px; }
 .sig-box-cursive { font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 26pt; color: #212A4D; margin-bottom: 8px; line-height: 1.1; }
 .sig-box-name { font-size: 11pt; font-weight: 700; color: #212A4D; margin-bottom: 3px; }
@@ -239,7 +239,7 @@ hr.rule {
 .page-footer {
   margin-top: 32px;
   padding-top: 14px;
-  border-top: 1px solid #ede8fb;
+  border-top: 1px solid #E4F4FD;
   display: flex;
   justify-content: space-between;
   font-size: 8pt;
@@ -349,7 +349,7 @@ function buildProposalHtml(p: Proposal & { signerSignature?: string }, signed: b
     </div>
     <div class="meta-col">
       <div class="meta-label">${results ? L('Payment', 'Pago') : 'Total Value'}</div>
-      <div class="meta-value" style="color:#7c3aed">${results ? (capped ? L('By results, max ', 'Por resultados, máx. ') + fmt(cap, currency) : fmt(flatFee, currency) + L(' per new client', ' por cliente nuevo')) : fmt(p.total, currency)}</div>
+      <div class="meta-value" style="color:#0E71AC">${results ? (capped ? L('By results, max ', 'Por resultados, máx. ') + fmt(cap, currency) : fmt(flatFee, currency) + L(' per new client', ' por cliente nuevo')) : fmt(p.total, currency)}</div>
     </div>
   </div>
 

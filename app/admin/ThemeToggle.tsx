@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 export const OS_THEME_KEY = 'ju-os-theme'
 
-export const THEME_BOOT_SCRIPT = `(function(){try{var t=localStorage.getItem('${OS_THEME_KEY}');if(t!=='dark')document.documentElement.setAttribute('data-os-theme','light')}catch(e){document.documentElement.setAttribute('data-os-theme','light')}})()`
+export const THEME_BOOT_SCRIPT = `document.documentElement.setAttribute('data-os-theme','light')`
 
 export default function ThemeToggle({ variant = 'icon' }: { variant?: 'icon' | 'row' }) {
   const [light, setLight] = useState(true)

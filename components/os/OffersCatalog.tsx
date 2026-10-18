@@ -12,7 +12,7 @@ const ACCENT: Record<OfferCategory, string> = {
   programs: 'var(--os-warn)',
   coaching: '#0891b2',
   communication: 'var(--os-bad)',
-  premium: '#1c1133',
+  premium: '#0C2A43',
 }
 
 const ICON: Record<OfferCategory, string> = {

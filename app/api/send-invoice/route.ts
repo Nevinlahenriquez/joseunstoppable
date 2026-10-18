@@ -44,12 +44,12 @@ export async function POST(req: NextRequest) {
     const lineRows = items.map(li => `
       <tr>
         <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;font-size:13.5px;">
-          <div style="font-weight:600;color:#0f0020;">${escapeHtml(scrubClientCopy(li.name) || 'Service')}</div>
+          <div style="font-weight:600;color:#0C2A43;">${escapeHtml(scrubClientCopy(li.name) || 'Service')}</div>
           ${li.description ? `<div style="font-size:12px;color:#7b7288;margin-top:2px;">${escapeHtml(scrubClientCopy(li.description))}</div>` : ''}
         </td>
         <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;text-align:center;font-size:13.5px;color:#5f5670;">${escapeHtml(String(li.quantity ?? 1))}</td>
         <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;text-align:right;font-size:13.5px;color:#5f5670;">${fmt(Number(li.price) || 0)}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;text-align:right;font-size:13.5px;font-weight:600;color:#0f0020;">${fmt((Number(li.quantity) || 0) * (Number(li.price) || 0))}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;text-align:right;font-size:13.5px;font-weight:600;color:#0C2A43;">${fmt((Number(li.quantity) || 0) * (Number(li.price) || 0))}</td>
       </tr>`).join('')
 
     const card = `
@@ -78,11 +78,11 @@ export async function POST(req: NextRequest) {
   </td></tr>
 
   <!-- Body -->
-  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px;border:1px solid #ede8fb;border-top:none;border-radius:0 0 12px 12px;">
+  <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px;border:1px solid #E4F4FD;border-top:none;border-radius:0 0 12px 12px;">
     <!-- Bill to -->
     <div style="margin-bottom:28px;">
       <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8b839a;margin-bottom:6px;">Bill To</div>
-      <div style="font-weight:700;font-size:15px;color:#0f0020;">${eClientName}${clientCompany ? ` &middot; ${eClientCompany}` : ''}</div>
+      <div style="font-weight:700;font-size:15px;color:#0C2A43;">${eClientName}${clientCompany ? ` &middot; ${eClientCompany}` : ''}</div>
       <div style="font-size:13px;color:#5f5670;margin-top:2px;">${eClientEmail}</div>
     </div>
 
@@ -123,11 +123,11 @@ export async function POST(req: NextRequest) {
       </tr>
     </table>
 
-    ${cleanNotes ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;"><tr><td bgcolor="#faf8ff" style="background-color:#faf8ff;border-left:3px solid #7C3AED;padding:14px 16px;border-radius:0 8px 8px 0;font-size:13px;color:#5f5670;">${eNotes}</td></tr></table>` : ''}
+    ${cleanNotes ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom:24px;"><tr><td bgcolor="#F1F8FD" style="background-color:#F1F8FD;border-left:3px solid #0E71AC;padding:14px 16px;border-radius:0 8px 8px 0;font-size:13px;color:#5f5670;">${eNotes}</td></tr></table>` : ''}
 
     <!-- CTA -->
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 28px;">
-      <tr><td bgcolor="#7C3AED" style="background-color:#7C3AED;border-radius:100px;">
+      <tr><td bgcolor="#0E71AC" style="background-color:#0E71AC;border-radius:100px;">
         <a href="${SITE_URL}/invoice/${encodeURIComponent(String(invoiceId))}" class="e-cta" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:15px 32px;border-radius:100px;text-decoration:none;">View and pay invoice</a>
       </td></tr>
     </table>

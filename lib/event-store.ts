@@ -150,12 +150,12 @@ const DEFAULT_CONFIRMATION = `<div style="font-family:Inter,Arial,sans-serif;max
     <div style="color:#a855f7;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">José Unstoppable</div>
     <div style="color:#fff;font-size:22px;font-weight:900">{{eventTitle}}</div>
   </div>
-  <div style="background:#fff;padding:36px 40px;border:1px solid #ede8fb">
+  <div style="background:#fff;padding:36px 40px;border:1px solid #E4F4FD">
     <p style="color:#12002a;font-size:16px;margin:0 0 16px">Hi {{name}},</p>
     <p style="color:#444;line-height:1.7;margin:0 0 20px">You're in! Your spot for <strong>{{eventTitle}}</strong> is confirmed. We're so excited to have you.</p>
-    <div style="background:#faf8ff;border:2px solid #7c3aed;border-radius:12px;padding:20px 24px;margin:24px 0;text-align:center">
+    <div style="background:#F1F8FD;border:2px solid #0E71AC;border-radius:12px;padding:20px 24px;margin:24px 0;text-align:center">
       <div style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Your Ticket Code</div>
-      <div style="color:#7c3aed;font-size:28px;font-weight:900;letter-spacing:3px">{{ticketCode}}</div>
+      <div style="color:#0E71AC;font-size:28px;font-weight:900;letter-spacing:3px">{{ticketCode}}</div>
       <div style="color:#aaa;font-size:11px;margin-top:6px">Present this at the event</div>
     </div>
     <table style="width:100%;border-collapse:collapse;margin:20px 0">
@@ -166,8 +166,8 @@ const DEFAULT_CONFIRMATION = `<div style="font-family:Inter,Arial,sans-serif;max
     <p style="color:#444;line-height:1.7;margin:0 0 20px">If you have any questions before the event, just reply to this email and we'll get back to you.</p>
     <p style="color:#444;margin:0">With good vibes,<br><strong style="color:#12002a">José</strong></p>
   </div>
-  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #ede8fb;border-top:none">
-    <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#7c3aed;text-decoration:none">hola@joseunstoppable.com</a></div>
+  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
+    <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#0E71AC;text-decoration:none">hola@joseunstoppable.com</a></div>
   </div>
 </div>`
 
@@ -176,7 +176,7 @@ const DEFAULT_REMINDER = `<div style="font-family:Inter,Arial,sans-serif;max-wid
     <div style="color:#a855f7;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Event Reminder</div>
     <div style="color:#fff;font-size:22px;font-weight:900">{{eventTitle}}</div>
   </div>
-  <div style="background:#fff;padding:36px 40px;border:1px solid #ede8fb">
+  <div style="background:#fff;padding:36px 40px;border:1px solid #E4F4FD">
     <p style="color:#12002a;font-size:16px;margin:0 0 16px">Hi {{name}},</p>
     <p style="color:#444;line-height:1.7;margin:0 0 20px">Just a reminder, <strong>{{eventTitle}}</strong> is coming up soon! We can't wait to see you there.</p>
     <table style="width:100%;border-collapse:collapse;margin:20px 0">
@@ -186,8 +186,8 @@ const DEFAULT_REMINDER = `<div style="font-family:Inter,Arial,sans-serif;max-wid
     </table>
     <p style="color:#444;line-height:1.7;margin:0">See you soon!<br><strong style="color:#12002a">José</strong></p>
   </div>
-  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #ede8fb;border-top:none">
-    <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#7c3aed;text-decoration:none">hola@joseunstoppable.com</a></div>
+  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
+    <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#0E71AC;text-decoration:none">hola@joseunstoppable.com</a></div>
   </div>
 </div>`
 
@@ -196,15 +196,15 @@ const DEFAULT_FOLLOWUP = `<div style="font-family:Inter,Arial,sans-serif;max-wid
     <div style="color:#a855f7;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Thank You</div>
     <div style="color:#fff;font-size:22px;font-weight:900">{{eventTitle}}</div>
   </div>
-  <div style="background:#fff;padding:36px 40px;border:1px solid #ede8fb">
+  <div style="background:#fff;padding:36px 40px;border:1px solid #E4F4FD">
     <p style="color:#12002a;font-size:16px;margin:0 0 16px">Hi {{name}},</p>
     <p style="color:#444;line-height:1.7;margin:0 0 20px">Thank you for joining <strong>{{eventTitle}}</strong>, it was truly incredible to have you there. Your energy and presence made the event special.</p>
     <p style="color:#444;line-height:1.7;margin:0 0 20px">We'd love to hear your thoughts. Hit reply and tell us what you got out of it, what you'd love to see next, or just say hi.</p>
     <p style="color:#444;line-height:1.7;margin:0 0 20px">Stay tuned for more upcoming events and opportunities to José Unstoppable.</p>
     <p style="color:#444;margin:0">With good vibes,<br><strong style="color:#12002a">José</strong></p>
   </div>
-  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #ede8fb;border-top:none">
-    <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#7c3aed;text-decoration:none">hola@joseunstoppable.com</a></div>
+  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
+    <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#0E71AC;text-decoration:none">hola@joseunstoppable.com</a></div>
   </div>
 </div>`
 

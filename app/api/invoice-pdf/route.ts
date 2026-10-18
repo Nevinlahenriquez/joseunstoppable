@@ -87,7 +87,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   }
   .brand-name { font-size: 15pt; font-weight: 800; color: #212A4D; margin-bottom: 6px; }
   .brand-meta { font-size: 8.5pt; color: #666; line-height: 1.8; }
-  .invoice-label { font-size: 8pt; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #7c3aed; margin-bottom: 6px; text-align: right; }
+  .invoice-label { font-size: 8pt; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #0E71AC; margin-bottom: 6px; text-align: right; }
   .invoice-number { font-size: 22pt; font-weight: 800; color: #212A4D; text-align: right; line-height: 1; }
 
   /* ── Meta row ── */
@@ -101,7 +101,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   }
   .meta-box + .meta-box {
     padding-left: 32px;
-    border-left: 1px solid #ede8fb;
+    border-left: 1px solid #E4F4FD;
     margin-left: 32px;
   }
   .meta-label { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #bbb; margin-bottom: 6px; }
@@ -124,7 +124,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   .td-main { padding: 10px 12px; border-bottom: 1px solid #f0eafc; vertical-align: top; }
   .td-num { padding: 10px 12px; border-bottom: 1px solid #f0eafc; text-align: right; vertical-align: top; white-space: nowrap; }
   .td-bold { font-weight: 700; }
-  .li-name { font-weight: 600; color: #0f0020; font-size: 10pt; }
+  .li-name { font-weight: 600; color: #0C2A43; font-size: 10pt; }
   .li-desc { font-size: 8.5pt; color: #999; margin-top: 2px; }
 
   /* ── Totals ── */
@@ -136,16 +136,16 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   }
 
   /* ── Notes ── */
-  .notes { background: #faf8ff; border-left: 3px solid #7c3aed; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 9pt; color: #555; margin-bottom: 20px; line-height: 1.65; }
+  .notes { background: #F1F8FD; border-left: 3px solid #0E71AC; padding: 10px 14px; border-radius: 0 6px 6px 0; font-size: 9pt; color: #555; margin-bottom: 20px; line-height: 1.65; }
 
   /* ── Payment details ── */
   .payment-box {
-    border: 1px solid #ede8fb;
+    border: 1px solid #E4F4FD;
     border-radius: 10px;
     padding: 16px 20px;
     margin-bottom: 20px;
   }
-  .payment-box-title { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #7c3aed; margin-bottom: 10px; }
+  .payment-box-title { font-size: 7.5pt; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #0E71AC; margin-bottom: 10px; }
   .payment-grid { display: flex; gap: 32px; }
   .payment-col { flex: 1; font-size: 9pt; color: #555; line-height: 1.9; }
   .payment-col strong { color: #212A4D; font-weight: 700; display: block; margin-bottom: 2px; }
@@ -154,7 +154,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   .footer {
     margin-top: auto;
     padding-top: 20px;
-    border-top: 1px solid #ede8fb;
+    border-top: 1px solid #E4F4FD;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -209,7 +209,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
     ${proposalRef ? `
     <div class="meta-box">
       <div class="meta-label">Ref. Proposal</div>
-      <div class="meta-value" style="color:#7c3aed">${proposalRef}</div>
+      <div class="meta-value" style="color:#0E71AC">${proposalRef}</div>
     </div>` : ''}
   </div>
 
@@ -256,7 +256,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   <!-- Footer -->
   <div class="footer">
     <div>${BIZ.name} &nbsp;·&nbsp; Invoice #${inv.number} &nbsp;·&nbsp; ${BIZ.email}</div>
-    <div style="color:#7c3aed;font-weight:700">${fmt(balance, currency)} due ${fmtDate(inv.dueDate)}</div>
+    <div style="color:#0E71AC;font-weight:700">${fmt(balance, currency)} due ${fmtDate(inv.dueDate)}</div>
   </div>
 
 </div>

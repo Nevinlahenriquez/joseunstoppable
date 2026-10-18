@@ -163,7 +163,7 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
               </thead>
               <tbody>
                 {(invoice.lineItems ?? []).map((li, i) => (
-                  <tr key={li.id} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#faf8ff' }}>
+                  <tr key={li.id} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
                     <td style={{ padding: '13px 14px' }}>
                       <div style={{ fontWeight: 700, fontSize: 13.5, color: '#12002a' }}>{li.name}</div>
                       {li.description && <div style={{ fontSize: 12, color: '#888', marginTop: 3, lineHeight: 1.6 }}>{li.description}</div>}
@@ -199,7 +199,7 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
             </div>
 
             {}
-            <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid #ede8fb', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11.5, color: '#bbb' }}>
+            <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid #E4F4FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11.5, color: '#bbb' }}>
               <div>{BIZ.name} · Receipt {rNo} · {BIZ.email}</div>
               <div style={{ color: '#16a34a', fontWeight: 700 }}>Paid in full</div>
             </div>

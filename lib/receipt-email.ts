@@ -53,7 +53,7 @@ export function buildReceiptEmail(input: ReceiptEmailInput): { receiptHtml: stri
     <div style="display:inline-block;border:2px solid #4ade80;color:#4ade80;border-radius:8px;padding:5px 16px;font-size:15px;font-weight:800;letter-spacing:3px;">PAID</div>
   </td></tr>
   <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px 32px;border:1px solid #d1fae5;border-top:none;border-radius:0 0 12px 12px;">
-    <h2 style="font-size:22px;font-weight:800;color:#0f0020;margin:0 0 8px;">Payment received, thank you ${firstName}.</h2>
+    <h2 style="font-size:22px;font-weight:800;color:#0C2A43;margin:0 0 8px;">Payment received, thank you ${firstName}.</h2>
     <p style="color:#4a4359;margin:0 0 22px;">This is your official receipt for ${cleanProject ? `<strong>${eProject}</strong>` : `invoice #${eNumber}`}. Keep it for your bookkeeping.</p>
     <table role="presentation" style="width:100%;border-collapse:collapse;font-size:13.5px;margin-bottom:24px;">
   <tr><td style="padding:9px 0;color:#7b7288;border-bottom:1px solid #f0eafc;">Receipt no.</td><td style="padding:9px 0;font-weight:700;color:#241a33;border-bottom:1px solid #f0eafc;text-align:right;">${eRNo}</td></tr>
@@ -79,8 +79,8 @@ export function buildReceiptEmail(input: ReceiptEmailInput): { receiptHtml: stri
     preview: `${clientName || clientEmail}, ${fmt(amountPaid, currency)}`,
     card: `
 <table role="presentation" class="e-wrap" cellpadding="0" cellspacing="0" border="0" width="600" style="width:600px;max-width:600px;">
-  <tr><td bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #ede8fb;border-radius:12px;padding:28px 32px;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#241a33;line-height:1.7;">
-    <h2 style="font-size:20px;color:#0f0020;margin:0 0 16px;">Receipt sent: ${eRNo}</h2>
+  <tr><td bgcolor="#ffffff" style="background-color:#ffffff;border:1px solid #E4F4FD;border-radius:12px;padding:28px 32px;font-family:Helvetica,Arial,sans-serif;font-size:14px;color:#241a33;line-height:1.7;">
+    <h2 style="font-size:20px;color:#0C2A43;margin:0 0 16px;">Receipt sent: ${eRNo}</h2>
     <table role="presentation" style="border-collapse:collapse;font-size:14px;width:100%;">
   ${[
     ['Client', `${eClientName}${clientCompany ? ` / ${eClientCompany}` : ''}`],

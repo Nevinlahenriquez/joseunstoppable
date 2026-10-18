@@ -80,7 +80,7 @@ export default function EventOverview({ event, attendees, goTo }: { event: CrmEv
   const maxSignups = Math.max(1, ...a.byDay.map(d => d.registered))
 
   const tiles = [
-    { icon: 'ti-clock', tint: 'rgba(139,92,246,.14)', color: '#7C3AED', label: before ? (a.daysToGo === 0 ? 'Today' : 'Days to go') : 'Days ago', value: a.daysToGo === null ? 'n/a' : a.daysToGo === 0 ? 'Live' : String(Math.abs(a.daysToGo)) },
+    { icon: 'ti-clock', tint: 'rgba(139,92,246,.14)', color: '#0E71AC', label: before ? (a.daysToGo === 0 ? 'Today' : 'Days to go') : 'Days ago', value: a.daysToGo === null ? 'n/a' : a.daysToGo === 0 ? 'Live' : String(Math.abs(a.daysToGo)) },
     { icon: 'ti-ticket', tint: 'rgba(234,169,46,.16)', color: '#C27C0E', label: isPaid ? 'Paid seats' : 'Signed up', value: `${a.registered}${a.event.capacity ? ` / ${a.event.capacity}` : ''}` },
     { icon: 'ti-cash', tint: 'var(--os-good-soft)', color: 'var(--os-good)', label: 'Ticket revenue', value: money(a.revenue, a.event.currency) },
     { icon: 'ti-eye', tint: 'rgba(59,130,246,.14)', color: '#2563EB', label: 'Page to signup', value: pct(a.visitToSignup) },
@@ -108,7 +108,7 @@ export default function EventOverview({ event, attendees, goTo }: { event: CrmEv
       )}
 
       {}
-      <div style={{ ...card, background: 'linear-gradient(135deg,rgba(124,58,237,.12),rgba(234,169,46,.06))', borderColor: 'rgba(139,92,246,.3)' }}>
+      <div style={{ ...card, background: 'linear-gradient(135deg,rgba(14,113,172,.12),rgba(234,169,46,.06))', borderColor: 'rgba(139,92,246,.3)' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           <div>
             <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--os-text)', display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ color: 'var(--os-accent)', display: 'inline-flex' }}><EvIcon name="ti-sparkles" size={18} /></span> Read on this event</div>

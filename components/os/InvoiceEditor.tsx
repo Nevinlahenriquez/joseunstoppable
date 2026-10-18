@@ -243,7 +243,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
 
   const inp: React.CSSProperties = { border: '1px solid var(--os-line)', borderRadius: 4, padding: '8px 10px', fontSize: 13, color: 'var(--os-text)', outline: 'none', width: '100%', boxSizing: 'border-box', fontFamily: 'Arial, sans-serif' }
   const lbl: React.CSSProperties = { fontSize: 11.5, fontWeight: 700, color: 'var(--os-text-faint)', marginBottom: 5, display: 'block', textTransform: 'uppercase', letterSpacing: 0.4 }
-  const statusColor = invoice?.status === 'paid' ? '#16a34a' : invoice?.status === 'overdue' ? '#dc2626' : invoice?.status === 'sent' ? '#2563eb' : '#7c3aed'
+  const statusColor = invoice?.status === 'paid' ? '#16a34a' : invoice?.status === 'overdue' ? '#dc2626' : invoice?.status === 'sent' ? '#2563eb' : '#0E71AC'
 
   return (
     <div className="os-inv-editor" style={{ maxWidth: 880, margin: '0 auto' }}>
@@ -280,7 +280,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
             <Image src="/icon.png" alt="José Unstoppable" width={64} height={64} style={{ objectFit: 'contain' }} />
           </div>
           <div className="os-inv-meta" style={{ textAlign: 'right' }}>
-            <div className="os-inv-number" style={{ fontSize: 20, fontWeight: 900, color: '#0f0020', marginBottom: 10 }}>Invoice #{displayNumber}</div>
+            <div className="os-inv-number" style={{ fontSize: 20, fontWeight: 900, color: '#0C2A43', marginBottom: 10 }}>Invoice #{displayNumber}</div>
             <div className="os-inv-dates" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 12px', alignItems: 'center', fontSize: 12.5 }}>
               <span style={{ color: '#888' }}>Issue Date:</span>
               <input type="date" value={issueDate} onChange={e => { setIssueDate(e.target.value); setDueDate(addDays(e.target.value, 7)) }} style={{ ...inp, width: 130, padding: '4px 8px', fontSize: 12.5 }} />
@@ -295,8 +295,8 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
         {}
         <div className="os-collapse" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, paddingBottom: 24, marginBottom: 24, borderBottom: '1px solid #eee', fontSize: 12.5, color: '#555', lineHeight: 1.8 }}>
           <div>
-            <div style={{ fontWeight: 700, color: '#0f0020', fontSize: 13, marginBottom: 2 }}>José Unstoppable</div>
-            <div style={{ color: '#0f0020', fontWeight: 500 }}>Unstoppable E-Commerce &amp; Leadership Training</div>
+            <div style={{ fontWeight: 700, color: '#0C2A43', fontSize: 13, marginBottom: 2 }}>José Unstoppable</div>
+            <div style={{ color: '#0C2A43', fontWeight: 500 }}>Unstoppable E-Commerce &amp; Leadership Training</div>
             <div>{process.env.NEXT_PUBLIC_BUSINESS_ADDRESS}</div>
             <div>hola@joseunstoppable.com</div>
             <div>+</div>
@@ -312,7 +312,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
             <label style={{ ...lbl, marginBottom: 0 }}>Customer *</label>
             <div style={{ position: 'relative' }}>
-              <button type="button" onClick={() => { setPickerOpen(o => !o); setSearch('') }} style={{ background: '#f3edff', color: '#7c3aed', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}>
+              <button type="button" onClick={() => { setPickerOpen(o => !o); setSearch('') }} style={{ background: '#f3edff', color: '#0E71AC', border: 'none', borderRadius: 6, padding: '4px 10px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}>
                 {clientName ? 'Change contact' : 'Pick from contacts'}
               </button>
               {pickerOpen && (
@@ -321,7 +321,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
                   <div style={{ maxHeight: 240, overflowY: 'auto' }}>
                     {filtered.map((c, i) => (
                       <button key={i} type="button" onClick={() => pickContact(c)} style={{ display: 'block', width: '100%', textAlign: 'left', background: 'none', border: 'none', borderRadius: 6, padding: '8px 10px', cursor: 'pointer', fontSize: 13 }}>
-                        <div className="os-private" style={{ fontWeight: 700, color: '#0f0020' }}>{c.name || c.email}</div>
+                        <div className="os-private" style={{ fontWeight: 700, color: '#0C2A43' }}>{c.name || c.email}</div>
                         <div className="os-private" style={{ fontSize: 11.5, color: '#999' }}>{[c.company, c.email].filter(Boolean).join(' · ')}</div>
                       </button>
                     ))}
@@ -392,7 +392,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 16, padding: '8px 0 20px' }}>
           {catalog.length > 0 && (
             <select value="" onChange={e => addFromCatalog(e.target.value)} aria-label="Add a line from your offers"
-              style={{ ...inp, width: 'auto', minWidth: 240, maxWidth: '100%', fontSize: 13, fontWeight: 700, color: '#7c3aed', cursor: 'pointer' }}>
+              style={{ ...inp, width: 'auto', minWidth: 240, maxWidth: '100%', fontSize: 13, fontWeight: 700, color: '#0E71AC', cursor: 'pointer' }}>
               <option value="">+ Add from your offers…</option>
               {CATALOG_GROUPS.map(g => (
                 <optgroup key={g} label={g}>
@@ -403,7 +403,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
               ))}
             </select>
           )}
-          <button type="button" onClick={addLine} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: '#7c3aed', fontWeight: 700, fontSize: 13, padding: 0 }}>+ Add a blank line</button>
+          <button type="button" onClick={addLine} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: '#0E71AC', fontWeight: 700, fontSize: 13, padding: 0 }}>+ Add a blank line</button>
         </div>
 
         {}
@@ -425,7 +425,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
               </div>
             ) : (
               <div style={{ padding: '8px 0', borderBottom: '1px solid #eee' }}>
-                <button type="button" onClick={() => setTaxAdded(true)} style={{ background: 'none', border: 'none', color: '#7c3aed', fontWeight: 700, fontSize: 12.5, cursor: 'pointer', padding: 0 }}>+ Add tax</button>
+                <button type="button" onClick={() => setTaxAdded(true)} style={{ background: 'none', border: 'none', color: '#0E71AC', fontWeight: 700, fontSize: 12.5, cursor: 'pointer', padding: 0 }}>+ Add tax</button>
               </div>
             )}
 
@@ -441,14 +441,14 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
             )}
             <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 16px', background: '#e8e0f4', borderRadius: 6, marginTop: 4 }}>
               <span style={{ fontWeight: 800, fontSize: 13.5 }}>Balance Due</span>
-              <span style={{ fontWeight: 900, fontSize: 15, color: '#0f0020' }}>{fmt(balance)}</span>
+              <span style={{ fontWeight: 900, fontSize: 15, color: '#0C2A43' }}>{fmt(balance)}</span>
             </div>
           </div>
         </div>
 
         {}
-        <div style={{ background: '#faf8ff', border: '1px solid #ede8fb', borderRadius: 8, padding: '12px 16px', marginBottom: 12 }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#0f0020' }}>
+        <div style={{ background: '#F1F8FD', border: '1px solid #E4F4FD', borderRadius: 8, padding: '12px 16px', marginBottom: 12 }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#0C2A43' }}>
             <input type="checkbox" checked={cardPayment} onChange={e => setCardPayment(e.target.checked)} />
             Offer card payment on this invoice
           </label>
@@ -488,8 +488,8 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
         </div>
 
         {}
-        <div style={{ background: '#faf8ff', border: '1px solid #ede8fb', borderRadius: 8, padding: '12px 16px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#0f0020' }}>
+        <div style={{ background: '#F1F8FD', border: '1px solid #E4F4FD', borderRadius: 8, padding: '12px 16px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700, color: '#0C2A43' }}>
             <input type="checkbox" checked={recurring} onChange={e => setRecurring(e.target.checked)} />
             Make this a recurring monthly invoice
           </label>
@@ -507,17 +507,17 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
 
           {}
           {recurring && (
-            <div style={{ width: '100%', borderTop: '1px solid #ede8fb', paddingTop: 12, marginTop: 4 }}>
-              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0f0020', marginBottom: 2 }}>Charge a different amount for one month</div>
+            <div style={{ width: '100%', borderTop: '1px solid #E4F4FD', paddingTop: 12, marginTop: 4 }}>
+              <div style={{ fontSize: 12.5, fontWeight: 700, color: '#0C2A43', marginBottom: 2 }}>Charge a different amount for one month</div>
               <div style={{ fontSize: 11.5, color: '#8b839a', marginBottom: 10 }}>
                 The usual amount stays {fmt(total)}. Only the month you pick below is billed differently, then it goes back by itself.
               </div>
               {ovLive.length > 0 && (
                 <div style={{ display: 'grid', gap: 6, marginBottom: 10 }}>
                   {ovLive.map(([key, ov]) => (
-                    <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#241a33', background: '#fff', border: '1px solid #ede8fb', borderRadius: 8, padding: '8px 12px' }}>
+                    <div key={key} style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: '#241a33', background: '#fff', border: '1px solid #E4F4FD', borderRadius: 8, padding: '8px 12px' }}>
                       <span style={{ fontWeight: 700, minWidth: 120 }}>{monthLabel(key)}</span>
-                      <span style={{ fontWeight: 800, color: '#7C3AED' }}>{fmt(ov.amount)}</span>
+                      <span style={{ fontWeight: 800, color: '#0E71AC' }}>{fmt(ov.amount)}</span>
                       {ov.note && <span style={{ color: '#8b839a', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ov.note}</span>}
                       <button type="button" onClick={() => removeOverride(key)} style={{ marginLeft: 'auto', background: 'none', border: 'none', color: '#8b839a', cursor: 'pointer', fontSize: 12.5, fontWeight: 600 }}>Remove</button>
                     </div>
@@ -534,7 +534,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
                   <input type="text" placeholder="Why (printed on the invoice), optional" value={ovNote} onChange={e => setOvNote(e.target.value)} maxLength={120}
                     style={{ ...inp, flex: 1, minWidth: 200, padding: '6px 8px' }} />
                   <button type="button" onClick={addOverride} disabled={!ovAmount}
-                    style={{ padding: '7px 14px', borderRadius: 12, border: '1px solid #7C3AED', background: ovAmount ? '#7C3AED' : '#fff', color: ovAmount ? '#fff' : '#7C3AED', fontWeight: 700, fontSize: 12.5, cursor: ovAmount ? 'pointer' : 'default' }}>
+                    style={{ padding: '7px 14px', borderRadius: 12, border: '1px solid #0E71AC', background: ovAmount ? '#0E71AC' : '#fff', color: ovAmount ? '#fff' : '#0E71AC', fontWeight: 700, fontSize: 12.5, cursor: ovAmount ? 'pointer' : 'default' }}>
                     Set for that month
                   </button>
                   {!invoice?.recurring && <span style={{ width: '100%', fontSize: 11.5, color: '#b6adc9' }}>Saved with the invoice.</span>}

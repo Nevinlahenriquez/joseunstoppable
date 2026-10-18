@@ -4,7 +4,7 @@ export const CONTACT_STATUSES: { value: LeadStatus; label: string; color: string
   { value: 'new',         label: 'New',         color: '#6b7280', bg: '#f3f4f6' },
   { value: 'pending',     label: 'Pending',     color: '#b45309', bg: '#fffbeb' },
   { value: 'opportunity', label: 'Opportunity', color: '#2563eb', bg: '#eff6ff' },
-  { value: 'pipeline',    label: 'Pipeline',    color: '#7c3aed', bg: '#f5f3ff' },
+  { value: 'pipeline',    label: 'Pipeline',    color: '#0E71AC', bg: '#f5f3ff' },
   { value: 'client',      label: 'Client',      color: '#059669', bg: '#ecfdf5' },
   { value: 'upsell',      label: 'Upsell',      color: '#0891b2', bg: '#ecfeff' },
   { value: 'dormant',     label: 'Dormant',     color: '#9ca3af', bg: '#f9fafb' },
@@ -166,8 +166,8 @@ export const PYRAMID_TIERS: { key: PyramidTier; label: string; color: string; le
   { key: 'mid',          label: 'Mid ticket',                       color: '#a855f7', level: 2 },
   { key: 'main',         label: 'Main program',                     color: '#bd7f06', level: 3 },
   { key: 'coaching',     label: 'High ticket · Coaching',           color: '#0891b2', level: 4 },
-  { key: 'core',          label: 'High ticket · José Unstoppable', color: '#7c3aed', level: 5 },
-  { key: 'premium', label: 'Alto ticket',      color: '#1c1133', level: 6 },
+  { key: 'core',          label: 'High ticket · José Unstoppable', color: '#0E71AC', level: 5 },
+  { key: 'premium', label: 'Alto ticket',      color: '#0C2A43', level: 6 },
 ]
 export type BillingType = 'one-time' | 'monthly' | 'retainer'
 

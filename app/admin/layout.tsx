@@ -40,7 +40,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/deals',    icon: 'leads', label: 'Leads' },
       { href: '/admin/bookings', icon: 'bookings', label: 'Llamadas' },
       { href: '/admin/events',   icon: 'events', label: 'Eventos' },
-      { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(124,77,214,.14)', badgeColor: 'var(--os-accent)' },
+      { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(14,113,172,.14)', badgeColor: 'var(--os-accent)' },
       { href: '/admin/links',    icon: 'funnels', label: 'Link en bio' },
       { href: '/admin/attribution', icon: 'insights', label: 'Anuncios vs directo' },
       { href: '/admin/offers',   icon: 'offers', label: 'Ofertas' },
@@ -181,7 +181,7 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
         {!collapsed ? (
           <>
             <div className="os-agent">
-              <div className="os-agent-avatar" style={who?.staff ? { background: 'linear-gradient(150deg,#0891b2,var(--os-good))' } : undefined}>{who?.staff ? 'T' : 'N'}</div>
+              <div className="os-agent-avatar" style={who?.staff ? { background: 'linear-gradient(150deg,#0891b2,var(--os-good))' } : undefined}>{who?.staff ? 'T' : 'J'}</div>
               <div style={{ minWidth: 0 }}>
                 <div className="os-agent-name">{who?.label ?? 'José Unstoppable'}</div>
                 <div className="os-agent-role">{who?.sub ?? 'José Unstoppable'}</div>
@@ -198,7 +198,7 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
           </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-            <div className="os-agent-avatar" style={{ width: 30, height: 30, fontSize: 12 }}>N</div>
+            <div className="os-agent-avatar" style={{ width: 30, height: 30, fontSize: 12 }}>J</div>
             <ThemeToggle />
             <Link href="/" className="os-back-link" style={{ fontSize: 15, padding: 4 }} title="Back to website">←</Link>
           </div>

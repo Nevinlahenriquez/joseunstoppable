@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
 
 :root {
@@ -14,7 +15,7 @@
   --os-card:        linear-gradient(165deg, rgba(255,255,255,.085), rgba(255,255,255,.025));
   --os-card-hover:  linear-gradient(165deg, rgba(255,255,255,.13), rgba(255,255,255,.05));
   --os-card-alt:    linear-gradient(165deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
-  --os-chip:        rgba(169,123,255,.14);
+  --os-chip:        rgba(91,188,238,.14);
   --os-panel-deep:  rgba(8,5,16,.72);
   
   --os-deep:        rgba(18,11,32,.94);
@@ -33,12 +34,12 @@
   --os-text-faint:   #A99CC0;
 
   
-  --os-accent:      #A97BFF;
-  --os-accent-soft: rgba(169,123,255,.16);
-  --os-gold:        #F5B71B;
-  --os-gold-hi:     #FFC83D;
-  --os-gold-ink:    #3a2600;
-  --os-gold-grad:   linear-gradient(180deg,#FFD968,#D89B24);
+  --os-accent:      #5BBCEE;
+  --os-accent-soft: rgba(91,188,238,.16);
+  --os-gold:        #2A98D6;
+  --os-gold-hi:     #5BBCEE;
+  --os-gold-ink:    #0C2A43;
+  --os-gold-grad:   linear-gradient(180deg,#5BBCEE,#2A98D6);
 
   
   --os-good:        #3DD68C;
@@ -51,7 +52,7 @@
   
   --os-sidebar-bg:     rgba(10,7,20,.72);
   --os-sidebar-border: rgba(255,255,255,.09);
-  --os-nav-active-bg:  rgba(169,123,255,.16);
+  --os-nav-active-bg:  rgba(91,188,238,.16);
   --os-shadow:         0 18px 48px rgba(0,0,0,.46);
   --os-shadow-sm:      0 8px 24px rgba(0,0,0,.34);
 }
@@ -102,8 +103,8 @@
 .os-shell textarea:focus,
 .os-shell select:focus {
   outline: none;
-  border-color: rgba(169,123,255,.55);
-  box-shadow: 0 0 0 3px rgba(169,123,255,.14);
+  border-color: rgba(91,188,238,.55);
+  box-shadow: 0 0 0 3px rgba(91,188,238,.14);
 }
 
 .os-shell select option { background: #140E22; color: var(--os-text); }
@@ -190,7 +191,7 @@
   font-size: 8.5px;
   letter-spacing: .2em;
   color: var(--os-accent);
-  background: rgba(124,77,214,.12);
+  background: rgba(14,113,172,.12);
   padding: 2px 7px;
   border-radius: 5px;
   text-transform: uppercase;
@@ -227,9 +228,9 @@
   transition: background .15s, color .15s, border-color .15s;
 }
 .os-collapse-btn:hover {
-  background: rgba(124,77,214,.1);
+  background: rgba(14,113,172,.1);
   color: var(--os-accent);
-  border-color: rgba(124,77,214,.3);
+  border-color: rgba(14,113,172,.3);
 }
 
 
@@ -561,13 +562,13 @@
 .os-btn-primary {
   background: linear-gradient(180deg, var(--os-accent), var(--os-accent));
   color: #fff;
-  box-shadow: 0 10px 26px rgba(124,77,214,.28);
+  box-shadow: 0 10px 26px rgba(14,113,172,.28);
   font-weight: 700;
   font-size: 13.5px;
 }
 
 .os-btn-primary:hover {
-  box-shadow: 0 12px 30px rgba(124,77,214,.38);
+  box-shadow: 0 12px 30px rgba(14,113,172,.38);
   transform: translateY(-1px);
 }
 
@@ -925,7 +926,7 @@
   max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: top;
 }
 .os-tag-chip:hover { border-color: var(--accent); color: var(--accent); }
-.os-tag-chip.active { background: #7C3AED; color: #fff; border-color: #7C3AED; box-shadow: 0 8px 18px -10px rgba(124,58,237,.8); }
+.os-tag-chip.active { background: #0E71AC; color: #fff; border-color: #0E71AC; box-shadow: 0 8px 18px -10px rgba(14,113,172,.8); }
 .os-crm-tags { display: flex; gap: 6px; flex-wrap: wrap; }
 
 .os-deal-head { display: flex; align-items: flex-start; gap: 9px; margin-bottom: 8px; }
@@ -1403,13 +1404,13 @@
 .os-shell *::-webkit-scrollbar { width: 10px; height: 10px; }
 .os-shell *::-webkit-scrollbar-track { background: transparent; }
 .os-shell *::-webkit-scrollbar-thumb {
-  background: rgba(169,123,255,.22);
+  background: rgba(91,188,238,.22);
   border-radius: 999px;
   border: 3px solid transparent;
   background-clip: content-box;
 }
-.os-shell *::-webkit-scrollbar-thumb:hover { background: rgba(169,123,255,.40); background-clip: content-box; }
-.os-shell * { scrollbar-width: thin; scrollbar-color: rgba(169,123,255,.28) transparent; }
+.os-shell *::-webkit-scrollbar-thumb:hover { background: rgba(91,188,238,.40); background-clip: content-box; }
+.os-shell * { scrollbar-width: thin; scrollbar-color: rgba(91,188,238,.28) transparent; }
 
 
 .os-nav { min-height: 0; }
@@ -1487,15 +1488,15 @@
 
 
 .os-btn-primary, .os-primary-btn {
-  background: #7C3AED;
+  background: #0E71AC;
   color: #ffffff;
   font-weight: 800;
   border: none;
-  box-shadow: 0 10px 26px -10px rgba(124,58,237,.75);
+  box-shadow: 0 10px 26px -10px rgba(14,113,172,.75);
   transition: background .16s ease, transform .16s ease;
 }
 .os-btn-primary:hover, .os-primary-btn:hover {
-  background: #8B52F5;
+  background: #2A98D6;
   transform: translateY(-1px);
 }
 
@@ -1605,16 +1606,16 @@
 
 .os-btn-primary,
 .os-primary-btn {
-  background: #7C3AED;
+  background: #0E71AC;
   color: #ffffff;
   font-weight: 800;
   border: none;
-  box-shadow: 0 10px 26px -10px rgba(124,58,237,.75);
+  box-shadow: 0 10px 26px -10px rgba(14,113,172,.75);
   transition: background .16s ease, transform .16s ease;
 }
 .os-btn-primary:hover,
 .os-primary-btn:hover {
-  background: #8B52F5;
+  background: #2A98D6;
   transform: translateY(-1px);
 }
 .os-btn-primary:active,
@@ -1820,7 +1821,7 @@
   --os-card:        linear-gradient(165deg, rgba(255,255,255,.94), rgba(255,255,255,.72));
   --os-card-hover:  linear-gradient(165deg, rgba(255,255,255,1), rgba(255,255,255,.86));
   --os-card-alt:    linear-gradient(165deg, rgba(255,255,255,.78), rgba(255,255,255,.56));
-  --os-chip:        rgba(124,77,214,.10);
+  --os-chip:        rgba(14,113,172,.10);
   --os-panel-deep:  rgba(255,255,255,.88);
   --os-glass:       linear-gradient(165deg, rgba(255,255,255,.92), rgba(255,255,255,.70));
   --os-glass-blur:  blur(26px) saturate(160%);
@@ -1830,18 +1831,18 @@
   --os-line-strong: rgba(28,21,53,.22);
 
   
-  --os-text-primary: #1C1535;
-  --os-text:         #1C1535;
+  --os-text-primary: #0C2A43;
+  --os-text:         #0C2A43;
   --os-text-muted:   #4A4266;
   --os-text-faint:   #6B6388;
 
   
-  --os-accent:      #7C4DD6;
-  --os-accent-soft: rgba(124,77,214,.12);
+  --os-accent:      #0E71AC;
+  --os-accent-soft: rgba(14,113,172,.12);
   --os-gold:        #9A6B00;
   --os-gold-hi:     #B07D00;
-  --os-gold-ink:    #3a2600;   
-  --os-gold-grad:   linear-gradient(180deg,#FFD968,#D89B24);  
+  --os-gold-ink:    #0C2A43;   
+  --os-gold-grad:   linear-gradient(180deg,#5BBCEE,#2A98D6);  
 
   
   --os-good:        #12805A;
@@ -1854,7 +1855,7 @@
   
   --os-sidebar-bg:     rgba(255,255,255,.82);
   --os-sidebar-border: rgba(28,21,53,.10);
-  --os-nav-active-bg:  rgba(124,77,214,.12);
+  --os-nav-active-bg:  rgba(14,113,172,.12);
   --os-shadow:         0 16px 40px rgba(50,32,96,.13);
   --os-shadow-sm:      0 6px 18px rgba(50,32,96,.09);
 }
@@ -1862,7 +1863,7 @@
 
 :root[data-os-theme="light"] .os-shell::before {
   background:
-    radial-gradient(ellipse at 12% -10%, rgba(124,77,214,.13) 0%, rgba(124,77,214,0) 55%),
+    radial-gradient(ellipse at 12% -10%, rgba(14,113,172,.13) 0%, rgba(14,113,172,0) 55%),
     radial-gradient(ellipse at 92% 8%, rgba(245,183,27,.11) 0%, rgba(245,183,27,0) 52%);
 }
 
@@ -2221,7 +2222,7 @@
 @media (max-width: 768px) { .os-task-table .os-span-stick { position: static; } }
 .os-task-table tr.os-subrow td:first-child:not([colspan]) {
   background:
-    linear-gradient(rgba(124,58,237,.03), rgba(124,58,237,.03)),
+    linear-gradient(rgba(14,113,172,.03), rgba(14,113,172,.03)),
     var(--os-base-2, #fff);
 }
 
@@ -2293,7 +2294,7 @@
 .os-rail-chip:hover { border-color: var(--os-line-strong); }
 .os-rail-chip.on {
   border-color: var(--os-accent);
-  background: var(--os-accent-soft, rgba(124,58,237,.08));
+  background: var(--os-accent-soft, rgba(14,113,172,.08));
   color: var(--os-accent);
 }
 .os-rail-chip.is-sub {
@@ -3199,7 +3200,7 @@
     padding: 0 !important;
     font-size: 16px;
     font-weight: 400;
-    color: #0f0020;
+    color: #0C2A43;
   }
   .os-shell .os-inv-lines tbody td.os-inv-line-item { grid-column: 1 / -1; padding-right: 32px !important; }
   .os-shell .os-inv-lines tbody td[data-label]::before {
@@ -3290,3 +3291,64 @@
   background: var(--os-accent); border-color: var(--os-accent); color: #fff;
 }
 @media (max-width: 520px) { .os-privacy-label { display: none; } }
+
+
+/* ── José Unstoppable branding ──────────────────────────────────────────
+   His site's palette: white and tint surfaces, navy ink, sky blue accent,
+   Plus Jakarta Sans. The panel is light only, like his site. */
+:root, :root[data-os-theme="light"] {
+  --os-base:        #F1F8FD;
+  --os-base-2:      #FFFFFF;
+  --os-sticky-cell: #FFFFFF;
+  --os-main-bg:     #F1F8FD;
+  --os-overlay:     rgba(12,42,67,.32);
+
+  --os-card:        #FFFFFF;
+  --os-card-hover:  #FFFFFF;
+  --os-card-alt:    #F7FBFE;
+  --os-chip:        #E4F4FD;
+  --os-panel-deep:  #FFFFFF;
+  --os-deep:        #0C2A43;
+  --os-on-deep:     #FFFFFF;
+  --os-glass:       #FFFFFF;
+  --os-glass-blur:  none;
+
+  --os-line:        #DDE9F2;
+  --os-line-strong: #C5D9E8;
+
+  --os-text-primary: #0C2A43;
+  --os-text:         #344A5E;
+  --os-text-muted:   #5D6E7E;
+  --os-text-faint:   #6B7C8C;
+
+  --os-accent:      #0E71AC;
+  --os-accent-soft: #E4F4FD;
+  --os-gold:        #0E71AC;
+  --os-gold-hi:     #2A98D6;
+  --os-gold-ink:    #FFFFFF;
+  --os-gold-grad:   linear-gradient(180deg,#45B0E8,#2A98D6);
+
+  --os-good:        #12805A;
+  --os-good-soft:   rgba(18,128,90,.10);
+  --os-bad:         #C62828;
+  --os-bad-soft:    rgba(198,40,40,.09);
+  --os-warn:        #96590A;
+  --os-warn-soft:   rgba(150,89,10,.10);
+
+  --os-sidebar-bg:     #FFFFFF;
+  --os-sidebar-border: #DDE9F2;
+  --os-nav-active-bg:  #E4F4FD;
+  --os-shadow:         0 14px 36px rgba(12,42,67,.10);
+  --os-shadow-sm:      0 4px 14px rgba(12,42,67,.07);
+}
+:root[data-os-theme="light"] .os-shell::before,
+.os-shell::before { background: none; }
+.os-shell, .os-shell * { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+.os-shell h1, .os-shell h2, .os-shell h3 { color: var(--os-text-primary); letter-spacing: -.01em; }
+.os-shell .os-btn-primary, .os-shell .os-primary-btn {
+  background: #0E71AC; color: #FFFFFF; box-shadow: 0 8px 20px -10px rgba(14,113,172,.6);
+}
+.os-shell .os-btn-primary:hover, .os-shell .os-primary-btn:hover { background: #2A98D6; }
+.os-theme-toggle, .os-theme-row { display: none !important; }
+.os-shell .os-logo-icon, .os-shell .os-logo-icon-sm { background: #0C2A43 !important; box-shadow: none; }
+.os-shell .os-agent-avatar { background: linear-gradient(150deg,#5BBCEE,#0E71AC) !important; color: #fff; }

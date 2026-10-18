@@ -16,7 +16,7 @@ const lStyle: React.CSSProperties = { display: 'block', fontSize: 11, fontWeight
 
 const FORMAT_COLORS: Record<string, { bg: string; color: string; label: string }> = {
   in_person: { bg: '#ecfeff', color: 'var(--os-good)', label: 'In Person' },
-  online:    { bg: '#faf8ff', color: 'var(--os-accent)', label: 'Online' },
+  online:    { bg: '#F1F8FD', color: 'var(--os-accent)', label: 'Online' },
   hybrid:    { bg: 'var(--os-warn-soft)', color: 'var(--os-warn)', label: 'Hybrid' },
 }
 const STATUS_STYLES: Record<string, { bg: string; color: string }> = {
@@ -221,7 +221,7 @@ function SeatRing({ fill }: { fill: number }) {
       <circle cx="42" cy="42" r={r} fill="none" stroke="rgba(255,255,255,.16)" strokeWidth="8" />
       <circle cx="42" cy="42" r={r} fill="none" stroke="url(#evxRing)" strokeWidth="8" strokeLinecap="round"
         strokeDasharray={`${c * Math.max(fill, 0.02)} ${c}`} transform="rotate(-90 42 42)" />
-      <defs><linearGradient id="evxRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#f7cf73" /><stop offset="1" stopColor="#eaa92e" /></linearGradient></defs>
+      <defs><linearGradient id="evxRing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#5BBCEE" /><stop offset="1" stopColor="#2A98D6" /></linearGradient></defs>
       <text x="42" y="47" textAnchor="middle" fill="#fff" fontSize="17" fontWeight="900">{Math.round(fill * 100)}%</text>
     </svg>
   )
@@ -385,7 +385,7 @@ export default function EventsPage() {
   })
 
   const kpis = [
-    { label: 'Upcoming events', value: String(upcoming.length), icon: 'ti-calendar-event', tint: 'rgba(139,92,246,.14)', color: '#7C3AED' },
+    { label: 'Upcoming events', value: String(upcoming.length), icon: 'ti-calendar-event', tint: 'rgba(139,92,246,.14)', color: '#0E71AC' },
     { label: 'Seats taken, upcoming', value: String(upcomingSeats), icon: 'ti-ticket', tint: 'rgba(234,169,46,.16)', color: '#C27C0E' },
     { label: 'Ticket revenue, all time', value: money(revenue), icon: 'ti-cash', tint: 'var(--os-good-soft)', color: 'var(--os-good)' },
     showRate

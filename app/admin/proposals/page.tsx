@@ -300,7 +300,7 @@ export default function ProposalsPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3, overflow: 'hidden' }}>
                       <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--os-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.clientName}</span>
                       {p.clientCompany && <span style={{ fontSize: 12, color: 'var(--os-text-faint)', fontWeight: 500, whiteSpace: 'nowrap', flexShrink: 0 }}>{p.clientCompany}</span>}
-                      {(p.version ?? 1) > 1 && <span style={{ fontSize: 10, fontWeight: 800, background: '#7b2fff20', color: '#7b2fff', padding: '2px 7px', borderRadius: 20, flexShrink: 0 }}>v{p.version}</span>}
+                      {(p.version ?? 1) > 1 && <span style={{ fontSize: 10, fontWeight: 800, background: '#0E71AC20', color: '#0E71AC', padding: '2px 7px', borderRadius: 20, flexShrink: 0 }}>v{p.version}</span>}
                       {p.linkedInvoiceId && <span style={{ fontSize: 10.5, fontWeight: 700, background: '#16a34a18', color: 'var(--os-good)', padding: '2px 8px', borderRadius: 20, border: '1px solid #16a34a33', flexShrink: 0 }}>Invoiced</span>}
                     </div>
                     <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</div>

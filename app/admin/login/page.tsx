@@ -111,7 +111,7 @@ export default function OsLoginPage() {
           </button>
         </form>
 
-        {status === 'signing' && <p style={{ fontSize: 13, color: '#7b2fff', marginTop: 18 }}>Signing you in…</p>}
+        {status === 'signing' && <p style={{ fontSize: 13, color: '#0E71AC', marginTop: 18 }}>Signing you in…</p>}
         {status === 'denied' && <p style={{ fontSize: 13, color: 'var(--os-bad)', marginTop: 18 }}>That account is not authorized for this OS.</p>}
         {status === 'error' && <p style={{ fontSize: 13, color: 'var(--os-bad)', marginTop: 18 }}>Something went wrong. Please try again.</p>}
 

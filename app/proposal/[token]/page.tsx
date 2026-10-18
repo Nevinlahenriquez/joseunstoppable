@@ -325,7 +325,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
               </div>
 
               <div className="doc-head-right" style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 8 }}>{L('Service Agreement', 'Acuerdo de servicio')}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 8 }}>{L('Service Agreement', 'Acuerdo de servicio')}</div>
                 <div className="doc-ref" style={{ fontSize: 16, fontWeight: 800, color: '#12002a', marginBottom: 14, lineHeight: 1.2, letterSpacing: '.01em' }}>{proposal.ref}</div>
                 <div style={{ fontSize: 12.5, color: '#666', lineHeight: 2.1 }}>
                   <div className="meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
@@ -357,7 +357,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
               <div className="doc-title" style={{ fontSize: 20, fontWeight: 800, color: '#12002a', lineHeight: 1.3, marginBottom: 4 }}>{proposal.title}</div>
               {}
               {!showSigned && !isPdf && <div style={{ marginTop: 18 }}><ValidityCountdown expiresAt={expiresAt} es={es} /></div>}
-              <div style={{ fontSize: 14, color: '#7c3aed', fontWeight: 600 }}>{priceLabel}</div>
+              <div style={{ fontSize: 14, color: '#0E71AC', fontWeight: 600 }}>{priceLabel}</div>
             </div>
 
             {}
@@ -380,7 +380,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                       if (isHeading || isAllCaps) {
                         const nice = isAllCaps ? t.charAt(0) + t.slice(1).toLowerCase() : t
                         return (
-                          <div key={i} style={{ fontWeight: 700, fontSize: 14.5, color: '#1c1133', margin: '20px 0 8px' }}>
+                          <div key={i} style={{ fontWeight: 700, fontSize: 14.5, color: '#0C2A43', margin: '20px 0 8px' }}>
                             {nice}
                           </div>
                         )
@@ -395,7 +395,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
             {}
             {proposal.services.length > 0 && (
               <div className="no-break" style={{ marginBottom: 28 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 14 }}>{L('1. Scope of Work', '1. Alcance del trabajo')}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>{L('1. Scope of Work', '1. Alcance del trabajo')}</div>
                 <p style={{ fontSize: 13.5, color: '#444', lineHeight: 1.8, margin: '0 0 10px' }}>
                   {L('Here is exactly what we work through together for', 'Esto es exactamente lo que trabajamos juntos para')} <strong>{proposal.clientCompany || proposal.clientName}</strong>:
                 </p>
@@ -411,7 +411,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
 
             {proposal.deliverables.length > 0 && (
               <div className="no-break" style={{ marginBottom: 32 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 14 }}>{L('2. Deliverables', '2. Entregables')}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>{L('2. Deliverables', '2. Entregables')}</div>
                 <p style={{ fontSize: 13.5, color: '#444', lineHeight: 1.8, margin: '0 0 10px' }}>
                   {L('Through this engagement,', 'Con este acuerdo,')} <strong>{proposal.clientCompany || proposal.clientName}</strong> {L('will have:', 'tendrá:')}
                 </p>
@@ -423,7 +423,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
 
             {}
             <div className="no-break" style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 14 }}>{L('3. Investment', '3. Inversión')}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>{L('3. Investment', '3. Inversión')}</div>
               {results ? (
                 <>
                   <p style={{ fontSize: 13.5, color: '#444', lineHeight: 1.8, margin: '0 0 16px' }}>
@@ -446,9 +446,9 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                     </thead>
                     <tbody>
                       {tiers.map((t, i) => (
-                        <tr key={t.phaseIndex} style={{ borderBottom: '1px solid #ede8f8', background: i % 2 === 0 ? '#fff' : '#faf8ff' }}>
+                        <tr key={t.phaseIndex} style={{ borderBottom: '1px solid #ede8f8', background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
                           <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 13, color: '#12002a' }}>{Number.isFinite(t.to) ? L(`Clients ${t.from} to ${t.to}`, `Clientes ${t.from} a ${t.to}`) : L('Each new paying client', 'Cada cliente nuevo que pague')}</td>
-                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, fontSize: 13.5, color: '#7c3aed', whiteSpace: 'nowrap' }}>{fmt(t.price, proposal.currency)}
+                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, fontSize: 13.5, color: '#0E71AC', whiteSpace: 'nowrap' }}>{fmt(t.price, proposal.currency)}
                             {Number.isFinite(t.to) && <div style={{ fontSize: 11, fontWeight: 500, color: '#888' }}>{L('max', 'máx.')} {fmt((t.to - t.from + 1) * t.price, proposal.currency)}</div>}</td>
                         </tr>
                       ))}
@@ -478,11 +478,11 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                     </thead>
                     <tbody>
                       {schedule.map((m, i) => (
-                        <tr key={i} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#faf8ff' }}>
+                        <tr key={i} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
                           <td style={{ padding: '12px 14px', fontSize: 12, color: '#aaa', width: 32 }}>#{i + 1}</td>
                           <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 13, color: '#12002a' }}>{m.label}</td>
                           <td style={{ padding: '12px 14px', fontSize: 12, color: '#777', lineHeight: 1.5 }}>{m.note}</td>
-                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, fontSize: 13.5, color: '#7c3aed', whiteSpace: 'nowrap' }}>{fmt(m.amount, proposal.currency)}{(isFlatRetainer || isRecurring) ? '/mo' : ''}</td>
+                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, fontSize: 13.5, color: '#0E71AC', whiteSpace: 'nowrap' }}>{fmt(m.amount, proposal.currency)}{(isFlatRetainer || isRecurring) ? '/mo' : ''}</td>
                         </tr>
                       ))}
                       {}
@@ -516,7 +516,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
               )}
               {}
               {!isSinglePayment && (isFlatRetainer || isRecurring) && (
-                <div style={{ marginTop: 12, padding: '12px 16px', background: '#f5f0ff', borderRadius: 8, fontSize: 12.5, color: '#7c3aed', fontWeight: 500 }}>
+                <div style={{ marginTop: 12, padding: '12px 16px', background: '#f5f0ff', borderRadius: 8, fontSize: 12.5, color: '#0E71AC', fontWeight: 500 }}>
                   {}
                   Note: Ad spend on Meta and Google, plus any AI tools we set up for your business, are separate from this {isFlatRetainer || isRecurring ? 'retainer' : 'fee'} and will be fully owned by you.
                 </div>
@@ -525,7 +525,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
 
             {}
             <div className="no-break" style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 14 }}>{L('4. Terms', '4. Condiciones')}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>{L('4. Terms', '4. Condiciones')}</div>
               <div style={{ fontSize: 12.5, color: '#555', lineHeight: 1.9 }}>
                 {}
                 {results ? (
@@ -544,8 +544,8 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
             {}
             {proposal.bankInfo && (
               <div className="no-break" style={{ marginBottom: 28 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 14 }}>{L('5. Payment Details', '5. Datos de pago')}</div>
-                <pre style={{ fontFamily: 'Inter, Arial, sans-serif', fontSize: 12.5, color: '#444', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', margin: 0, background: '#faf8ff', border: '1px solid #ede8fb', borderRadius: 8, padding: '16px 18px', lineHeight: 1.9 }}>{proposal.bankInfo}</pre>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>{L('5. Payment Details', '5. Datos de pago')}</div>
+                <pre style={{ fontFamily: 'Inter, Arial, sans-serif', fontSize: 12.5, color: '#444', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere', margin: 0, background: '#F1F8FD', border: '1px solid #E4F4FD', borderRadius: 8, padding: '16px 18px', lineHeight: 1.9 }}>{proposal.bankInfo}</pre>
               </div>
             )}
           </div>
@@ -554,7 +554,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
           <div className="print-break doc-pad" style={{ padding: '52px 60px 52px', borderTop: '8px solid #12002a' }}>
 
             <div style={{ marginBottom: 24 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 10 }}>{L('Electronic Signatures', 'Firmas electrónicas')}</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>{L('Electronic Signatures', 'Firmas electrónicas')}</div>
               <div style={{ fontSize: 12.5, color: '#666', lineHeight: 1.85, maxWidth: 560 }}>
                 {L('By signing below,', 'Al firmar,')} <strong style={{ color: '#12002a' }}>{proposal.clientName}</strong> {L('confirms they have read, understood, and agree to all terms in this agreement. Typing your name is your electronic signature and holds the same legal validity as a handwritten one.', 'confirma que ha leído, entendido y acepta todas las condiciones de este acuerdo. Escribir tu nombre es tu firma electrónica y tiene la misma validez que una firma a mano.')}
               </div>
@@ -563,16 +563,16 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
             {}
             <div className="sig-grid no-break" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
               {}
-              <div style={{ border: '1.5px solid #ede8fb', borderRadius: 10, padding: '22px 24px', background: '#faf8ff' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 16 }}>{L('For José Unstoppable', 'Por José Unstoppable')}</div>
+              <div style={{ border: '1.5px solid #E4F4FD', borderRadius: 10, padding: '22px 24px', background: '#F1F8FD' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 16 }}>{L('For José Unstoppable', 'Por José Unstoppable')}</div>
                 <div style={{ ...SIG_FONT, fontSize: 34, color: '#12002a', lineHeight: 1, marginBottom: 12 }}>José Unstoppable</div>
                 <div style={{ borderTop: '1px solid #ddd', paddingTop: 8, fontWeight: 800, fontSize: 14, color: '#12002a' }}>José Unstoppable</div>
                 <div style={{ fontSize: 12, color: '#888' }}>{L('Founder, José Unstoppable', 'Fundador, José Unstoppable')}</div>
               </div>
 
               {}
-              <div style={{ border: `1.5px solid ${showSigned ? '#12002a' : '#ede8fb'}`, borderRadius: 10, padding: '22px 24px', background: showSigned ? '#fff' : '#faf8ff' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#7c3aed', marginBottom: 16 }}>{L('For', 'Por')} {proposal.clientCompany || proposal.clientName}</div>
+              <div style={{ border: `1.5px solid ${showSigned ? '#12002a' : '#E4F4FD'}`, borderRadius: 10, padding: '22px 24px', background: showSigned ? '#fff' : '#F1F8FD' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 16 }}>{L('For', 'Por')} {proposal.clientCompany || proposal.clientName}</div>
                 {showSigned ? (
                   <>
                     <div style={{ ...SIG_FONT, fontSize: 34, color: '#12002a', lineHeight: 1, marginBottom: 12 }}>{displaySigner}</div>
@@ -617,7 +617,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                   </a>
                   {linkedInvoiceId && (
                     <a href={`/invoice/${linkedInvoiceId}`} target="_blank" rel="noopener noreferrer"
-                      style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 20px', background: '#7b2fff', color: '#fff', borderRadius: 100, fontWeight: 700, textDecoration: 'none', fontSize: 13, fontFamily: 'inherit' }}>
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 20px', background: '#0E71AC', color: '#fff', borderRadius: 100, fontWeight: 700, textDecoration: 'none', fontSize: 13, fontFamily: 'inherit' }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
                       View Invoice
                     </a>
@@ -632,7 +632,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
             )}
 
             {}
-            <div className="doc-foot" style={{ marginTop: 52, paddingTop: 20, borderTop: '1px solid #ede8fb', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="doc-foot" style={{ marginTop: 52, paddingTop: 20, borderTop: '1px solid #E4F4FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontSize: 11, color: '#bbb' }}>
                 <div style={{ fontWeight: 600, color: '#888', marginBottom: 2 }}>José Unstoppable · {proposal.ref}</div>
                 <div>hola@joseunstoppable.com · joseunstoppable.com</div>
