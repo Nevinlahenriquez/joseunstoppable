@@ -65,16 +65,16 @@ export function looksGenerated(fields: { name?: string; business?: string; email
 
   const name = (fields.name ?? '').trim()
   const badNameWords = name.split(/\s+/).filter(flagOnce).length
-  if (badNameWords === 1) reasons.push('the name reads as random text')
-  if (badNameWords >= 2) reasons.push('both parts of the name read as random text')
+  if (badNameWords === 1) reasons.push('el nombre parece texto aleatorio')
+  if (badNameWords >= 2) reasons.push('las dos partes del nombre parecen texto aleatorio')
 
   const business = (fields.business ?? '').replace(/\b(llc|ltd|inc|bv|nv|gmbh|sa|srl|corp)\b/gi, '').trim()
   const badBusinessWords = business ? business.split(/\s+/).filter(flagOnce).length : 0
-  if (badBusinessWords > 0) reasons.push('the business name reads as random text')
+  if (badBusinessWords > 0) reasons.push('el nombre de la empresa parece texto aleatorio')
 
   const local = (fields.email ?? '').split('@')[0] ?? ''
   const badEmail = flagOnce(local.replace(/[._\-+0-9]+/g, ' ').split(/\s+/)[0] ?? '') ? 1 : 0
-  if (badEmail) reasons.push('the email address reads as random text')
+  if (badEmail) reasons.push('el email parece texto aleatorio')
 
   const score = badNameWords + badBusinessWords + badEmail
   if (score >= 2) return { level: 'spam', reasons }
@@ -89,7 +89,8 @@ export function looksLikeDirectPost(body: Record<string, unknown> | null | undef
   return !hasHoneypot && !hasTiming
 }
 
-export const SPAM_TAG = 'Likely spam'
+export const SPAM_TAG = 'Posible spam'
+const LEGACY_SPAM_TAG = 'Likely spam'
 
 export function leadVerdict(
   fields: { name?: string; business?: string; email?: string },
@@ -102,7 +103,7 @@ export function leadVerdict(
   if (!opts?.trustedSource && looksLikeDirectPost(body)) {
     return {
       level: 'spam',
-      reasons: [...content.reasons, 'and it was posted straight at the API, not through any form on the site'],
+      reasons: [...content.reasons, 'y se envió directamente a la API, no desde un formulario de la web'],
     }
   }
   return content
@@ -116,10 +117,10 @@ export const BURST_HARD_LIMIT = 30
 
 export function burstVerdict(recent: number): GuardVerdict {
   if (recent >= BURST_HARD_LIMIT) {
-    return { level: 'spam', reasons: [`${recent} applications in ${BURST_WINDOW_MINUTES} minutes, past the hard ceiling`] }
+    return { level: 'spam', reasons: [`${recent} solicitudes en ${BURST_WINDOW_MINUTES} minutos, por encima del límite`] }
   }
   if (recent >= BURST_REVIEW_LIMIT) {
-    return { level: 'review', reasons: [`${recent} applications arrived in the last ${BURST_WINDOW_MINUTES} minutes`] }
+    return { level: 'review', reasons: [`${recent} solicitudes en los últimos ${BURST_WINDOW_MINUTES} minutos`] }
   }
   return { level: 'clean', reasons: [] }
 }
@@ -137,7 +138,7 @@ export function isLikelySpam(row: {
   clientCompany?: string
   tags?: string[]
 }): boolean {
-  if (Array.isArray(row.tags) && row.tags.includes(SPAM_TAG)) return true
+  if (Array.isArray(row.tags) && (row.tags.includes(SPAM_TAG) || row.tags.includes(LEGACY_SPAM_TAG))) return true
   return looksGenerated({
     name: row.name,
     business: row.company ?? row.clientCompany,

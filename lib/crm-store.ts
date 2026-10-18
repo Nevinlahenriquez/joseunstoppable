@@ -79,7 +79,7 @@ async function sbWrite(
       const data = await res.json().catch(() => null)
       if (data && data.ok === false) ok = false
       if (!ok) {
-        recordWriteFailure({ key, op, table, payload, reason: String(data?.error ?? 'the database rejected it') })
+        recordWriteFailure({ key, op, table, payload, reason: String(data?.error ?? 'la base de datos lo rechazó') })
         return false
       }
       recordWriteSuccess(key)
@@ -88,7 +88,7 @@ async function sbWrite(
     recordWriteFailure({ key, op, table, payload, reason: `${res.status} ${res.statusText}`.trim() })
     return false
   } catch (err) {
-    recordWriteFailure({ key, op, table, payload, reason: err instanceof Error ? err.message : 'network error' })
+    recordWriteFailure({ key, op, table, payload, reason: err instanceof Error ? err.message : 'error de red' })
     return false
   } finally {
     recordWriteEnd()
@@ -225,7 +225,7 @@ export function saveLead(lead: Omit<Lead, 'id' | 'createdAt'>): Lead {
 
   const arrival: ActivityEntry = {
     id: uid(), ts: createdAt, type: 'note',
-    text: `Entered the system${lead.source ? ` via ${lead.source}` : ''}.`,
+    text: `Entró en el sistema${lead.source ? ` vía ${lead.source}` : ''}.`,
   }
   const item: Lead = { ...lead, id: uid(), createdAt, activity: [arrival, ...(lead.activity ?? [])] }
   save(LEADS_KEY, [item, ...getLeads()])
@@ -345,7 +345,7 @@ export function updateProposal(id: string, patch: Partial<Proposal>): void {
 }
 
 export function voidProposal(id: string, reason?: string): void {
-  updateProposal(id, { status: 'void', notes: reason ? `VOIDED: ${reason}` : 'VOIDED' })
+  updateProposal(id, { status: 'void', notes: reason ? `ANULADA: ${reason}` : 'ANULADA' })
 }
 
 export function deleteProposal(id: string): void {
@@ -708,7 +708,7 @@ export function createInvoiceFromProposal(proposal: Proposal): Invoice {
     amountPaid: 0,
     currency: proposal.currency,
     status: 'sent',
-    notes: `First month retainer. Generated from signed proposal ${proposal.ref}.\n\nRemaining months will be invoiced automatically each month as the partnership grows.`,
+    notes: `Primer mes. Generada desde la propuesta firmada ${proposal.ref}.\n\nLos meses siguientes se facturarán automáticamente cada mes.`,
     issueDate: today.toISOString().slice(0, 10),
     dueDate: due.toISOString().slice(0, 10),
     proposalId: proposal.id,
@@ -761,7 +761,7 @@ export function createPhaseInvoice(proposal: Proposal, phaseIndex: number): Invo
     amountPaid: 0,
     currency: proposal.currency,
     status: 'draft',
-    notes: `${phase.label}, payment ${phaseIndex + 1} of ${steps}, per the signed proposal ${proposal.ref}.`,
+    notes: `${phase.label}, pago ${phaseIndex + 1} de ${steps}, según la propuesta firmada ${proposal.ref}.`,
     issueDate: iso(today),
     dueDate: iso(due),
     proposalId: proposal.id,
@@ -806,7 +806,7 @@ export function createCommissionInvoice(
     status: 'draft',
     notes: lang === 'es'
       ? `Comisión por clientes nuevos${when ? ` de ${when}` : ''}, según el acuerdo firmado ${proposal.ref}. ${billed === 1 ? '1 cliente nuevo' : `${billed} clientes nuevos`}; ${total} en total desde el inicio del acuerdo.`
-      : `Commission for new clients${when ? ` in ${when}` : ''}, per the signed agreement ${proposal.ref}. ${billed} new ${billed === 1 ? 'client' : 'clients'}; ${total} in total since the agreement began.`,
+      : `Comisión por clientes nuevos${when ? ` en ${when}` : ''}, según el acuerdo firmado ${proposal.ref}. ${billed} ${billed === 1 ? 'cliente nuevo' : 'clientes nuevos'}; ${total} en total desde el inicio del acuerdo.`,
     issueDate: iso(today),
     dueDate: iso(due),
     proposalId: proposal.id,
@@ -854,9 +854,9 @@ export function migrateOfferCategories(): void {}
 
 function monthlySchedule(monthly: number, months = 6): PaymentMilestone[] {
   return Array.from({ length: months }, (_, i) => ({
-    label: `Month ${i + 1}`,
+    label: `Mes ${i + 1}`,
     amount: monthly,
-    note: i === 0 ? 'Due on signing. Starts the engagement.' : `Billed on the same day of month ${i + 1}.`,
+    note: i === 0 ? 'Se paga al firmar. Empieza el programa.' : `Se cobra el mismo día del mes ${i + 1}.`,
   }))
 }
 

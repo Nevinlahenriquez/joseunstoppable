@@ -29,19 +29,19 @@ export default function OsError({ error, unstable_retry }: { error: Error & { di
       <div className="os-card" style={{ padding: '36px 28px' }}>
         <i className="ti ti-refresh-alert" style={{ fontSize: 34, color: 'var(--os-accent)' }} />
         <h1 style={{ fontSize: 22, fontWeight: 800, color: 'var(--os-text)', margin: '14px 0 8px' }}>
-          {stale ? 'The dashboard was just updated' : 'This page hit a problem'}
+          {stale ? 'El panel se acaba de actualizar' : 'Esta página tuvo un problema'}
         </h1>
         <p style={{ fontSize: 14, color: 'var(--os-text-faint)', lineHeight: 1.6, margin: '0 0 22px' }}>
           {stale
-            ? 'A new version went live while this tab was open. Reload to get it. Nothing you saved is lost.'
-            : 'Something on this page failed to load. Your data is safe. Try again, or go back to the dashboard.'}
+            ? 'Se publicó una versión nueva mientras tenías esta pestaña abierta. Recarga para verla. No se ha perdido nada de lo que guardaste.'
+            : 'Algo de esta página no se pudo cargar. Tus datos están a salvo. Inténtalo de nuevo o vuelve al inicio.'}
         </p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
           <button className="os-btn os-btn-primary" onClick={() => (stale ? window.location.reload() : unstable_retry())}>
-            {stale ? 'Reload' : 'Try again'}
+            {stale ? 'Recargar' : 'Reintentar'}
           </button>
           <Link href="/admin" className="os-btn" style={{ background: 'var(--os-card-alt)', color: 'var(--os-text)', border: '1px solid var(--os-line)' }}>
-            Back to dashboard
+            Volver al inicio
           </Link>
         </div>
       </div>

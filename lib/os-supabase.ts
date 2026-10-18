@@ -10,7 +10,7 @@ export async function serviceDb(): Promise<SupabaseClient | null> {
 
 export const NO_DB = {
   ok: false,
-  error: 'SUPABASE_SERVICE_ROLE_KEY is not set in Vercel, so nothing can be read or saved.',
+  error: 'Falta SUPABASE_SERVICE_ROLE_KEY en Vercel: no se puede leer ni guardar nada.',
 } as const
 
 export function isMissingTable(error: { code?: string; message?: string } | null | undefined): boolean {

@@ -1,7 +1,7 @@
 
 export type Money3 = 'USD' | 'EUR' | 'AWG'
 
-export const INVOICE_CURRENCIES = ['USD', 'EUR'] as const
+export const INVOICE_CURRENCIES = ['EUR', 'USD'] as const
 export type InvoiceCurrency = (typeof INVOICE_CURRENCIES)[number]
 
 export function currencyOptions(current?: string): Money3[] {

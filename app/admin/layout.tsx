@@ -42,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/events',   icon: 'events', label: 'Eventos' },
       { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(14,113,172,.14)', badgeColor: 'var(--os-accent)' },
       { href: '/admin/links',    icon: 'funnels', label: 'Link en bio' },
+      { href: '/admin/insights', icon: 'analytics', label: 'Estadísticas' },
       { href: '/admin/attribution', icon: 'insights', label: 'Anuncios vs directo' },
       { href: '/admin/offers',   icon: 'offers', label: 'Ofertas' },
     ],
@@ -91,9 +92,9 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
       {onClose ? (
         <div className="os-logo os-sheet-head">
           <div className="os-logo-text">
-            <div className="os-logo-name">Menu</div>
+            <div className="os-logo-name">Menú</div>
           </div>
-          <button className="os-sidebar-close" onClick={onClose} aria-label="Close menu">✕</button>
+          <button className="os-sidebar-close" onClick={onClose} aria-label="Cerrar menú">✕</button>
         </div>
       ) : (
         <div className="os-logo">
@@ -111,8 +112,8 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
           <button
             className="os-collapse-btn"
             onClick={onToggle}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={collapsed ? 'Expand' : 'Collapse'}
+            aria-label={collapsed ? 'Expandir menú lateral' : 'Contraer menú lateral'}
+            title={collapsed ? 'Expandir' : 'Contraer'}
           >
             {collapsed ? '›' : '‹'}
           </button>
@@ -190,17 +191,17 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
             {}
             <ThemeToggle variant="row" />
             <Link href="/" className="os-back-link" onClick={onClose}>
-              ← Back to website
+              ← Volver a la web
             </Link>
             <a href="/api/auth/logout" className="os-back-link" style={{ color: 'var(--os-bad)' }}>
-              Sign out
+              Cerrar sesión
             </a>
           </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
             <div className="os-agent-avatar" style={{ width: 30, height: 30, fontSize: 12 }}>J</div>
             <ThemeToggle />
-            <Link href="/" className="os-back-link" style={{ fontSize: 15, padding: 4 }} title="Back to website">←</Link>
+            <Link href="/" className="os-back-link" style={{ fontSize: 15, padding: 4 }} title="Volver a la web">←</Link>
           </div>
         )}
       </div>
@@ -313,7 +314,7 @@ export default function OsLayout({ children }: { children: React.ReactNode }) {
       </main>
 
       {}
-      <nav className="os-tabbar" aria-label="Primary">
+      <nav className="os-tabbar" aria-label="Principal">
         {(who?.partner ? PARTNER_TAB_BAR : TAB_BAR).map(tab => {
           const active = tab.href === '/admin' ? layoutPath === '/admin' : layoutPath.startsWith(tab.href)
           const badge = tab.badgeKey ? counts[tab.badgeKey] : 0
@@ -338,10 +339,10 @@ export default function OsLayout({ children }: { children: React.ReactNode }) {
           className={`os-tab os-tab-menu${menuOpen ? ' active' : ''}`}
           onClick={() => setMenuOpen(true)}
           aria-expanded={menuOpen}
-          aria-label="Open menu"
+          aria-label="Abrir menú"
         >
           <span className="os-tab-icon" aria-hidden="true"><OsIcon name="menu" size={22} strokeWidth={1.9} /></span>
-          <span className="os-tab-label">Menu</span>
+          <span className="os-tab-label">Menú</span>
         </button>
       </nav>
 

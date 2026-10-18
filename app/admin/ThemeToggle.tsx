@@ -25,8 +25,8 @@ export default function ThemeToggle({ variant = 'icon' }: { variant?: 'icon' | '
     if (meta) meta.setAttribute('content', next ? '#F4F1F7' : '#06040B')
   }
 
-  const label = light ? 'Dark mode' : 'Light mode'
-  const hint = light ? 'Switch to dark' : 'Switch to light'
+  const label = light ? 'Modo oscuro' : 'Modo claro'
+  const hint = light ? 'Cambiar a oscuro' : 'Cambiar a claro'
 
   if (variant === 'row') {
     return (

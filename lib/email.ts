@@ -11,7 +11,7 @@ export const EMAIL_FROM = process.env.EMAIL_FROM
 export const EMAIL_REPLY_TO = 'hola@joseunstoppable.com'
 
 export const OWNER_EMAIL = process.env.OWNER_EMAIL ?? 'hola@joseunstoppable.com'
-export const WHATSAPP_URL = 'https://wa.me/'
+export const WHATSAPP_URL = 'https://wa.me/34649764886'
 export const LOGO_URL = `${SITE_URL}/email-logo.png`
 
 const FROM_ADDRESS = (EMAIL_FROM.match(/<([^>]+)>/)?.[1] ?? EMAIL_FROM).trim()

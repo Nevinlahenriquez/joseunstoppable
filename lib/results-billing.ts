@@ -60,8 +60,9 @@ export function clientsInvoiced(proposalId: string, invoices: Invoice[]): number
 }
 
 export type ProposalLang = 'en' | 'es'
-export function proposalLang(p: { paymentSchedule?: PaymentMilestone[] }): ProposalLang {
-  return (p.paymentSchedule ?? []).some(m => /^\s*(al|por)\s/i.test(m.label ?? '')) ? 'es' : 'en'
+// José's clients read Spanish, so every client-facing document is in Spanish.
+export function proposalLang(_p: { paymentSchedule?: PaymentMilestone[] }): ProposalLang {
+  return 'es'
 }
 
 export function commissionLines(
@@ -88,10 +89,10 @@ export function commissionLines(
         ? (lang === 'es' ? 'Comisión por cliente nuevo' : 'Commission per new client')
         : lang === 'es'
         ? `Comisión por cliente nuevo (tramo ${t.from} a ${t.to})`
-        : `Commission per new client (clients ${t.from} to ${t.to})`,
+        : `Comisión por cliente nuevo (clientes ${t.from} a ${t.to})`,
       description: lang === 'es'
         ? (take === 1 ? `Cliente número ${start}` : `Clientes número ${start} a ${end}`)
-        : (take === 1 ? `Client number ${start}` : `Clients number ${start} to ${end}`),
+        : (take === 1 ? `Cliente número ${start}` : `Clientes número ${start} a ${end}`),
       quantity: take,
       price: t.price,
     })

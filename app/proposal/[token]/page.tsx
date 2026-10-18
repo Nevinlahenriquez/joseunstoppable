@@ -9,11 +9,11 @@ import { isResultsBased, proposalLang, resultsTiers, resultsCap, hasCap } from '
 type Params = { token: string }
 
 function fmt(n: number, currency: string) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency, maximumFractionDigits: 0 }).format(n)
 }
 
 function fmtDate(iso: string, es = false) {
-  return new Date(iso).toLocaleDateString(es ? 'es-ES' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return new Date(iso).toLocaleDateString(es ? 'es-ES' : 'es-ES', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 const SIG_FONT = { fontFamily: '"Snell Roundhand", "Brush Script MT", "Segoe Script", "Apple Chancery", cursive', fontStyle: 'italic' as const }
@@ -46,7 +46,7 @@ function ValidityCountdown({ expiresAt, es = false }: { expiresAt: Date; es?: bo
       {expired ? (
         <>{es ? 'Esta propuesta ya pasó su fecha de validez y no se puede firmar. Si ahora es buen momento, escríbeme.' : 'This proposal has passed its validity date and can no longer be signed. If the timing is right for you now, just get in touch.'}</>
       ) : (
-        <>{es ? 'Válida hasta el' : 'Valid until'} {expiresAt.toLocaleDateString(es ? 'es-ES' : 'en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}.</>
+        <>{es ? 'Válida hasta el' : 'Valid until'} {expiresAt.toLocaleDateString(es ? 'es-ES' : 'es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}.</>
       )}
     </div>
   )
@@ -82,7 +82,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
       if (p?.status === 'signed') {
         setStep('signed')
         setSignerName(p.signerName ?? '')
-        setSignedAt(p.signedAt ? new Date(p.signedAt).toLocaleString('en-US', {
+        setSignedAt(p.signedAt ? new Date(p.signedAt).toLocaleString('es-ES', {
           timeZone: 'Europe/Madrid', month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
         }) + ' (hora de España)' : null)
         setLinkedInvoiceId(p.linkedInvoiceId ?? null)
@@ -122,7 +122,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
     setSubmitting(true)
     setError('')
     const now = new Date()
-    const signedAtStr = now.toLocaleString('en-US', {
+    const signedAtStr = now.toLocaleString('es-ES', {
       timeZone: 'Europe/Madrid', month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
     }) + ' (hora de España)'
 
@@ -149,14 +149,14 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
   }
 
   if (proposal === 'loading') {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eeecec', fontFamily: 'Inter, sans-serif', color: '#aaa' }}>Loading…</div>
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eeecec', fontFamily: 'Inter, sans-serif', color: '#aaa' }}>Cargando…</div>
   }
   if (!proposal) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#eeecec', fontFamily: 'Inter, sans-serif', gap: 12 }}>
-        <div style={{ fontSize: 20, fontWeight: 700 }}>Document not found</div>
-        <div style={{ color: '#aaa', fontSize: 14 }}>This link may be invalid or expired.</div>
-        <a href="https://wa.me/" style={{ marginTop: 12, padding: '10px 22px', background: '#25D366', color: '#fff', borderRadius: 100, fontWeight: 700, textDecoration: 'none', fontSize: 13 }}>Message José</a>
+        <div style={{ fontSize: 20, fontWeight: 700 }}>Documento no encontrado</div>
+        <div style={{ color: '#aaa', fontSize: 14 }}>Puede que este enlace no sea válido o haya caducado.</div>
+        <a href="https://wa.me/34649764886" style={{ marginTop: 12, padding: '10px 22px', background: '#25D366', color: '#fff', borderRadius: 100, fontWeight: 700, textDecoration: 'none', fontSize: 13 }}>Message José</a>
       </div>
     )
   }
@@ -198,10 +198,10 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
       ? L(`Nothing upfront · paid by results · up to ${fmt(cap, proposal.currency)}`, `Nada por adelantado · pago por resultados · máximo ${fmt(cap, proposal.currency)}`)
       : L(`Nothing upfront · ${fmt(flatFee, proposal.currency)} per new paying client`, `Nada por adelantado · ${fmt(flatFee, proposal.currency)} por cliente nuevo que pague`)
     : isRecurring
-    ? `${fmt(monthlyAmount, proposal.currency)} per month · ${schedule.length} months`
+    ? `${fmt(monthlyAmount, proposal.currency)} al mes · ${schedule.length} meses`
     : schedule.length > 1
-      ? `${fmt(proposal.total, proposal.currency)} one-time fee · ${schedule.length} payments`
-      : `${fmt(proposal.total, proposal.currency)} · one payment`
+      ? `${fmt(proposal.total, proposal.currency)} en total · ${schedule.length} pagos`
+      : `${fmt(proposal.total, proposal.currency)} · un solo pago`
 
   const introParts = (proposal.intro || '').split(/\n\s*\n/)
   const promise = introParts[0] || ''
@@ -267,14 +267,14 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
         position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 30, height: 30, background: '#12002a', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          <div style={{ width: 30, height: 30, background: '#0C2A43', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             <Image src="/icon.png" alt="José Unstoppable" width={24} height={24} />
           </div>
           <span style={{ fontWeight: 700, fontSize: 13.5, color: '#1a1a2e' }}>José Unstoppable</span>
-          <span className="topbar-ref" style={{ fontSize: 11.5, color: '#bbb', marginLeft: 4 }}>/ Proposal · {proposal.ref}</span>
+          <span className="topbar-ref" style={{ fontSize: 11.5, color: '#bbb', marginLeft: 4 }}>/ Propuesta · {proposal.ref}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span className="topbar-private" style={{ fontSize: 11.5, background: '#f0fdf4', color: '#16a34a', border: '1px solid #86efac', borderRadius: 100, padding: '4px 12px', fontWeight: 600 }}>🔒 Private link</span>
+          <span className="topbar-private" style={{ fontSize: 11.5, background: '#f0fdf4', color: '#16a34a', border: '1px solid #86efac', borderRadius: 100, padding: '4px 12px', fontWeight: 600 }}>🔒 Enlace privado</span>
           {}
           <a
             href={step === 'signed' ? signedPdfHref : pdfDownloadHref}
@@ -282,8 +282,8 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
             rel="noopener noreferrer"
             style={{
               display: 'flex', alignItems: 'center', gap: 7, padding: '11px 16px', minHeight: 44,
-              background: step === 'signed' ? '#12002a' : '#fff',
-              color: step === 'signed' ? '#fff' : '#12002a',
+              background: step === 'signed' ? '#0C2A43' : '#fff',
+              color: step === 'signed' ? '#fff' : '#0C2A43',
               border: step === 'signed' ? 'none' : '1px solid #d9d2ea',
               borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 12.5,
               fontFamily: 'inherit', textDecoration: 'none', whiteSpace: 'nowrap',
@@ -308,41 +308,38 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div className="doc-mark" style={{ width: 40, height: 40, background: '#12002a', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+                  <div className="doc-mark" style={{ width: 40, height: 40, background: '#0C2A43', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
                     <Image src="/icon.png" alt="José Unstoppable" width={36} height={36} style={{ objectFit: 'contain' }} />
                   </div>
-                  <div className="doc-wordmark" style={{ fontWeight: 800, fontSize: 16, color: '#12002a', letterSpacing: '-.01em' }}>José Unstoppable</div>
+                  <div className="doc-wordmark" style={{ fontWeight: 800, fontSize: 16, color: '#0C2A43', letterSpacing: '-.01em' }}>José Unstoppable</div>
                 </div>
                 {}
                 <div className="doc-from" style={{ lineHeight: 1.7, fontSize: 12, color: '#666' }}>
-                  <div style={{ fontWeight: 600, color: '#444' }}>Unstoppable E-Commerce &amp; Leadership Training</div>
-                  <div>Operating under José Unstoppable</div>
-                  <div>{process.env.NEXT_PUBLIC_BUSINESS_ADDRESS}</div>
+                  <div style={{ fontWeight: 600, color: '#444' }}>Coaching online 1:1</div>
+                                    <div>{process.env.NEXT_PUBLIC_BUSINESS_ADDRESS}</div>
                   <div>hola@joseunstoppable.com</div>
-                  <div></div>
-                  <div style={{ marginTop: 4, fontSize: 11, color: '#999' }}>Tax registration pending</div>
                 </div>
               </div>
 
               <div className="doc-head-right" style={{ textAlign: 'right' }}>
                 <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 8 }}>{L('Service Agreement', 'Acuerdo de servicio')}</div>
-                <div className="doc-ref" style={{ fontSize: 16, fontWeight: 800, color: '#12002a', marginBottom: 14, lineHeight: 1.2, letterSpacing: '.01em' }}>{proposal.ref}</div>
+                <div className="doc-ref" style={{ fontSize: 16, fontWeight: 800, color: '#0C2A43', marginBottom: 14, lineHeight: 1.2, letterSpacing: '.01em' }}>{proposal.ref}</div>
                 <div style={{ fontSize: 12.5, color: '#666', lineHeight: 2.1 }}>
                   <div className="meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
                     <span style={{ color: '#999' }}>{L('Prepared', 'Preparado')}</span>
-                    <span style={{ fontWeight: 600, color: '#12002a', minWidth: 140, textAlign: 'right' }}>{fmtDate(proposal.createdAt, es)}</span>
+                    <span style={{ fontWeight: 600, color: '#0C2A43', minWidth: 140, textAlign: 'right' }}>{fmtDate(proposal.createdAt, es)}</span>
                   </div>
                   <div className="meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
                     <span style={{ color: '#999' }}>{L('Valid until', 'Válido hasta')}</span>
-                    <span style={{ fontWeight: 600, color: '#12002a', minWidth: 140, textAlign: 'right' }}>{fmtDate(expiresAt.toISOString(), es)}</span>
+                    <span style={{ fontWeight: 600, color: '#0C2A43', minWidth: 140, textAlign: 'right' }}>{fmtDate(expiresAt.toISOString(), es)}</span>
                   </div>
                   <div className="meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
                     <span style={{ color: '#999' }}>{L('Prepared for', 'Preparado para')}</span>
-                    <span style={{ fontWeight: 700, color: '#12002a', minWidth: 140, textAlign: 'right' }}>{proposal.clientName}</span>
+                    <span style={{ fontWeight: 700, color: '#0C2A43', minWidth: 140, textAlign: 'right' }}>{proposal.clientName}</span>
                   </div>
                   {proposal.clientCompany && (
                     <div className="meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
-                      <span style={{ color: '#999' }}>Company</span>
+                      <span style={{ color: '#999' }}>Empresa</span>
                       <span style={{ fontWeight: 500, color: '#333', minWidth: 140, textAlign: 'right' }}>{proposal.clientCompany}</span>
                     </div>
                   )}
@@ -350,11 +347,11 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
               </div>
             </div>
 
-            <div style={{ borderTop: '2px solid #12002a', marginBottom: 32 }} />
+            <div style={{ borderTop: '2px solid #0C2A43', marginBottom: 32 }} />
 
             {}
             <div style={{ marginBottom: 28 }}>
-              <div className="doc-title" style={{ fontSize: 20, fontWeight: 800, color: '#12002a', lineHeight: 1.3, marginBottom: 4 }}>{proposal.title}</div>
+              <div className="doc-title" style={{ fontSize: 20, fontWeight: 800, color: '#0C2A43', lineHeight: 1.3, marginBottom: 4 }}>{proposal.title}</div>
               {}
               {!showSigned && !isPdf && <div style={{ marginTop: 18 }}><ValidityCountdown expiresAt={expiresAt} es={es} /></div>}
               <div style={{ fontSize: 14, color: '#0E71AC', fontWeight: 600 }}>{priceLabel}</div>
@@ -362,9 +359,9 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
 
             {}
             {proposal.intro && (
-              <div className="no-break" style={{ marginBottom: 32, paddingBottom: 28, borderBottom: '1px solid #f0eafc' }}>
+              <div className="no-break" style={{ marginBottom: 32, paddingBottom: 28, borderBottom: '1px solid #E4F4FD' }}>
                 {promise && (
-                  <p style={{ margin: '0 0 18px', fontSize: 17, lineHeight: 1.62, color: '#12002a', fontWeight: 600, whiteSpace: 'pre-line' }}>
+                  <p style={{ margin: '0 0 18px', fontSize: 17, lineHeight: 1.62, color: '#0C2A43', fontWeight: 600, whiteSpace: 'pre-line' }}>
                     {promise}
                   </p>
                 )}
@@ -407,7 +404,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
           </div>
 
           {}
-          <div className="print-break doc-pad" style={{ padding: '52px 60px 40px', borderTop: '8px solid #12002a' }}>
+          <div className="print-break doc-pad" style={{ padding: '52px 60px 40px', borderTop: '8px solid #0C2A43' }}>
 
             {proposal.deliverables.length > 0 && (
               <div className="no-break" style={{ marginBottom: 32 }}>
@@ -438,23 +435,23 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                   </p>
                   <div className="tbl-wrap"><table className="inv-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 0 }}>
                     <thead>
-                      <tr style={{ background: '#12002a' }}>
+                      <tr style={{ background: '#0C2A43' }}>
                         {[L('Clients', 'Clientes'), L('Per new client', 'Por cliente nuevo')].map((h, i) => (
-                          <th key={h} style={{ padding: '10px 14px', textAlign: i === 0 ? 'left' : 'right', fontSize: 11, fontWeight: 700, color: '#e8e0f8', letterSpacing: 0.6, textTransform: 'uppercase' }}>{h}</th>
+                          <th key={h} style={{ padding: '10px 14px', textAlign: i === 0 ? 'left' : 'right', fontSize: 11, fontWeight: 700, color: '#E4F4FD', letterSpacing: 0.6, textTransform: 'uppercase' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {tiers.map((t, i) => (
-                        <tr key={t.phaseIndex} style={{ borderBottom: '1px solid #ede8f8', background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
-                          <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 13, color: '#12002a' }}>{Number.isFinite(t.to) ? L(`Clients ${t.from} to ${t.to}`, `Clientes ${t.from} a ${t.to}`) : L('Each new paying client', 'Cada cliente nuevo que pague')}</td>
+                        <tr key={t.phaseIndex} style={{ borderBottom: '1px solid #E4F4FD', background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
+                          <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 13, color: '#0C2A43' }}>{Number.isFinite(t.to) ? L(`Clients ${t.from} to ${t.to}`, `Clientes ${t.from} a ${t.to}`) : L('Each new paying client', 'Cada cliente nuevo que pague')}</td>
                           <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, fontSize: 13.5, color: '#0E71AC', whiteSpace: 'nowrap' }}>{fmt(t.price, proposal.currency)}
                             {Number.isFinite(t.to) && <div style={{ fontSize: 11, fontWeight: 500, color: '#888' }}>{L('max', 'máx.')} {fmt((t.to - t.from + 1) * t.price, proposal.currency)}</div>}</td>
                         </tr>
                       ))}
-                      {capped && <tr style={{ background: '#f5f0ff' }}>
-                        <td style={{ padding: '12px 14px', fontWeight: 800, fontSize: 13, color: '#12002a' }}>{L('Most it can ever be', 'Máximo posible')}</td>
-                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 800, fontSize: 14.5, color: '#12002a', whiteSpace: 'nowrap' }}>{fmt(cap, proposal.currency)}</td>
+                      {capped && <tr style={{ background: '#F1F8FD' }}>
+                        <td style={{ padding: '12px 14px', fontWeight: 800, fontSize: 13, color: '#0C2A43' }}>{L('Most it can ever be', 'Máximo posible')}</td>
+                        <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 800, fontSize: 14.5, color: '#0C2A43', whiteSpace: 'nowrap' }}>{fmt(cap, proposal.currency)}</td>
                       </tr>}
                     </tbody>
                   </table></div>
@@ -463,35 +460,35 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                 <>
                   <p style={{ fontSize: 13.5, color: '#444', lineHeight: 1.8, margin: '0 0 16px' }}>
                     {isFlatRetainer
-                      ? `A flat monthly retainer of ${fmt(monthlyAmount, proposal.currency)} covers the entire engagement, the full build and its ongoing management, invoiced at the start of each month with no setup fee and no separate build cost. Here is what that retainer delivers across the engagement, in priority order.`
+                      ? `Una cuota mensual fija de ${fmt(monthlyAmount, proposal.currency)} cubre todo el programa, facturada al inicio de cada mes, sin coste de alta. Esto es lo que incluye mes a mes.`
                       : isRecurring
-                        ? 'The engagement is billed as a monthly retainer, invoiced at the start of each phase. Each phase builds on the last as we layer in more services and your results compound.'
-                        : `A one-time fee of ${fmt(proposal.total, proposal.currency)}, split into ${schedule.length} payments. Nothing recurring, and nothing further to pay once the work is delivered.`}
+                        ? 'El programa se paga en cuotas mensuales, facturadas al inicio de cada fase. Cada fase se apoya en la anterior y tus resultados se van sumando.'
+                        : `Un importe único de ${fmt(proposal.total, proposal.currency)}, dividido en ${schedule.length} pagos. Sin cuotas recurrentes y sin nada más que pagar al terminar.`}
                   </p>
                   <div className="tbl-wrap"><table className="inv-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: 460 }}>
                     <thead>
-                      <tr style={{ background: '#12002a' }}>
-                        {['#', isFlatRetainer || isRecurring ? 'Phase' : 'Payment', 'What We Build', isFlatRetainer || isRecurring ? 'Monthly Retainer' : 'Amount'].map((h, i) => (
-                          <th key={h} style={{ padding: '10px 14px', textAlign: i === 3 ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#e8e0f8', letterSpacing: 0.6, textTransform: 'uppercase' }}>{h}</th>
+                      <tr style={{ background: '#0C2A43' }}>
+                        {['#', isFlatRetainer || isRecurring ? 'Fase' : 'Pago', 'Qué incluye', isFlatRetainer || isRecurring ? 'Cuota mensual' : 'Importe'].map((h, i) => (
+                          <th key={h} style={{ padding: '10px 14px', textAlign: i === 3 ? 'right' : 'left', fontSize: 11, fontWeight: 700, color: '#E4F4FD', letterSpacing: 0.6, textTransform: 'uppercase' }}>{h}</th>
                         ))}
                       </tr>
                     </thead>
                     <tbody>
                       {schedule.map((m, i) => (
-                        <tr key={i} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
+                        <tr key={i} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#E4F4FD' : '#F1F8FD'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
                           <td style={{ padding: '12px 14px', fontSize: 12, color: '#aaa', width: 32 }}>#{i + 1}</td>
-                          <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 13, color: '#12002a' }}>{m.label}</td>
+                          <td style={{ padding: '12px 14px', fontWeight: 700, fontSize: 13, color: '#0C2A43' }}>{m.label}</td>
                           <td style={{ padding: '12px 14px', fontSize: 12, color: '#777', lineHeight: 1.5 }}>{m.note}</td>
-                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, fontSize: 13.5, color: '#0E71AC', whiteSpace: 'nowrap' }}>{fmt(m.amount, proposal.currency)}{(isFlatRetainer || isRecurring) ? '/mo' : ''}</td>
+                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 700, fontSize: 13.5, color: '#0E71AC', whiteSpace: 'nowrap' }}>{fmt(m.amount, proposal.currency)}{(isFlatRetainer || isRecurring) ? '/mes' : ''}</td>
                         </tr>
                       ))}
                       {}
                       {!isFlatRetainer && !isRecurring && (
-                        <tr style={{ background: '#f5f0ff' }}>
+                        <tr style={{ background: '#F1F8FD' }}>
                           <td />
-                          <td style={{ padding: '12px 14px', fontWeight: 800, fontSize: 13, color: '#12002a' }}>Total</td>
-                          <td style={{ padding: '12px 14px', fontSize: 12, color: '#777' }}>One-time fee. Nothing recurring.</td>
-                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 800, fontSize: 14.5, color: '#12002a', whiteSpace: 'nowrap' }}>{fmt(proposal.total, proposal.currency)}</td>
+                          <td style={{ padding: '12px 14px', fontWeight: 800, fontSize: 13, color: '#0C2A43' }}>Total</td>
+                          <td style={{ padding: '12px 14px', fontSize: 12, color: '#777' }}>Pago único. Sin cuotas recurrentes.</td>
+                          <td style={{ padding: '12px 14px', textAlign: 'right', fontWeight: 800, fontSize: 14.5, color: '#0C2A43', whiteSpace: 'nowrap' }}>{fmt(proposal.total, proposal.currency)}</td>
                         </tr>
                       )}
                     </tbody>
@@ -502,23 +499,22 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                   {}
                   <p style={{ fontSize: 13.5, color: '#444', lineHeight: 1.8, margin: '0 0 16px' }}>
                     {isSinglePayment
-                      ? 'One payment covers everything laid out in this agreement. No setup fee, no monthly cost, and nothing further owed once the project is complete.'
-                      : 'A single flat monthly retainer covers everything laid out in this agreement, the full build and its ongoing management. It is invoiced at the start of each month, with no setup fee and no separate build cost.'}
+                      ? 'Un solo pago cubre todo lo que recoge este acuerdo. Sin coste de alta, sin cuota mensual y sin nada más que pagar.'
+                      : 'Una cuota mensual fija cubre todo lo que recoge este acuerdo. Se factura al inicio de cada mes, sin coste de alta.'}
                   </p>
-                  <div className="no-break retainer-box" style={{ display: 'flex', alignItems: 'baseline', gap: 10, background: '#12002a', borderRadius: 12, padding: '26px 30px' }}>
+                  <div className="no-break retainer-box" style={{ display: 'flex', alignItems: 'baseline', gap: 10, background: '#0C2A43', borderRadius: 12, padding: '26px 30px' }}>
                     <span style={{ fontSize: 40, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{fmt(monthlyAmount, proposal.currency)}</span>
-                    <span style={{ fontSize: 16, fontWeight: 600, color: '#b9a6ee' }}>{isSinglePayment ? 'one payment' : '/ month'}</span>
-                    <span className="side-note" style={{ marginLeft: 'auto', fontSize: 12.5, color: '#c9bdf0', fontWeight: 500, maxWidth: 210, textAlign: 'right', lineHeight: 1.5 }}>
-                      {isSinglePayment ? 'Everything in the scope above, included.' : 'Build, management, and everything in the scope above, included.'}
+                    <span style={{ fontSize: 16, fontWeight: 600, color: '#BFE6FA' }}>{isSinglePayment ? 'un solo pago' : '/ mes'}</span>
+                    <span className="side-note" style={{ marginLeft: 'auto', fontSize: 12.5, color: '#BFE6FA', fontWeight: 500, maxWidth: 210, textAlign: 'right', lineHeight: 1.5 }}>
+                      {isSinglePayment ? 'Todo lo descrito arriba, incluido.' : 'Todo lo descrito arriba, incluido cada mes.'}
                     </span>
                   </div>
                 </>
               )}
               {}
               {!isSinglePayment && (isFlatRetainer || isRecurring) && (
-                <div style={{ marginTop: 12, padding: '12px 16px', background: '#f5f0ff', borderRadius: 8, fontSize: 12.5, color: '#0E71AC', fontWeight: 500 }}>
-                  {}
-                  Note: Ad spend on Meta and Google, plus any AI tools we set up for your business, are separate from this {isFlatRetainer || isRecurring ? 'retainer' : 'fee'} and will be fully owned by you.
+                <div style={{ marginTop: 12, padding: '12px 16px', background: '#F1F8FD', borderRadius: 8, fontSize: 12.5, color: '#0E71AC', fontWeight: 500 }}>
+                  Puedes pausar o cancelar avisando con 30 días de antelación.
                 </div>
               )}
             </div>
@@ -530,13 +526,13 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                 {}
                 {results ? (
                   <>{L(
-                    'Signing activates this agreement; nothing is paid on signing. Commission invoices are due within 7 days. Everything built belongs to you from day one. Anything outside the scope above is quoted separately and paid before the work starts. If either of us stops, clients already brought in remain billable and anything finished is yours to keep.',
-                    'La firma activa este acuerdo; no se paga nada al firmar. Las facturas de comisión se pagan dentro de 7 días. Todo lo que se construye es tuyo desde el primer día. Cualquier trabajo fuera del alcance de arriba se cotiza aparte y se paga antes de empezar. Si alguno de los dos para, los clientes ya conseguidos siguen siendo facturables y todo lo terminado es tuyo.',
+                    'Signing activates this agreement; nothing is paid on signing. Commission invoices are due within 7 days. Anything outside the scope above is quoted separately.',
+                    'La firma activa este acuerdo; no se paga nada al firmar. Las facturas se pagan dentro de 7 días. Cualquier servicio fuera de lo descrito arriba se presupuesta aparte.',
                   )}</>
                 ) : isRecurring ? (
-                  <>Payment of the first monthly retainer activates this agreement and work begins within 48 hours. Each subsequent month is invoiced at the start of that month. All assets, accounts, and intellectual property created under this agreement belong to you from day one. Either party may pause or discontinue with 30 days written notice; work completed to that point remains billable. Our goal is a long-term partnership, not a one-time project.</>
+                  <>El pago de la primera cuota activa este acuerdo y empezamos en un plazo de 48 horas. Cada mes siguiente se factura al inicio del mes. Cualquiera de las dos partes puede pausar o terminar el programa avisando por escrito con 30 días de antelación; los meses ya empezados se pagan completos. Tu plan, tus rutinas y tus recetas son tuyos para siempre.</>
                 ) : (
-                  <>The first payment activates this agreement and work begins straight away. All assets, accounts, and intellectual property created under this agreement belong to you from day one. If either of us needs to stop, work completed to that point remains billable and anything finished is yours to keep.</>
+                  <>El primer pago activa este acuerdo y empezamos enseguida. Tu plan, tus rutinas y tus recetas son tuyos para siempre. Si sigues el plan durante los 90 días (entrenos y check-ins semanales) y no ves resultados, te devuelvo el 100% de tu dinero.</>
                 )}
               </div>
             </div>
@@ -551,12 +547,12 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
           </div>
 
           {}
-          <div className="print-break doc-pad" style={{ padding: '52px 60px 52px', borderTop: '8px solid #12002a' }}>
+          <div className="print-break doc-pad" style={{ padding: '52px 60px 52px', borderTop: '8px solid #0C2A43' }}>
 
             <div style={{ marginBottom: 24 }}>
               <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>{L('Electronic Signatures', 'Firmas electrónicas')}</div>
               <div style={{ fontSize: 12.5, color: '#666', lineHeight: 1.85, maxWidth: 560 }}>
-                {L('By signing below,', 'Al firmar,')} <strong style={{ color: '#12002a' }}>{proposal.clientName}</strong> {L('confirms they have read, understood, and agree to all terms in this agreement. Typing your name is your electronic signature and holds the same legal validity as a handwritten one.', 'confirma que ha leído, entendido y acepta todas las condiciones de este acuerdo. Escribir tu nombre es tu firma electrónica y tiene la misma validez que una firma a mano.')}
+                {L('By signing below,', 'Al firmar,')} <strong style={{ color: '#0C2A43' }}>{proposal.clientName}</strong> {L('confirms they have read, understood, and agree to all terms in this agreement. Typing your name is your electronic signature and holds the same legal validity as a handwritten one.', 'confirma que ha leído, entendido y acepta todas las condiciones de este acuerdo. Escribir tu nombre es tu firma electrónica y tiene la misma validez que una firma a mano.')}
               </div>
             </div>
 
@@ -565,26 +561,26 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
               {}
               <div style={{ border: '1.5px solid #E4F4FD', borderRadius: 10, padding: '22px 24px', background: '#F1F8FD' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 16 }}>{L('For José Unstoppable', 'Por José Unstoppable')}</div>
-                <div style={{ ...SIG_FONT, fontSize: 34, color: '#12002a', lineHeight: 1, marginBottom: 12 }}>José Unstoppable</div>
-                <div style={{ borderTop: '1px solid #ddd', paddingTop: 8, fontWeight: 800, fontSize: 14, color: '#12002a' }}>José Unstoppable</div>
+                <div style={{ ...SIG_FONT, fontSize: 34, color: '#0C2A43', lineHeight: 1, marginBottom: 12 }}>José Unstoppable</div>
+                <div style={{ borderTop: '1px solid #ddd', paddingTop: 8, fontWeight: 800, fontSize: 14, color: '#0C2A43' }}>José Unstoppable</div>
                 <div style={{ fontSize: 12, color: '#888' }}>{L('Founder, José Unstoppable', 'Fundador, José Unstoppable')}</div>
               </div>
 
               {}
-              <div style={{ border: `1.5px solid ${showSigned ? '#12002a' : '#E4F4FD'}`, borderRadius: 10, padding: '22px 24px', background: showSigned ? '#fff' : '#F1F8FD' }}>
+              <div style={{ border: `1.5px solid ${showSigned ? '#0C2A43' : '#E4F4FD'}`, borderRadius: 10, padding: '22px 24px', background: showSigned ? '#fff' : '#F1F8FD' }}>
                 <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 16 }}>{L('For', 'Por')} {proposal.clientCompany || proposal.clientName}</div>
                 {showSigned ? (
                   <>
-                    <div style={{ ...SIG_FONT, fontSize: 34, color: '#12002a', lineHeight: 1, marginBottom: 12 }}>{displaySigner}</div>
-                    <div style={{ borderTop: '1px solid #ddd', paddingTop: 8, fontWeight: 800, fontSize: 14, color: '#12002a' }}>{displaySigner}</div>
-                    <div style={{ fontSize: 12, color: '#888' }}>Electronically signed{displayDate ? ` · ${displayDate}` : ''}</div>
+                    <div style={{ ...SIG_FONT, fontSize: 34, color: '#0C2A43', lineHeight: 1, marginBottom: 12 }}>{displaySigner}</div>
+                    <div style={{ borderTop: '1px solid #ddd', paddingTop: 8, fontWeight: 800, fontSize: 14, color: '#0C2A43' }}>{displaySigner}</div>
+                    <div style={{ fontSize: 12, color: '#888' }}>Firmado electrónicamente{displayDate ? ` · ${displayDate}` : ''}</div>
                   </>
                 ) : isPdf ? (
-                  <div style={{ ...SIG_FONT, fontSize: 30, color: '#c4bdd4', lineHeight: 1 }}>Awaiting signature</div>
+                  <div style={{ ...SIG_FONT, fontSize: 30, color: '#B8C7D3', lineHeight: 1 }}>Pendiente de firma</div>
                 ) : (
                   <>
                     <div style={{ minHeight: 46, marginBottom: 6, display: 'flex', alignItems: 'flex-end' }}>
-                      <span style={{ ...SIG_FONT, fontSize: 34, color: signerName.trim() ? '#12002a' : '#c4bdd4', lineHeight: 1 }}>{signerName.trim() || L('Type your name', 'Escribe tu nombre')}</span>
+                      <span style={{ ...SIG_FONT, fontSize: 34, color: signerName.trim() ? '#0C2A43' : '#B8C7D3', lineHeight: 1 }}>{signerName.trim() || L('Type your name', 'Escribe tu nombre')}</span>
                     </div>
                     <div style={{ borderTop: '1px solid #ddd', paddingTop: 10, display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <input value={signerName} onChange={e => setSignerName(e.target.value)} placeholder={L('Full name', 'Nombre completo')}
@@ -593,7 +589,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                         style={{ width: '100%', padding: '9px 12px', border: '1.5px solid #ddd', borderRadius: 7, fontSize: 13.5, fontFamily: 'Inter, Arial, sans-serif', outline: 'none', boxSizing: 'border-box' }} />
                       {error && <div style={{ fontSize: 12.5, color: '#dc2626' }}>{error}</div>}
                       <button type="button" disabled={submitting} onClick={() => handleSign()}
-                        style={{ width: '100%', padding: '12px', marginTop: 4, background: submitting ? '#c4bdd4' : '#12002a', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: submitting ? 'default' : 'pointer', fontFamily: 'Inter, Arial, sans-serif' }}>
+                        style={{ width: '100%', padding: '12px', marginTop: 4, background: submitting ? '#B8C7D3' : '#0C2A43', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 14, cursor: submitting ? 'default' : 'pointer', fontFamily: 'Inter, Arial, sans-serif' }}>
                         {submitting ? L('Signing…', 'Firmando…') : L('Sign & Accept Agreement', 'Firmar y aceptar el acuerdo')}
                       </button>
                     </div>
@@ -611,7 +607,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                   {L('Thank you, José has received your signed agreement and will be in touch within 24 hours.', 'Gracias, José ha recibido tu acuerdo firmado y te escribirá en menos de 24 horas.')}
                 </div>
                 <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-                  <a href="https://wa.me/" target="_blank" rel="noopener noreferrer"
+                  <a href="https://wa.me/34649764886" target="_blank" rel="noopener noreferrer"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 20px', background: '#25D366', color: '#fff', borderRadius: 100, fontWeight: 700, textDecoration: 'none', fontSize: 13, fontFamily: 'inherit' }}>
                     💬 Message José on WhatsApp
                   </a>
@@ -619,13 +615,13 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                     <a href={`/invoice/${linkedInvoiceId}`} target="_blank" rel="noopener noreferrer"
                       style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 20px', background: '#0E71AC', color: '#fff', borderRadius: 100, fontWeight: 700, textDecoration: 'none', fontSize: 13, fontFamily: 'inherit' }}>
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
-                      View Invoice
+                      Ver factura
                     </a>
                   )}
                   <a href={signedPdfHref} target="_blank" rel="noopener noreferrer"
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 20px', background: '#12002a', color: '#fff', border: 'none', borderRadius: 100, fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none' }}>
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '10px 20px', background: '#0C2A43', color: '#fff', border: 'none', borderRadius: 100, fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none' }}>
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    Download Signed Copy
+                    Descargar copia firmada
                   </a>
                 </div>
               </div>
@@ -637,7 +633,7 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                 <div style={{ fontWeight: 600, color: '#888', marginBottom: 2 }}>José Unstoppable · {proposal.ref}</div>
                 <div>hola@joseunstoppable.com · joseunstoppable.com</div>
               </div>
-              <div style={{ width: 36, height: 36, background: '#12002a', borderRadius: 6, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 36, height: 36, background: '#0C2A43', borderRadius: 6, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Image src="/icon.png" alt="José Unstoppable" width={28} height={28} />
               </div>
             </div>

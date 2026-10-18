@@ -12,6 +12,6 @@ export async function GET(req: NextRequest) {
   const db = await serviceDb()
   if (!db) return NextResponse.json(NO_DB, { status: 503 })
   const analytics = await gatherEventAnalytics(db, id)
-  if (!analytics) return NextResponse.json({ ok: false, error: 'Event not found' }, { status: 404 })
+  if (!analytics) return NextResponse.json({ ok: false, error: 'Evento no encontrado' }, { status: 404 })
   return NextResponse.json({ ok: true, analytics })
 }

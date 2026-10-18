@@ -26,7 +26,7 @@ export async function POST(req: NextRequest) {
     const cleanNotes = scrubClientCopy(notes)
     const eNotes = escapeHtml(cleanNotes)
 
-    const cur = typeof currency === 'string' && currency ? currency : 'USD'
+    const cur = typeof currency === 'string' && currency ? currency : 'EUR'
     const fmt = (n: number) => money(n, cur, money(0, cur))
     const items: { name?: string; description?: string; quantity: number; price: number }[] = Array.isArray(lineItems) ? lineItems : []
     const subtotal = items.reduce((s, li) => s + (Number(li.quantity) || 0) * (Number(li.price) || 0), 0)
@@ -43,17 +43,17 @@ export async function POST(req: NextRequest) {
 
     const lineRows = items.map(li => `
       <tr>
-        <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;font-size:13.5px;">
-          <div style="font-weight:600;color:#0C2A43;">${escapeHtml(scrubClientCopy(li.name) || 'Service')}</div>
+        <td style="padding:10px 12px;border-bottom:1px solid #E4F4FD;font-size:13.5px;">
+          <div style="font-weight:600;color:#0C2A43;">${escapeHtml(scrubClientCopy(li.name) || 'Servicio')}</div>
           ${li.description ? `<div style="font-size:12px;color:#7b7288;margin-top:2px;">${escapeHtml(scrubClientCopy(li.description))}</div>` : ''}
         </td>
-        <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;text-align:center;font-size:13.5px;color:#5f5670;">${escapeHtml(String(li.quantity ?? 1))}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;text-align:right;font-size:13.5px;color:#5f5670;">${fmt(Number(li.price) || 0)}</td>
-        <td style="padding:10px 12px;border-bottom:1px solid #f0eafc;text-align:right;font-size:13.5px;font-weight:600;color:#0C2A43;">${fmt((Number(li.quantity) || 0) * (Number(li.price) || 0))}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #E4F4FD;text-align:center;font-size:13.5px;color:#5f5670;">${escapeHtml(String(li.quantity ?? 1))}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #E4F4FD;text-align:right;font-size:13.5px;color:#5f5670;">${fmt(Number(li.price) || 0)}</td>
+        <td style="padding:10px 12px;border-bottom:1px solid #E4F4FD;text-align:right;font-size:13.5px;font-weight:600;color:#0C2A43;">${fmt((Number(li.quantity) || 0) * (Number(li.price) || 0))}</td>
       </tr>`).join('')
 
     const card = `
-<table role="presentation" class="e-wrap" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#241a33;line-height:1.7;">
+<table role="presentation" class="e-wrap" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#0C2A43;line-height:1.7;">
   <!-- Header -->
   <tr><td>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#212A4D" style="background-color:#212A4D;border-radius:12px 12px 0 0;">
@@ -65,13 +65,13 @@ export async function POST(req: NextRequest) {
             </td>
             <td valign="middle">
               <div class="e-brand" style="color:#ffffff;font-weight:800;font-size:16px;line-height:1.2;">José Unstoppable</div>
-              <div style="color:#c4b5fd;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Invoice</div>
+              <div style="color:#BFE6FA;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Factura</div>
             </td>
           </tr></table>
         </td>
         <td class="e-hpad" style="padding:28px 32px;text-align:right;" valign="middle" align="right">
           ${numberLabel ? `<div class="e-num" style="color:#ffffff;font-weight:800;font-size:20px;line-height:1.2;">#${eInvoiceNumber}</div>` : ''}
-          <div style="color:#c4b5fd;font-size:12px;margin-top:4px;">Due ${escapeHtml(dueLabelShort)}</div>
+          <div style="color:#BFE6FA;font-size:12px;margin-top:4px;">Vence el ${escapeHtml(dueLabelShort)}</div>
         </td>
       </tr>
     </table>
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
   <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px;border:1px solid #E4F4FD;border-top:none;border-radius:0 0 12px 12px;">
     <!-- Bill to -->
     <div style="margin-bottom:28px;">
-      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8b839a;margin-bottom:6px;">Bill To</div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:#8b839a;margin-bottom:6px;">Facturar a</div>
       <div style="font-weight:700;font-size:15px;color:#0C2A43;">${eClientName}${clientCompany ? ` &middot; ${eClientCompany}` : ''}</div>
       <div style="font-size:13px;color:#5f5670;margin-top:2px;">${eClientEmail}</div>
     </div>
@@ -89,24 +89,24 @@ export async function POST(req: NextRequest) {
     <!-- Meta -->
     <table role="presentation" style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:28px;">
       <tr>
-        <td style="padding:6px 0;color:#7b7288;">Issue date</td>
-        <td style="padding:6px 0;text-align:right;font-weight:600;color:#241a33;">${escapeHtml(issueLabelLong)}</td>
+        <td style="padding:6px 0;color:#7b7288;">Fecha de emisión</td>
+        <td style="padding:6px 0;text-align:right;font-weight:600;color:#0C2A43;">${escapeHtml(issueLabelLong)}</td>
       </tr>
       <tr>
-        <td style="padding:6px 0;color:#7b7288;">Due date</td>
-        <td style="padding:6px 0;text-align:right;font-weight:600;color:#241a33;">${escapeHtml(dueLabelLong)}</td>
+        <td style="padding:6px 0;color:#7b7288;">Vencimiento</td>
+        <td style="padding:6px 0;text-align:right;font-weight:600;color:#0C2A43;">${escapeHtml(dueLabelLong)}</td>
       </tr>
-      ${projectTitle ? `<tr><td style="padding:6px 0;color:#7b7288;">Project</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#241a33;">${eProjectTitle}</td></tr>` : ''}
+      ${projectTitle ? `<tr><td style="padding:6px 0;color:#7b7288;">Concepto</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#0C2A43;">${eProjectTitle}</td></tr>` : ''}
     </table>
 
     <!-- Line items -->
     <table role="presentation" style="width:100%;border-collapse:collapse;margin-bottom:20px;">
       <thead>
         <tr bgcolor="#212A4D" style="background-color:#212A4D;">
-          <th style="padding:10px 12px;text-align:left;font-size:11px;color:#e4dcf7;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Description</th>
-          <th style="padding:10px 12px;text-align:center;font-size:11px;color:#e4dcf7;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Qty</th>
-          <th style="padding:10px 12px;text-align:right;font-size:11px;color:#e4dcf7;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Price</th>
-          <th style="padding:10px 12px;text-align:right;font-size:11px;color:#e4dcf7;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Total</th>
+          <th style="padding:10px 12px;text-align:left;font-size:11px;color:#E4F4FD;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Descripción</th>
+          <th style="padding:10px 12px;text-align:center;font-size:11px;color:#E4F4FD;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Cant.</th>
+          <th style="padding:10px 12px;text-align:right;font-size:11px;color:#E4F4FD;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Precio</th>
+          <th style="padding:10px 12px;text-align:right;font-size:11px;color:#E4F4FD;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;">Total</th>
         </tr>
       </thead>
       <tbody>${lineRows}</tbody>
@@ -114,11 +114,11 @@ export async function POST(req: NextRequest) {
 
     <!-- Totals -->
     <table role="presentation" style="width:100%;border-collapse:collapse;margin-bottom:28px;">
-      <tr><td style="padding:6px 0;color:#7b7288;font-size:13px;">Subtotal</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#241a33;">${fmt(subtotal)}</td></tr>
-      ${taxAmount ? `<tr><td style="padding:6px 0;color:#7b7288;font-size:13px;">Taxes</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#241a33;">${fmt(taxAmount)}</td></tr>` : ''}
-      ${paidAmount ? `<tr><td style="padding:6px 0;color:#7b7288;font-size:13px;">Amount paid</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#16a34a;">-${fmt(paidAmount)}</td></tr>` : ''}
+      <tr><td style="padding:6px 0;color:#7b7288;font-size:13px;">Subtotal</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#0C2A43;">${fmt(subtotal)}</td></tr>
+      ${taxAmount ? `<tr><td style="padding:6px 0;color:#7b7288;font-size:13px;">Impuestos</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#0C2A43;">${fmt(taxAmount)}</td></tr>` : ''}
+      ${paidAmount ? `<tr><td style="padding:6px 0;color:#7b7288;font-size:13px;">Importe pagado</td><td style="padding:6px 0;text-align:right;font-size:13px;color:#16a34a;">-${fmt(paidAmount)}</td></tr>` : ''}
       <tr>
-        <td bgcolor="#212A4D" style="padding:14px 16px;background-color:#212A4D;font-weight:700;font-size:14px;color:#ffffff;border-radius:8px 0 0 8px;">Balance due</td>
+        <td bgcolor="#212A4D" style="padding:14px 16px;background-color:#212A4D;font-weight:700;font-size:14px;color:#ffffff;border-radius:8px 0 0 8px;">Pendiente de pago</td>
         <td bgcolor="#212A4D" style="padding:14px 16px;background-color:#212A4D;text-align:right;font-weight:800;font-size:18px;color:#ffffff;border-radius:0 8px 8px 0;">${fmt(balance)}</td>
       </tr>
     </table>
@@ -128,19 +128,19 @@ export async function POST(req: NextRequest) {
     <!-- CTA -->
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 28px;">
       <tr><td bgcolor="#0E71AC" style="background-color:#0E71AC;border-radius:100px;">
-        <a href="${SITE_URL}/invoice/${encodeURIComponent(String(invoiceId))}" class="e-cta" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:15px 32px;border-radius:100px;text-decoration:none;">View and pay invoice</a>
+        <a href="${SITE_URL}/invoice/${encodeURIComponent(String(invoiceId))}" class="e-cta" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:15px 32px;border-radius:100px;text-decoration:none;">Ver y pagar la factura</a>
       </td></tr>
     </table>
 
-    <p style="font-size:12px;color:#8b839a;text-align:center;margin:0 0 6px;">Net 7. Payment is due within 7 days of the invoice date. Late payments incur 2% monthly interest.</p>
+    <p style="font-size:12px;color:#8b839a;text-align:center;margin:0 0 6px;">Plazo de pago: 7 días desde la fecha de la factura.</p>
     <p style="font-size:12px;color:#8b839a;text-align:center;margin:0;">José Unstoppable &middot; hola@joseunstoppable.com &middot; joseunstoppable.com</p>
   </td></tr>
 </table>`
 
     const subjectNumber = numberLabel ? `#${numberLabel} ` : ''
     const html = documentShell({
-      title: `Invoice ${subjectNumber}from José Unstoppable`.trim(),
-      preview: `${fmt(balance)} due ${dueLabelLong.toLowerCase()}.`,
+      title: `Factura ${subjectNumber}de José Unstoppable`.trim(),
+      preview: `${fmt(balance)}, vence el ${dueLabelLong.toLowerCase()}.`,
       card,
     })
 
@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
           from: FROM,
           to: [clientEmail],
           reply_to: NOTIFY_EMAIL,
-          subject: `Invoice ${subjectNumber}from José Unstoppable, ${fmt(balance)} due`,
+          subject: `Factura ${subjectNumber}de José Unstoppable, ${fmt(balance)} pendiente`,
           html,
         }),
       }),
@@ -162,6 +162,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true })
   } catch {
-    return NextResponse.json({ error: 'Failed to send invoice' }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo enviar la factura' }, { status: 500 })
   }
 }

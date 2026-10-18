@@ -1,18 +1,18 @@
-# José Unstoppable — static site
+# José Unstoppable
 
-Plain static HTML, no build step. Upload this folder's contents to the repo root.
+Next.js app: the public site plus José's sales dashboard (`/admin`), all in Spanish.
 
-- index.html — main sales page (ES/EN)
-- reserva.html — pre-call qualification form + booking
-- masterclass.html — webinar/event registration
-- onboarding.html — client onboarding after payment; answers go to José on WhatsApp. Personalise with ?nombre=Ana
-- dashboard.html — coach CRM (local demo data; leads stored in the visitor's browser only)
+## Public pages
+- `/` main sales page (ES/EN), `/reserva` call booking form, `/masterclass` webinar sign-up, `/onboarding?nombre=Ana` client onboarding (static HTML in `public/`)
+- `/links` link-in-bio, `/events/<slug>` public event page with sign-up
+- `/proposal/<token>`, `/invoice/<id>`, `/receipt/<id>` client documents
 
-## Deploy
-GitHub Pages: Settings → Pages → Deploy from branch → main / root.
-Or connect the repo to Vercel / Netlify (framework: "Other", no build command).
+## Dashboard (`/admin`)
+Leads pipeline, calls, events, contacts, link in bio, traffic stats, ads attribution, offers, proposals, invoices and payment links.
 
-## Before going live
-- Form submissions currently save to the browser only. Connect a backend (e.g. Formspree, Google Sheets, Supabase) so José receives leads.
-- Add photos, guarantee terms, legal + privacy pages.
-- Add Meta Pixel to <head> of index.html, reserva.html, masterclass.html.
+## Environment (Vercel)
+Required: `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL` (then press "Preparar base de datos" on `/admin`), admin login secrets (see `lib/auth.ts`).
+Optional: `RESEND_API_KEY` (emails), `STRIPE_SECRET_KEY` (card payments and payment links), `PDFSHIFT_API_KEY` (PDFs), `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (calendar), `NEXT_PUBLIC_BANK_IBAN`, `NEXT_PUBLIC_BANK_SWIFT`, `NEXT_PUBLIC_BUSINESS_ADDRESS`, `NEXT_PUBLIC_TAX_ID`, `NEXT_PUBLIC_EVENT_WHATSAPP_URL`.
+
+## Develop
+`npm install`, `npm run dev`, `npm run build`.

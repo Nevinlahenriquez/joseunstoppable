@@ -20,11 +20,11 @@ const BIZ = {
 }
 
 function fmt(n: number, currency: string) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
 }
 
 function fmtDate(d: string) {
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return new Date(d + 'T00:00:00').toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
@@ -46,11 +46,11 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
     </tr>`).join('')
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8"/>
 <style>
-  @page { size: Letter; margin: 0; }
+  @page { size: A4; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; }
   body {
@@ -121,8 +121,8 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
     text-align: left;
   }
   thead th:not(:first-child) { text-align: right; }
-  .td-main { padding: 10px 12px; border-bottom: 1px solid #f0eafc; vertical-align: top; }
-  .td-num { padding: 10px 12px; border-bottom: 1px solid #f0eafc; text-align: right; vertical-align: top; white-space: nowrap; }
+  .td-main { padding: 10px 12px; border-bottom: 1px solid #E4F4FD; vertical-align: top; }
+  .td-num { padding: 10px 12px; border-bottom: 1px solid #E4F4FD; text-align: right; vertical-align: top; white-space: nowrap; }
   .td-bold { font-weight: 700; }
   .li-name { font-weight: 600; color: #0C2A43; font-size: 10pt; }
   .li-desc { font-size: 8.5pt; color: #999; margin-top: 2px; }
@@ -178,7 +178,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
       </div>
     </div>
     <div>
-      <div class="invoice-label">Invoice</div>
+      <div class="invoice-label">Factura</div>
       <div class="invoice-number">#${inv.number}</div>
     </div>
   </div>
@@ -186,7 +186,7 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   <!-- Meta row: bill to / dates -->
   <div class="meta-row">
     <div class="meta-box">
-      <div class="meta-label">Bill To</div>
+      <div class="meta-label">Facturar a</div>
       <div class="meta-value">${escapeHtml(inv.clientName)}${inv.clientCompany ? ` · ${escapeHtml(inv.clientCompany)}` : ''}</div>
       ${inv.clientEmail ? `<div class="meta-sub">${escapeHtml(inv.clientEmail)}</div>` : ''}
       ${inv.clientAddress ? `<div class="meta-sub">${escapeHtml(inv.clientAddress)}</div>` : ''}
@@ -194,21 +194,21 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
       ${inv.clientVat ? `<div class="meta-sub">VAT ID: ${escapeHtml(inv.clientVat)}</div>` : ''}
     </div>
     <div class="meta-box">
-      <div class="meta-label">Issue Date</div>
+      <div class="meta-label">Fecha de emisión</div>
       <div class="meta-value">${fmtDate(inv.issueDate)}</div>
     </div>
     <div class="meta-box">
-      <div class="meta-label">Due Date</div>
+      <div class="meta-label">Vencimiento</div>
       <div class="meta-value" style="color:${inv.status === 'overdue' ? '#dc2626' : '#212A4D'}">${fmtDate(inv.dueDate)}</div>
     </div>
     ${inv.projectTitle ? `
     <div class="meta-box">
-      <div class="meta-label">Project</div>
+      <div class="meta-label">Concepto</div>
       <div class="meta-value">${escapeHtml(inv.projectTitle)}</div>
     </div>` : ''}
     ${proposalRef ? `
     <div class="meta-box">
-      <div class="meta-label">Ref. Proposal</div>
+      <div class="meta-label">Propuesta</div>
       <div class="meta-value" style="color:#0E71AC">${proposalRef}</div>
     </div>` : ''}
   </div>
@@ -217,10 +217,10 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   <table>
     <thead>
       <tr>
-        <th style="width:50%">Description</th>
-        <th>Qty</th>
-        <th>Unit Price</th>
-        <th>Amount</th>
+        <th style="width:50%">Descripción</th>
+        <th>Cant.</th>
+        <th>Precio</th>
+        <th>Importe</th>
       </tr>
     </thead>
     <tbody>${lineRows}</tbody>
@@ -229,16 +229,16 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
   <!-- Totals -->
   <div class="totals">
     <div class="totals-row"><span>Subtotal</span><span>${fmt(subtotal, currency)}</span></div>
-    ${inv.taxes ? `<div class="totals-row"><span>Taxes / Fees</span><span>${fmt(inv.taxes, currency)}</span></div>` : ''}
-    ${inv.amountPaid ? `<div class="totals-row"><span>Amount Paid</span><span style="color:#16a34a">− ${fmt(inv.amountPaid, currency)}</span></div>` : ''}
-    <div class="totals-row balance"><span>Balance Due</span><span>${fmt(balance, currency)}</span></div>
+    ${inv.taxes ? `<div class="totals-row"><span>Impuestos</span><span>${fmt(inv.taxes, currency)}</span></div>` : ''}
+    ${inv.amountPaid ? `<div class="totals-row"><span>Importe pagado</span><span style="color:#16a34a">− ${fmt(inv.amountPaid, currency)}</span></div>` : ''}
+    <div class="totals-row balance"><span>Pendiente de pago</span><span>${fmt(balance, currency)}</span></div>
   </div>
 
   ${inv.notes ? `<div class="notes">${escapeHtml(inv.notes)}</div>` : ''}
 
   <!-- Payment details -->
   <div class="payment-box">
-    <div class="payment-box-title">Payment Details</div>
+    <div class="payment-box-title">Datos de pago</div>
     <div class="payment-grid">
       <div class="payment-col">
         <strong>Transferencia bancaria</strong>
@@ -249,14 +249,14 @@ function buildInvoiceHtml(inv: Invoice, proposalRef?: string): string {
       </div>
     </div>
     <div style="margin-top:8px;">
-      <em style="color:#aaa;font-size:8pt;">Reference: Invoice #${inv.number} &nbsp;·&nbsp; Pago a 7 días</em>
+      <em style="color:#aaa;font-size:8pt;">Concepto: Factura #${inv.number} &nbsp;·&nbsp; Pago a 7 días</em>
     </div>
   </div>
 
   <!-- Footer -->
   <div class="footer">
-    <div>${BIZ.name} &nbsp;·&nbsp; Invoice #${inv.number} &nbsp;·&nbsp; ${BIZ.email}</div>
-    <div style="color:#0E71AC;font-weight:700">${fmt(balance, currency)} due ${fmtDate(inv.dueDate)}</div>
+    <div>${BIZ.name} &nbsp;·&nbsp; Factura #${inv.number} &nbsp;·&nbsp; ${BIZ.email}</div>
+    <div style="color:#0E71AC;font-weight:700">${fmt(balance, currency)} a pagar antes del ${fmtDate(inv.dueDate)}</div>
   </div>
 
 </div>
@@ -276,7 +276,7 @@ async function pdfShift(html: string): Promise<Buffer> {
     },
     body: JSON.stringify({
       source: html,
-      format: 'Letter',
+      format: 'A4',
       margin: '0',
     }),
   })
@@ -299,7 +299,7 @@ export async function GET(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     const { data, error } = await sb.from('invoices').select('*').eq('id', id).single()
-    if (error || !data) return NextResponse.json({ error: 'Invoice not found', detail: error?.message }, { status: 404 })
+    if (error || !data) return NextResponse.json({ error: 'Factura no encontrada', detail: error?.message }, { status: 404 })
 
     const inv: Invoice = {
       id: data.id, number: data.number,
@@ -336,6 +336,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    return NextResponse.json({ error: 'Failed to generate PDF', detail: message }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo generar el PDF', detail: message }, { status: 500 })
   }
 }

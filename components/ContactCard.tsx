@@ -98,7 +98,7 @@ function Fact({ label, value, href }: { label: string; value?: string | number |
   )
 }
 
-export const ONBOARDING_UPDATE_MARKER = 'They updated their details in onboarding.'
+export const ONBOARDING_UPDATE_MARKER = 'Actualizó sus datos en el onboarding.'
 const DISMISS_KEY = 'ju_seen_member_updates'
 
 function dismissedIds(): string[] {
@@ -241,7 +241,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
       stage: 'lead',
       value: 0,
       currency: 'USD',
-      service: note.trim() || 'Follow up',
+      service: note.trim() || 'Seguimiento',
     })
 
     window.dispatchEvent(new CustomEvent('ju:hydrated'))
@@ -264,9 +264,9 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
   const contactEmail = deal?.clientEmail ?? form.email
 
   const kind = deal
-    ? 'Pipeline deal'
+    ? 'Oportunidad en pipeline'
     : contact.kindLabel
-      ?? (resolved.lead ? 'Contact' : resolved.attendee ? `Attendee · ${resolved.attendee.eventTitle}` : 'On record')
+      ?? (resolved.lead ? 'Contacto' : resolved.attendee ? `Asistente · ${resolved.attendee.eventTitle}` : 'Registrado')
 
   const actionTarget = deal ?? ({ clientPhone: form.phone, clientEmail: form.email, activity: [] } as unknown as Deal)
 
@@ -295,9 +295,9 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
             </div>
           </div>
           {(contact.fullPageHref || contactEmail) && (
-            <button className="os-icon-btn" title="Open full contact page" onClick={() => router.push(contact.fullPageHref ?? `/admin/contacts/${encodeURIComponent(contactEmail!)}`)}><i className="ti ti-arrows-diagonal" /></button>
+            <button className="os-icon-btn" title="Abrir ficha completa" onClick={() => router.push(contact.fullPageHref ?? `/admin/contacts/${encodeURIComponent(contactEmail!)}`)}><i className="ti ti-arrows-diagonal" /></button>
           )}
-          <button className="os-icon-btn" title="Close" onClick={onClose}><i className="ti ti-x" /></button>
+          <button className="os-icon-btn" title="Cerrar" onClick={onClose}><i className="ti ti-x" /></button>
         </div>
 
         {}
@@ -306,7 +306,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
             <div className="os-crm-notice" data-tone="warn">
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
                 <i className="ti ti-refresh" style={{ color: 'var(--os-warn)', fontSize: 14 }} />
-                <strong style={{ fontSize: 12.5, color: 'var(--os-text)' }}>They updated their own details</strong>
+                <strong style={{ fontSize: 12.5, color: 'var(--os-text)' }}>Actualizó sus propios datos</strong>
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--os-text-faint)' }}>{fmtTs(recentUpdate.ts)}</span>
               </div>
               {}
@@ -321,7 +321,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
                   try { localStorage.setItem(DISMISS_KEY, JSON.stringify(next)) } catch {  }
                 }}
                 style={{ marginTop: 8, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--os-accent)', fontSize: 12, fontWeight: 700, fontFamily: 'inherit' }}
-              >Got it</button>
+              >Entendido</button>
             </div>
           )}
 
@@ -331,32 +331,32 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
           {}
           {settled && biz.error && (
             <div className="os-crm-notice" data-tone="bad" style={{ fontSize: 12.5, color: 'var(--os-text-muted)' }}>
-              Their onboarding answers could not be loaded. This is not the same as them having answered nothing.
+              No se pudieron cargar sus respuestas del onboarding. Eso no significa que no respondiera.
             </div>
           )}
           {settled && !biz.error && bizFacts > 0 && (
             <div className="os-crm-section">
               <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-                <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Their business</div>
+                <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Sobre su situación</div>
                 <span style={{ fontSize: 11, color: 'var(--os-text-faint)' }}>
-                  {b?.onboarded_at ? `Onboarded ${new Date(b.onboarded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 'From their onboarding'}
+                  {b?.onboarded_at ? `Onboarding del ${new Date(b.onboarded_at).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' })}` : 'De su onboarding'}
                 </span>
               </div>
               <div style={{ marginTop: 8 }}>
-                <Fact label="Business" value={b?.business_name || b?.company} />
-                <Fact label="Their role" value={b?.role} />
-                <Fact label="Niche" value={b?.niche} />
-                <Fact label="What they sell" value={b?.offer_summary} />
-                <Fact label="Revenue" value={b?.revenue_band} />
-                <Fact label="Customers" value={b?.reported_customers} />
-                <Fact label="Where" value={[b?.location, b?.address, b?.country].filter(Boolean).join(' · ')} />
-                <Fact label="Website" value={b?.website} href={asUrl(b?.website)} />
+                <Fact label="Empresa" value={b?.business_name || b?.company} />
+                <Fact label="Profesión" value={b?.role} />
+                <Fact label="Nicho" value={b?.niche} />
+                <Fact label="A qué se dedica" value={b?.offer_summary} />
+                <Fact label="Ingresos" value={b?.revenue_band} />
+                <Fact label="Clientes" value={b?.reported_customers} />
+                <Fact label="Dónde" value={[b?.location, b?.address, b?.country].filter(Boolean).join(' · ')} />
+                <Fact label="Web" value={b?.website} href={asUrl(b?.website)} />
                 <Fact label="Instagram" value={b?.instagram} href={asUrl(b?.instagram)} />
                 <Fact label="Facebook" value={b?.facebook_url} href={asUrl(b?.facebook_url)} />
                 <Fact label="LinkedIn" value={b?.linkedin_url} href={asUrl(b?.linkedin_url)} />
                 <Fact label="TikTok" value={b?.tiktok_url} href={asUrl(b?.tiktok_url)} />
                 <Fact label="YouTube" value={b?.youtube_url} href={asUrl(b?.youtube_url)} />
-                <Fact label="Other links" value={b?.other_links} />
+                <Fact label="Otros enlaces" value={b?.other_links} />
               </div>
             </div>
           )}
@@ -367,18 +367,18 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
             <>
               {!writer && (
                 <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', background: 'var(--os-line)', borderRadius: 10, padding: '8px 12px', marginBottom: 14 }}>
-                  This person is only on a proposal or an invoice, so there is no contact record to edit yet. Add them to the pipeline below to start one.
+                  Esta persona solo aparece en una propuesta o factura, así que aún no tiene ficha de contacto. Añádela al pipeline abajo para crearla.
                 </div>
               )}
               <div className="os-crm-section">
-                <div className="os-crm-section-title">Contact</div>
-                {field('Email', 'email', 'email', 'name@company.com')}
-                {field('Phone', 'phone', 'tel', ' ...')}
-                {field('Company', 'company', 'text', 'Company name')}
+                <div className="os-crm-section-title">Contacto</div>
+                {field('Email', 'email', 'email', 'nombre@email.com')}
+                {field('Teléfono', 'phone', 'tel', ' ...')}
+                {field('Empresa', 'company', 'text', 'Nombre de la empresa')}
                 {}
                 {(resolved.lead || (onSaveField && form.status)) && (
                   <div className="os-crm-field">
-                    <label>Status</label>
+                    <label>Estado</label>
                     <select
                       className="os-crm-input"
                       value={(form.status as string) ?? 'new'}
@@ -400,13 +400,13 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
               {}
               {resolved.lead && (
                 <div className="os-crm-section">
-                  <div className="os-crm-section-title">Log a touch</div>
+                  <div className="os-crm-section-title">Registrar contacto</div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                     {([
-                      { t: 'call' as const, label: 'Called', icon: 'ti-phone' },
-                      { t: 'email' as const, label: 'Emailed', icon: 'ti-mail' },
+                      { t: 'call' as const, label: 'Llamada', icon: 'ti-phone' },
+                      { t: 'email' as const, label: 'Email', icon: 'ti-mail' },
                       { t: 'whatsapp' as const, label: 'WhatsApp', icon: 'ti-brand-whatsapp' },
-                      { t: 'meeting' as const, label: 'Met', icon: 'ti-users' },
+                      { t: 'meeting' as const, label: 'Reunión', icon: 'ti-users' },
                     ]).map(o => (
                       <button key={o.t} type="button" className="os-btn os-btn-ghost os-btn-sm"
                         onClick={() => { logLeadActivity(resolved.lead!.id, o.t, o.label); notify(); setVersion(v => v + 1) }}>
@@ -423,8 +423,8 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
                     el.value = ''
                     notify(); setVersion(v => v + 1)
                   }} style={{ display: 'flex', gap: 6 }}>
-                    <input name="note" className="os-crm-input" placeholder="Add a note…" style={{ flex: 1 }} />
-                    <button type="submit" className="os-btn os-btn-sm">Add</button>
+                    <input name="note" className="os-crm-input" placeholder="Añadir una nota…" style={{ flex: 1 }} />
+                    <button type="submit" className="os-btn os-btn-sm">Añadir</button>
                   </form>
 
                   {(resolved.lead.activity?.length ?? 0) > 0 && (
@@ -447,7 +447,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
 
               {(contact.tags?.length ?? 0) > 0 && (
                 <div className="os-crm-section">
-                  <div className="os-crm-section-title">Segments</div>
+                  <div className="os-crm-section-title">Segmentos</div>
                   <div className="os-crm-tags">
                     {contact.tags!.map(t => <span key={t} className="os-tag-chip active" title={t}>{t}</span>)}
                   </div>
@@ -455,16 +455,16 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
               )}
 
               <div className="os-crm-section">
-                <div className="os-crm-section-title">Notes</div>
+                <div className="os-crm-section-title">Notas</div>
                 <div className="os-crm-field">
-                  <textarea className="os-crm-textarea" placeholder="Anything worth remembering about this contact" disabled={!writer}
+                  <textarea className="os-crm-textarea" placeholder="Cualquier cosa que convenga recordar de este contacto" disabled={!writer}
                     value={form.notes ?? ''}
                     onChange={e => setField('notes', e.target.value)} onBlur={() => saveField('notes')} />
                 </div>
               </div>
 
               <div style={{ fontSize: 12, color: 'var(--os-text-faint)', padding: '4px 2px' }}>
-                Added {form.createdAt ? new Date(form.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                Añadido el {form.createdAt ? new Date(form.createdAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
               </div>
             </>
           )}

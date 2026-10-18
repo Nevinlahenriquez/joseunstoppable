@@ -69,7 +69,7 @@ function DetailsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => void
     onUpdate()
     if (!result.ok) {
 
-      setSaveError(result.error || 'Could not save to the server. The change is only local for now.')
+      setSaveError(result.error || 'No se pudo guardar en el servidor. Por ahora el cambio solo está en este dispositivo.')
       return
     }
     setSaved(true); setTimeout(() => setSaved(false), 2000)
@@ -78,52 +78,52 @@ function DetailsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => void
   return (
     <div className="evx-details-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) 300px', gap: 20, alignItems: 'start' }}>
       <div className="evx-form">
-        <Section icon="ti-sparkles" title="The basics" hint="What people read first on the page and in the share card.">
-          <div><label style={L}>Event title</label><input value={f.title} onChange={set('title')} placeholder="Level Up Your Business with Claude AI" style={{ ...I, fontSize: 16, fontWeight: 700 }} /></div>
-          <div><label style={L}>Tagline <span className="evx-hint-inline">one short line</span></label><input value={f.tagline} onChange={set('tagline')} placeholder="One line that captures the vibe" style={I} /></div>
-          <div><label style={L}>Description <span className="evx-hint-inline">HTML supported</span></label><textarea value={f.description} onChange={set('description')} rows={6} style={{ ...I, resize: 'vertical', lineHeight: 1.6 }} /></div>
+        <Section icon="ti-sparkles" title="Lo básico" hint="Lo primero que se lee en la página y en la tarjeta al compartir.">
+          <div><label style={L}>Título del evento</label><input value={f.title} onChange={set('title')} placeholder="Masterclass: pierde la barriga después de los 40" style={{ ...I, fontSize: 16, fontWeight: 700 }} /></div>
+          <div><label style={L}>Subtítulo <span className="evx-hint-inline">una línea corta</span></label><input value={f.tagline} onChange={set('tagline')} placeholder="Una línea que resuma la sesión" style={I} /></div>
+          <div><label style={L}>Descripción <span className="evx-hint-inline">admite HTML</span></label><textarea value={f.description} onChange={set('description')} rows={6} style={{ ...I, resize: 'vertical', lineHeight: 1.6 }} /></div>
         </Section>
 
-        <Section icon="ti-calendar-event" title="When" hint="The page shows this in each guest's own time zone.">
+        <Section icon="ti-calendar-event" title="Cuándo" hint="La página lo muestra en la zona horaria de cada invitado.">
           <div className="evx-row evx-row-3">
-            <div><label style={L}>Date</label><input type="date" value={f.date} onChange={set('date')} style={I} /></div>
-            <div><label style={L}>Starts</label><input type="time" value={f.time} onChange={set('time')} style={I} /></div>
-            <div><label style={L}>Ends</label><input type="time" value={f.endTime} onChange={set('endTime')} style={I} /></div>
+            <div><label style={L}>Fecha</label><input type="date" value={f.date} onChange={set('date')} style={I} /></div>
+            <div><label style={L}>Empieza</label><input type="time" value={f.time} onChange={set('time')} style={I} /></div>
+            <div><label style={L}>Termina</label><input type="time" value={f.endTime} onChange={set('endTime')} style={I} /></div>
           </div>
-          <div><label style={L}>Time zone</label>
+          <div><label style={L}>Zona horaria</label>
             <select value={f.timezone} onChange={set('timezone')} style={I}>
               {['Europe/Madrid','America/New_York','America/Los_Angeles','Europe/Amsterdam','Europe/London','UTC'].map(tz => <option key={tz} value={tz}>{tz}</option>)}
             </select>
           </div>
         </Section>
 
-        <Section icon="ti-map-pin" title="Where" hint={f.format === 'online' ? 'The joining link only goes to guests by email.' : 'Shown on the page and in the confirmation.'}>
+        <Section icon="ti-map-pin" title="Dónde" hint={f.format === 'online' ? 'El enlace para unirse solo se envía a los invitados por email.' : 'Se muestra en la página y en la confirmación.'}>
           <div className="evx-row evx-row-2">
             <div>
-              <label style={L}>Format</label>
+              <label style={L}>Formato</label>
               <select value={f.format} onChange={set('format')} style={I}>
-                <option value="in_person">In person</option>
+                <option value="in_person">Presencial</option>
                 <option value="online">Online</option>
-                <option value="hybrid">Hybrid</option>
+                <option value="hybrid">Híbrido</option>
               </select>
             </div>
-            <div><label style={L}>Venue or platform <span className="evx-hint-inline">e.g. Google Meet</span></label><input value={f.locationName} onChange={set('locationName')} placeholder="Venue or platform" style={I} /></div>
+            <div><label style={L}>Lugar o plataforma <span className="evx-hint-inline">p. ej. Google Meet</span></label><input value={f.locationName} onChange={set('locationName')} placeholder="Lugar o plataforma" style={I} /></div>
           </div>
-          <div><label style={L}>{f.format === 'online' ? 'Meeting link' : 'Address'}</label><input value={f.location} onChange={set('location')} placeholder={f.format === 'online' ? 'https://meet.google.com/...' : 'Full street address'} style={I} /></div>
+          <div><label style={L}>{f.format === 'online' ? 'Enlace de la reunión' : 'Dirección'}</label><input value={f.location} onChange={set('location')} placeholder={f.format === 'online' ? 'https://meet.google.com/...' : 'Dirección completa'} style={I} /></div>
         </Section>
 
-        <Section icon="ti-ticket" title="Tickets" hint="A price above 0 makes it a paid event: the joining link waits for the payment.">
+        <Section icon="ti-ticket" title="Entradas" hint="Con un precio mayor que 0 es un evento de pago: el enlace para unirse llega tras el pago.">
           <div className="evx-row evx-row-3">
-            <div><label style={L}>Price</label><input type="number" min="0" step="0.01" value={f.price} onChange={set('price')} style={I} /></div>
+            <div><label style={L}>Precio</label><input type="number" min="0" step="0.01" value={f.price} onChange={set('price')} style={I} /></div>
             <div>
-              <label style={L}>Currency</label>
+              <label style={L}>Moneda</label>
               <select value={f.currency} onChange={set('currency')} style={I}><option value="USD">USD</option><option value="EUR">EUR</option><option value="AWG">AWG</option></select>
             </div>
-            <div><label style={L}>Seats <span className="evx-hint-inline">0 = no limit</span></label><input type="number" min="0" value={f.capacity} onChange={set('capacity')} style={I} /></div>
+            <div><label style={L}>Plazas <span className="evx-hint-inline">0 = sin límite</span></label><input type="number" min="0" value={f.capacity} onChange={set('capacity')} style={I} /></div>
           </div>
         </Section>
 
-        <Section icon="ti-eye" title="Picture" hint="One click. It is the page header, the card and the share image.">
+        <Section icon="ti-eye" title="Imagen" hint="Un clic. Es la cabecera de la página, la tarjeta y la imagen al compartir.">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(110px,1fr))', gap: 10 }}>
             {EVENT_IMAGE_LIBRARY.map(img => {
               const on = (f.thumbnailImage || f.coverImage) === img.src
@@ -137,58 +137,58 @@ function DetailsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => void
               )
             })}
           </div>
-          {(f.coverImage === SHARED_DEFAULT_IMAGE || !f.coverImage) && <div style={{ fontSize: 12.5, color: 'var(--os-warn)' }}>This event still uses the shared default picture. Pick one so it stands apart.</div>}
+          {(f.coverImage === SHARED_DEFAULT_IMAGE || !f.coverImage) && <div style={{ fontSize: 12.5, color: 'var(--os-warn)' }}>Este evento aún usa la imagen por defecto. Elige una para que destaque.</div>}
           <details>
-            <summary style={{ cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: 'var(--os-accent)' }}>Use my own picture link</summary>
+            <summary style={{ cursor: 'pointer', fontSize: 12.5, fontWeight: 700, color: 'var(--os-accent)' }}>Usar mi propio enlace de imagen</summary>
             <div className="evx-fields" style={{ marginTop: 12 }}>
-              <div><label style={L}>Cover image link</label><input value={f.coverImage} onChange={set('coverImage')} placeholder="https://..." style={I} /></div>
-              <div><label style={L}>Thumbnail link</label><input value={f.thumbnailImage} onChange={set('thumbnailImage')} placeholder="https://..." style={I} /></div>
+              <div><label style={L}>Enlace de la imagen de portada</label><input value={f.coverImage} onChange={set('coverImage')} placeholder="https://..." style={I} /></div>
+              <div><label style={L}>Enlace de la miniatura</label><input value={f.thumbnailImage} onChange={set('thumbnailImage')} placeholder="https://..." style={I} /></div>
             </div>
           </details>
         </Section>
 
-        <Section icon="ti-world" title="Search and tags" hint="Optional. Leave empty and the title and tagline are used.">
+        <Section icon="ti-world" title="Buscadores y etiquetas" hint="Opcional. Si lo dejas vacío se usan el título y el subtítulo.">
           <div className="evx-row evx-row-2">
-            <div><label style={L}>Search title</label><input value={f.seoTitle} onChange={set('seoTitle')} placeholder="Override the page title" style={I} /></div>
-            <div><label style={L}>Search description</label><input value={f.seoDescription} onChange={set('seoDescription')} placeholder="160 characters max" style={I} /></div>
+            <div><label style={L}>Título para buscadores</label><input value={f.seoTitle} onChange={set('seoTitle')} placeholder="Sustituye el título de la página" style={I} /></div>
+            <div><label style={L}>Descripción para buscadores</label><input value={f.seoDescription} onChange={set('seoDescription')} placeholder="Máximo 160 caracteres" style={I} /></div>
           </div>
-          <div><label style={L}>Tags <span className="evx-hint-inline">comma separated</span></label><input value={f.tags} onChange={set('tags')} placeholder="masterclass, fitness" style={I} /></div>
+          <div><label style={L}>Etiquetas <span className="evx-hint-inline">separadas por comas</span></label><input value={f.tags} onChange={set('tags')} placeholder="masterclass, fitness" style={I} /></div>
         </Section>
 
         <div className="evx-save-bar">
-          <span>{saved ? 'Saved. The public page is up to date.' : 'Changes go live on the public page when you save.'}</span>
-          <button onClick={save} className="evx-btn evx-btn-primary">{saved ? <><EvIcon name="ti-check" size={15} /> Saved</> : 'Save details'}</button>
+          <span>{saved ? 'Guardado. La página pública está al día.' : 'Los cambios se publican en la página al guardar.'}</span>
+          <button onClick={save} className="evx-btn evx-btn-primary">{saved ? <><EvIcon name="ti-check" size={15} /> Guardado</> : 'Guardar detalles'}</button>
         </div>
         {saveError && (
           <div style={{ background: 'var(--os-bad-soft)', border: '1px solid var(--os-bad)', borderRadius: 12, padding: '10px 14px', fontSize: 12.5, color: 'var(--os-bad)' }}>
-            <strong>Not saved to the server:</strong> {saveError}<br />
-            The public event page still shows the old value until this is fixed.
+            <strong>No se guardó en el servidor:</strong> {saveError}<br />
+            La página pública del evento sigue mostrando el valor anterior hasta que se arregle.
           </div>
         )}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14, position: 'sticky', top: 16 }}>
         <div className="evx-sec" style={{ padding: '18px 18px' }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--os-text)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.8 }}>Status</div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--os-text)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.8 }}>Estado</div>
           <select value={f.status} onChange={set('status')} style={{ ...I, marginBottom: 10 }}>
-            <option value="draft">Draft</option>
-            <option value="published">Published</option>
-            <option value="completed">Completed</option>
-            <option value="cancelled">Cancelled</option>
+            <option value="draft">Borrador</option>
+            <option value="published">Publicado</option>
+            <option value="completed">Terminado</option>
+            <option value="cancelled">Cancelado</option>
           </select>
-          <button onClick={save} className="evx-btn evx-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>Update status</button>
+          <button onClick={save} className="evx-btn evx-btn-primary" style={{ width: '100%', justifyContent: 'center' }}>Actualizar estado</button>
         </div>
         <div className="evx-sec" style={{ padding: '18px 18px' }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--os-text)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 }}>Public URL</div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--os-text)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 0.8 }}>URL pública</div>
           <div style={{ fontSize: 11.5, color: 'var(--os-accent)', wordBreak: 'break-all', lineHeight: 1.6, marginBottom: 10 }}>
             joseunstoppable.com/events/{event.slug}
           </div>
           <div style={{ display: 'flex', gap: 6 }}>
             <a href={`/events/${event.slug}`} target="_blank" rel="noreferrer" style={{ ...BtnGhost({ fontSize: 12, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4 }) }}>
-              <i className="ti ti-external-link" /> View
+              <i className="ti ti-external-link" /> Ver
             </a>
             <button onClick={() => { void copyText(`https://joseunstoppable.com/events/${event.slug}`) }} style={BtnGhost({ fontSize: 12 })}>
-              <i className="ti ti-copy" /> Copy
+              <i className="ti ti-copy" /> Copiar
             </button>
           </div>
         </div>
@@ -221,15 +221,15 @@ function SpeakersTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>{event.speakers.length} speaker{event.speakers.length !== 1 ? 's' : ''}</div>
-        <button onClick={startAdd} style={Btn({ padding: '8px 16px', fontSize: 12 })}><i className="ti ti-plus" /> Add Speaker</button>
+        <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>{event.speakers.length} {event.speakers.length === 1 ? 'ponente' : 'ponentes'}</div>
+        <button onClick={startAdd} style={Btn({ padding: '8px 16px', fontSize: 12 })}><i className="ti ti-plus" /> Añadir ponente</button>
       </div>
 
       {event.speakers.length === 0 && !editing && (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--os-text-faint)' }}>
           <i className="ti ti-microphone" style={{ fontSize: 40, display: 'block', marginBottom: 12 }} />
-          <div style={{ fontWeight: 700, color: 'var(--os-text-faint)', marginBottom: 8 }}>No speakers yet</div>
-          <div style={{ fontSize: 13 }}>Add the people presenting at your event</div>
+          <div style={{ fontWeight: 700, color: 'var(--os-text-faint)', marginBottom: 8 }}>Aún no hay ponentes</div>
+          <div style={{ fontSize: 13 }}>Añade a las personas que presentan tu evento</div>
         </div>
       )}
 
@@ -248,8 +248,8 @@ function SpeakersTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
               <div style={{ fontSize: 12, color: 'var(--os-accent)', fontWeight: 600, marginBottom: 6 }}>{s.title}</div>
               <div style={{ fontSize: 12, color: 'var(--os-text-faint)', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{s.bio}</div>
               <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
-                <button onClick={() => startEdit(s)} style={BtnGhost({ fontSize: 11, padding: '4px 10px' })}>Edit</button>
-                <button onClick={() => remove(s.id)} style={{ ...BtnGhost({ fontSize: 11, padding: '4px 10px' }), color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }}>Remove</button>
+                <button onClick={() => startEdit(s)} style={BtnGhost({ fontSize: 11, padding: '4px 10px' })}>Editar</button>
+                <button onClick={() => remove(s.id)} style={{ ...BtnGhost({ fontSize: 11, padding: '4px 10px' }), color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }}>Quitar</button>
               </div>
             </div>
           </div>
@@ -258,15 +258,15 @@ function SpeakersTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
 
       {editing && (
         <div style={{ background: 'var(--os-card-alt)', border: '1.5px solid var(--os-line)', borderRadius: 14, padding: '20px 22px' }}>
-          <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--os-text)', marginBottom: 16 }}>{editing.id ? 'Edit Speaker' : 'Add Speaker'}</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--os-text)', marginBottom: 16 }}>{editing.id ? 'Editar ponente' : 'Añadir ponente'}</div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <div><label style={L}>Full Name</label><input value={form.name} onChange={set('name')} placeholder="José Unstoppable" style={I} /></div>
-            <div><label style={L}>Title / Role</label><input value={form.title} onChange={set('title')} placeholder="Coach" style={I} /></div>
-            <div style={{ gridColumn: '1/-1' }}><label style={L}>Bio</label><textarea value={form.bio} onChange={set('bio')} rows={3} placeholder="A short bio about the speaker..." style={{ ...I, resize: 'vertical' }} /></div>
+            <div><label style={L}>Nombre completo</label><input value={form.name} onChange={set('name')} placeholder="José Unstoppable" style={I} /></div>
+            <div><label style={L}>Cargo / rol</label><input value={form.title} onChange={set('title')} placeholder="Coach" style={I} /></div>
+            <div style={{ gridColumn: '1/-1' }}><label style={L}>Bio</label><textarea value={form.bio} onChange={set('bio')} rows={3} placeholder="Una biografía corta del ponente..." style={{ ...I, resize: 'vertical' }} /></div>
             <div>
-              <label style={L}>Photo URL</label>
+              <label style={L}>URL de la foto</label>
               <input value={form.photo} onChange={set('photo')} placeholder="https://..." style={I} />
-              {form.photo && <img src={form.photo} alt="Preview" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', marginTop: 8 }} />}
+              {form.photo && <img src={form.photo} alt="Vista previa" style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover', marginTop: 8 }} />}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div><label style={L}>LinkedIn</label><input value={form.linkedin} onChange={set('linkedin')} placeholder="https://linkedin.com/in/..." style={I} /></div>
@@ -274,8 +274,8 @@ function SpeakersTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
             </div>
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-            <button onClick={() => setEditing(null)} style={BtnGhost()}>Cancel</button>
-            <button onClick={save} style={Btn()}>{editing.id ? 'Save Changes' : 'Add Speaker'}</button>
+            <button onClick={() => setEditing(null)} style={BtnGhost()}>Cancelar</button>
+            <button onClick={save} style={Btn()}>{editing.id ? 'Guardar cambios' : 'Añadir ponente'}</button>
           </div>
         </div>
       )}
@@ -303,24 +303,24 @@ function ScheduleTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>{items.length} agenda item{items.length !== 1 ? 's' : ''}</div>
-        <button onClick={add} style={Btn({ padding: '8px 16px', fontSize: 12 })}><i className="ti ti-plus" /> Add Item</button>
+        <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>{items.length} {items.length === 1 ? 'punto del programa' : 'puntos del programa'}</div>
+        <button onClick={add} style={Btn({ padding: '8px 16px', fontSize: 12 })}><i className="ti ti-plus" /> Añadir punto</button>
       </div>
       {items.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--os-text-faint)' }}>
           <i className="ti ti-list" style={{ fontSize: 40, display: 'block', marginBottom: 12 }} />
-          <div style={{ fontWeight: 700, color: 'var(--os-text-faint)' }}>No schedule yet</div>
+          <div style={{ fontWeight: 700, color: 'var(--os-text-faint)' }}>Aún no hay programa</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {items.map((item, idx) => (
             <div key={item.id} style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 12, padding: '14px 16px', display: 'grid', gridTemplateColumns: '80px 1fr 1fr auto', gap: 10, alignItems: 'start' }}>
-              <div><label style={L}>Time</label><input value={item.time} onChange={e => patch(item.id, 'time', e.target.value)} placeholder="9:00 AM" style={I} /></div>
-              <div><label style={L}>Session Title</label><input value={item.title} onChange={e => patch(item.id, 'title', e.target.value)} placeholder="Opening keynote" style={I} /></div>
+              <div><label style={L}>Hora</label><input value={item.time} onChange={e => patch(item.id, 'time', e.target.value)} placeholder="20:00" style={I} /></div>
+              <div><label style={L}>Título de la sesión</label><input value={item.title} onChange={e => patch(item.id, 'title', e.target.value)} placeholder="Bienvenida" style={I} /></div>
               <div>
-                <label style={L}>Speaker</label>
+                <label style={L}>Ponente</label>
                 <select value={item.speakerId ?? ''} onChange={e => patch(item.id, 'speakerId', e.target.value)} style={I}>
-                  <option value="">— None —</option>
+                  <option value="">— Ninguno —</option>
                   {event.speakers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                 </select>
               </div>
@@ -331,8 +331,8 @@ function ScheduleTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
               </div>
               {item.description !== undefined && (
                 <div style={{ gridColumn: '1/-1' }}>
-                  <label style={L}>Description</label>
-                  <input value={item.description} onChange={e => patch(item.id, 'description', e.target.value)} placeholder="Optional details" style={I} />
+                  <label style={L}>Descripción</label>
+                  <input value={item.description} onChange={e => patch(item.id, 'description', e.target.value)} placeholder="Detalles opcionales" style={I} />
                 </div>
               )}
             </div>
@@ -372,11 +372,11 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
   useEffect(() => {
     const on = (e: Event) => {
       const d = (e as CustomEvent).detail as { ok?: boolean; sent?: boolean; reason?: string; email?: string; error?: string }
-      if (d?.sent) showToast(`Email updated. Confirmation resent to ${d.email}.`)
-      else if (d?.reason === 'unpaid') showToast('Email updated. They get the joining link once they pay.')
-      else if (d?.reason === 'event-over' || d?.reason === 'no-ticket' || d?.reason === 'no-event') showToast('Email updated.')
-      else if (d?.ok) showToast('Email updated, but the confirmation did not send. Resend it from the Emails tab.')
-      else showToast(d?.error || 'The new email may not have saved. Check it and try again.')
+      if (d?.sent) showToast(`Email actualizado. Confirmación reenviada a ${d.email}.`)
+      else if (d?.reason === 'unpaid') showToast('Email actualizado. Recibirá el enlace cuando pague.')
+      else if (d?.reason === 'event-over' || d?.reason === 'no-ticket' || d?.reason === 'no-event') showToast('Email actualizado.')
+      else if (d?.ok) showToast('Email actualizado, pero la confirmación no se envió. Reenvíala desde la pestaña Emails.')
+      else showToast(d?.error || 'Puede que el nuevo email no se haya guardado. Revísalo e inténtalo de nuevo.')
     }
     window.addEventListener('ju:attendee-email', on)
     return () => window.removeEventListener('ju:attendee-email', on)
@@ -385,16 +385,16 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
   async function markSeatPaid(a: EventAttendee) {
     if (a.paid || paying) return
     if (event.price > 0) {
-      const ok = await confirmAction({ message: `Mark ${a.name || a.email} as paid? They get the confirmation email with the joining link.`, confirmLabel: 'Mark paid' })
+      const ok = await confirmAction({ message: `¿Marcar a ${a.name || a.email} como pagado? Recibirá el email de confirmación con el enlace.`, confirmLabel: 'Marcar pagado' })
       if (!ok) return
       setPaying(a.id)
       try {
         const res = await fetch('/api/os/event-attendee-paid', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ attendeeId: a.id }) })
         const j = await res.json().catch(() => ({}))
-        if (!res.ok || !j.ok) { showToast(j.error || 'Could not mark it paid.'); return }
+        if (!res.ok || !j.ok) { showToast(j.error || 'No se pudo marcar como pagado.'); return }
         await hydrateEventsDetailed()
         reload()
-        showToast(j.already ? 'Already paid.' : j.emailSent ? `Paid. ${a.name || a.email} has the joining link.` : 'Paid, but the email did not send: send the link by hand.')
+        showToast(j.already ? 'Ya estaba pagado.' : j.emailSent ? `Pagado. ${a.name || a.email} ya tiene el enlace.` : 'Pagado, pero el email no se envió: manda el enlace a mano.')
       } finally { setPaying('') }
       return
     }
@@ -405,13 +405,13 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
     const res = await fetch('/api/os/event-attendee-paid', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ attendeeId: a.id, action: 'proof' }) })
     const j = await res.json().catch(() => ({}))
     if (j.url) window.open(j.url, '_blank', 'noopener')
-    else showToast(j.error || 'Could not open the proof.')
+    else showToast(j.error || 'No se pudo abrir el justificante.')
   }
 
   function openAttendee(a: EventAttendee) {
     openContactPanel(
       { id: a.id, name: a.name, email: a.email, phone: a.phone, company: a.company, notes: a.notes,
-        createdAt: a.registeredAt, source: a.source, kindLabel: `Attendee · ${a.eventTitle}` },
+        createdAt: a.registeredAt, source: a.source, kindLabel: `Asistente · ${a.eventTitle}` },
       patch => { updateAttendee(a.id, patch as Partial<EventAttendee>); reload() },
     )
   }
@@ -419,11 +419,11 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
   const pipelineEmails = new Set(getDeals().filter(isOpenDeal).map(d => d.clientEmail?.toLowerCase()).filter(Boolean))
 
   const strategyInvoiced = new Set(getInvoices()
-    .filter(i => String(i.status) !== 'void' && /strategy session/i.test(`${i.projectTitle ?? ''} ${i.lineItems.map(l => l.name).join(' ')}`))
+    .filter(i => String(i.status) !== 'void' && /strategy session|programa imparable/i.test(`${i.projectTitle ?? ''} ${i.lineItems.map(l => l.name).join(' ')}`))
     .map(i => (i.clientEmail ?? '').toLowerCase()).filter(Boolean))
 
   const strategyInvoiceHref = (a: EventAttendee) => {
-    const q = new URLSearchParams({ preset: 'strategy-intro', name: a.name ?? '', email: a.email ?? '', company: a.company ?? '', phone: a.phone ?? '' })
+    const q = new URLSearchParams({ preset: 'strategy', name: a.name ?? '', email: a.email ?? '', company: a.company ?? '', phone: a.phone ?? '' })
     return `/admin/invoices/new?${q.toString()}`
   }
 
@@ -431,9 +431,9 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
     if (!a.email) return
     saveDeal({
       clientName: a.name, clientEmail: a.email, clientPhone: a.phone || undefined, clientCompany: a.company || undefined,
-      stage: 'lead', value: 0, currency: 'USD', service: `From event: ${a.eventTitle}`,
+      stage: 'lead', value: 0, currency: 'EUR', service: `Del evento: ${a.eventTitle}`,
     })
-    showToast(`${a.name} added to the pipeline`)
+    showToast(`${a.name} añadido al pipeline`)
     window.dispatchEvent(new CustomEvent('ju:hydrated'))
   }
 
@@ -445,22 +445,22 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
       checkedIn: false, checkedInAt: '', ticketCode: generateTicketCode(),
       notes: '', source: 'manual',
     })
-    setAddForm({ name: '', email: '', phone: '', company: '' }); setShowAdd(false); showToast('Attendee added')
+    setAddForm({ name: '', email: '', phone: '', company: '' }); setShowAdd(false); showToast('Asistente añadido')
   }
 
   async function broadcast(type: 'reminder' | 'followup') {
 
-    const label = type === 'reminder' ? 'Reminder' : 'Follow-up'
+    const label = type === 'reminder' ? 'Recordatorio' : 'Seguimiento'
     try {
       const res = await fetch('/api/send-event-email', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type, eventId: event.id, broadcast: true }) })
       const d = await res.json().catch(() => null)
       if (!res.ok || !d?.success) {
-        showToast(`${label} failed: ${d?.error || `server answered ${res.status}`}`)
+        showToast(`${label} falló: ${d?.error || `el servidor respondió ${res.status}`}`)
         return
       }
-      showToast(d.failed > 0 ? `${label} sent to ${d.sent}, ${d.failed} failed` : `${label} sent to ${d.sent} attendees`)
+      showToast(d.failed > 0 ? `${label} enviado a ${d.sent}, ${d.failed} fallaron` : `${label} enviado a ${d.sent} asistentes`)
     } catch {
-      showToast(`${label} failed: network error`)
+      showToast(`${label} falló: error de red`)
     }
   }
 
@@ -474,11 +474,11 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
     return true
   }
   const views: { key: AttendeeView; label: string }[] = [
-    { key: 'all', label: 'Everyone' },
-    ...(event.price > 0 ? [{ key: 'paid' as const, label: 'Paid' }, { key: 'unpaid' as const, label: 'Unpaid checkout' }] : []),
-    { key: 'came', label: 'Came' },
+    { key: 'all', label: 'Todos' },
+    ...(event.price > 0 ? [{ key: 'paid' as const, label: 'Pagados' }, { key: 'unpaid' as const, label: 'Pago pendiente' }] : []),
+    { key: 'came', label: 'Vinieron' },
     { key: 'noshow', label: 'No-show' },
-    { key: 'notpipeline', label: 'Came, not in pipeline' },
+    { key: 'notpipeline', label: 'Vinieron, sin pipeline' },
   ]
   const filtered = attendees.filter(a => inView(a, view)).filter(a => !search || a.name.toLowerCase().includes(search.toLowerCase()) || a.email.toLowerCase().includes(search.toLowerCase()))
   const stats = { registered: attendees.filter(a => a.status === 'registered').length, attended: attendees.filter(a => a.status === 'attended').length, paid: attendees.filter(a => a.paid).length, waitlisted: attendees.filter(a => a.status === 'waitlisted').length }
@@ -486,7 +486,7 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
   return (
     <div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
-        {[{ label: 'Registered', value: stats.registered, color: 'var(--os-accent)' }, { label: 'Attended', value: stats.attended, color: 'var(--os-good)' }, { label: 'Paid', value: stats.paid, color: 'var(--os-accent)' }, { label: 'Waitlisted', value: stats.waitlisted, color: 'var(--os-warn)' }].map(s => (
+        {[{ label: 'Inscritos', value: stats.registered, color: 'var(--os-accent)' }, { label: 'Asistieron', value: stats.attended, color: 'var(--os-good)' }, { label: 'Pagados', value: stats.paid, color: 'var(--os-accent)' }, { label: 'En espera', value: stats.waitlisted, color: 'var(--os-warn)' }].map(s => (
           <div key={s.label} style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 10, padding: '12px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.value}</div>
             <div style={{ fontSize: 11, color: 'var(--os-text-faint)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8 }}>{s.label}</div>
@@ -507,22 +507,22 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email…" style={{ ...I, maxWidth: 260 }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por nombre o email…" style={{ ...I, maxWidth: 260 }} />
         <div style={{ flex: 1 }} />
-        <button onClick={() => exportAttendeesCSV(event.id)} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-download" /> Export CSV</button>
-        <button onClick={() => broadcast('reminder')} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-bell" /> Send Reminder</button>
-        <button onClick={() => broadcast('followup')} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-mail" /> Send Follow-up</button>
-        <button onClick={() => setShowAdd(true)} style={Btn({ fontSize: 12, padding: '8px 14px' })}><i className="ti ti-plus" /> Add</button>
+        <button onClick={() => exportAttendeesCSV(event.id)} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-download" /> Exportar CSV</button>
+        <button onClick={() => broadcast('reminder')} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-bell" /> Enviar recordatorio</button>
+        <button onClick={() => broadcast('followup')} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-mail" /> Enviar seguimiento</button>
+        <button onClick={() => setShowAdd(true)} style={Btn({ fontSize: 12, padding: '8px 14px' })}><i className="ti ti-plus" /> Añadir</button>
       </div>
 
       {showAdd && (
         <div style={{ background: 'var(--os-card-alt)', border: '1.5px solid var(--os-line)', borderRadius: 12, padding: '16px 18px', marginBottom: 16, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
           {(['name', 'email', 'phone', 'company'] as const).map(k => (
-            <div key={k}><label style={L}>{k.charAt(0).toUpperCase() + k.slice(1)}{k === 'name' || k === 'email' ? ' *' : ''}</label>
+            <div key={k}><label style={L}>{({ name: 'Nombre', email: 'Email', phone: 'Teléfono', company: 'Empresa' } as Record<string, string>)[k] ?? k}{k === 'name' || k === 'email' ? ' *' : ''}</label>
               <input value={addForm[k]} onChange={e => setAddForm(f => ({ ...f, [k]: e.target.value }))} style={I} /></div>
           ))}
           <div style={{ display: 'flex', gap: 6 }}>
-            <button onClick={addManual} style={Btn({ padding: '9px 14px', fontSize: 12 })}>Add</button>
+            <button onClick={addManual} style={Btn({ padding: '9px 14px', fontSize: 12 })}>Añadir</button>
             <button onClick={() => setShowAdd(false)} style={BtnGhost({ padding: '9px 12px', fontSize: 12 })}>✕</button>
           </div>
         </div>
@@ -531,14 +531,14 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
       {filtered.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--os-text-faint)' }}>
           <i className="ti ti-users" style={{ fontSize: 40, display: 'block', marginBottom: 12 }} />
-          <div style={{ fontWeight: 700, color: 'var(--os-text-faint)' }}>{search || view !== 'all' ? 'Nobody matches this filter' : 'No attendees yet'}</div>
+          <div style={{ fontWeight: 700, color: 'var(--os-text-faint)' }}>{search || view !== 'all' ? 'Nadie coincide con este filtro' : 'Aún no hay asistentes'}</div>
         </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--os-card-alt)' }}>
-                {['Name', 'Email', 'Status', 'Paid', 'Check-in', 'Ticket', 'Date', 'Pipeline', 'Strategy session', ''].map(h => (
+                {['Nombre', 'Email', 'Estado', 'Pagado', 'Check-in', 'Entrada', 'Fecha', 'Pipeline', 'Programa', ''].map(h => (
                   <th key={h} style={{ padding: '9px 12px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, color: 'var(--os-text-faint)', textAlign: 'left', borderBottom: '1px solid var(--os-line)', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -559,11 +559,11 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
                     <td style={{ padding: '10px 12px' }}>
                       <select value={a.status} onChange={e => { updateAttendeeStatus(a.id, e.target.value as AttendeeStatus); reload() }}
                         style={{ fontSize: 11, fontWeight: 700, color: ss.color, background: ss.bg, border: 'none', borderRadius: 100, padding: '3px 9px', cursor: 'pointer', outline: 'none' }}>
-                        <option value="registered">Registered</option>
-                        <option value="attended">Attended</option>
-                        <option value="cancelled">Cancelled</option>
-                        <option value="no_show">No Show</option>
-                        <option value="waitlisted">Waitlisted</option>
+                        <option value="registered">Inscrito</option>
+                        <option value="attended">Asistió</option>
+                        <option value="cancelled">Cancelado</option>
+                        <option value="no_show">No vino</option>
+                        <option value="waitlisted">En espera</option>
                       </select>
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
@@ -571,15 +571,15 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
                         <PaymentChip a={a} onOpenProof={() => { void openProof(a) }} />
                       ) : (
                         <>
-                          <button onClick={() => { void markSeatPaid(a) }} disabled={paying === a.id} title="Mark paid"
+                          <button onClick={() => { void markSeatPaid(a) }} disabled={paying === a.id} title="Marcar pagado"
                             style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16 }}>
                             {paying === a.id ? '…' : '⬜'}
                           </button>
                           {a.proofPath && (
                             <button onClick={() => { void openProof(a) }}
-                              title={a.proofCheck?.reasons?.length ? `Revisión: ${a.proofCheck.reasons.join(' ')}` : 'Bank transfer proof'}
+                              title={a.proofCheck?.reasons?.length ? `Revisión: ${a.proofCheck.reasons.join(' ')}` : 'Justificante de transferencia'}
                               style={{ display: 'block', margin: '2px auto 0', background: 'none', border: 'none', cursor: 'pointer', fontSize: 11, fontWeight: 700, color: 'var(--os-warn)', whiteSpace: 'nowrap' }}>
-                              Check proof
+                              Ver justificante
                             </button>
                           )}
                         </>
@@ -587,36 +587,36 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
                     </td>
                     <td style={{ padding: '10px 12px', textAlign: 'center' }}>
                       <button onClick={() => { if (!a.checkedIn) { markCheckedIn(a.id); reload() } }}
-                        title={a.checkedIn ? 'Checked in' : 'Mark checked in'}
+                        title={a.checkedIn ? 'Check-in hecho' : 'Marcar check-in'}
                         style={{ background: 'none', border: 'none', cursor: a.checkedIn ? 'default' : 'pointer', fontSize: 16 }}>
                         {a.checkedIn ? '✅' : '⬜'}
                       </button>
                     </td>
                     <td style={{ padding: '10px 12px', fontSize: 11, color: 'var(--os-accent)', fontWeight: 700, fontFamily: 'monospace', whiteSpace: 'nowrap' }}>{a.ticketCode}</td>
-                    <td style={{ padding: '10px 12px', fontSize: 11, color: 'var(--os-text-faint)', whiteSpace: 'nowrap' }}>{new Date(a.registeredAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</td>
+                    <td style={{ padding: '10px 12px', fontSize: 11, color: 'var(--os-text-faint)', whiteSpace: 'nowrap' }}>{new Date(a.registeredAt).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</td>
                     <td style={{ padding: '10px 12px' }}>
                       {!a.email ? (
-                        <span style={{ fontSize: 11, color: 'var(--os-text-faint)' }}>No email</span>
+                        <span style={{ fontSize: 11, color: 'var(--os-text-faint)' }}>Sin email</span>
                       ) : pipelineEmails.has(a.email.toLowerCase()) ? (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-good)' }}><i className="ti ti-circle-check" /> In pipeline</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-good)' }}><i className="ti ti-circle-check" /> En pipeline</span>
                       ) : (
                         <button onClick={() => addToPipeline(a)} style={BtnGhost({ fontSize: 11, padding: '4px 10px' })}>
-                          <i className="ti ti-plus" /> Add to pipeline
+                          <i className="ti ti-plus" /> Añadir al pipeline
                         </button>
                       )}
                     </td>
                     <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
                       {!a.email ? null : strategyInvoiced.has(a.email.toLowerCase()) ? (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-good)' }}><i className="ti ti-circle-check" /> Invoiced</span>
+                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-good)' }}><i className="ti ti-circle-check" /> Facturado</span>
                       ) : (
                         <Link href={strategyInvoiceHref(a)} style={{ ...BtnGhost({ fontSize: 11, padding: '4px 10px' }), textDecoration: 'none' }}
-                          title="Opens a new invoice for the Strategy Session at the $150 attendee price, already filled in">
-                          <i className="ti ti-file-invoice" /> Invoice strategy session
+                          title="Abre una factura nueva del Programa Imparable, ya rellenada">
+                          <i className="ti ti-file-invoice" /> Facturar programa
                         </Link>
                       )}
                     </td>
                     <td style={{ padding: '10px 12px' }}>
-                      <button onClick={async () => { if (await confirmAction({ message: 'Remove this attendee?', confirmLabel: 'Remove' })) { removeAttendee(a.id); reload() } }}
+                      <button onClick={async () => { if (await confirmAction({ message: '¿Quitar a este asistente?', confirmLabel: 'Quitar' })) { removeAttendee(a.id); reload() } }}
                         style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--os-bad)', fontSize: 14 }}>
                         <i className="ti ti-trash" />
                       </button>
@@ -644,22 +644,22 @@ function EmailTimeline({ event }: { event: CrmEvent }) {
     let dead = false
     fetch(`/api/os/events/email-timeline?eventId=${encodeURIComponent(event.id)}`)
       .then(r => r.json().then(d => ({ ok: r.ok, d })))
-      .then(({ ok, d }) => { if (dead) return; ok ? setStages(d.stages) : setErr(d.error || 'Could not load') })
-      .catch(() => { if (!dead) setErr('Could not load the timeline') })
+      .then(({ ok, d }) => { if (dead) return; ok ? setStages(d.stages) : setErr(d.error || 'No se pudo cargar') })
+      .catch(() => { if (!dead) setErr('No se pudo cargar la cronología') })
     return () => { dead = true }
   }, [event.id])
 
   const now = Date.now()
-  const fmt = (iso: string) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  const fmt = (iso: string) => new Date(iso).toLocaleString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
   return (
     <div style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 12, padding: '18px 20px' }}>
-      <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>Email timeline</div>
+      <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 4 }}>Cronología de emails</div>
       <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', marginBottom: 14 }}>
         Every email in the sequence, with what has actually been sent. A stage counts a send only after the mail service accepted it.
       </div>
       {err && <div style={{ fontSize: 13, color: 'var(--os-bad)' }}>{err}</div>}
-      {!err && !stages && <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Loading…</div>}
+      {!err && !stages && <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Cargando…</div>}
       {stages && (
         <div style={{ position: 'relative', paddingLeft: 22 }}>
           <div style={{ position: 'absolute', left: 8, top: 10, bottom: 10, width: 2, background: 'var(--os-line)' }} />
@@ -670,7 +670,7 @@ function EmailTimeline({ event }: { event: CrmEvent }) {
             const overdue = due !== null && due < now && st.sent === 0 && st.total > 0
             const future = due !== null && due > now
             const dot = done ? 'var(--os-good)' : partial ? 'var(--os-warn)' : overdue ? 'var(--os-bad)' : 'var(--os-line)'
-            const badge = done ? '✓ sent' : partial ? `${st.sent} of ${st.total}` : future ? 'scheduled' : overdue ? 'not sent' : st.total === 0 ? 'no attendees' : '—'
+            const badge = done ? '✓ enviado' : partial ? `${st.sent} de ${st.total}` : future ? 'programado' : overdue ? 'no enviado' : st.total === 0 ? 'sin asistentes' : '—'
             const badgeColor = done ? 'var(--os-good)' : partial ? 'var(--os-warn)' : overdue ? 'var(--os-bad)' : 'var(--os-text-faint)'
             return (
               <div key={st.key} style={{ display: 'flex', alignItems: 'baseline', gap: 12, padding: '7px 0', position: 'relative' }}>
@@ -696,9 +696,9 @@ function EmailTimeline({ event }: { event: CrmEvent }) {
 function EmailsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => void }) {
 
   const seeded = useMemo(() => {
-    const date = weekdayDate(event.date, 'Date to be confirmed')
-    const time = String(event.time || '').trim() || 'Time to be confirmed'
-    const location = String(event.location || event.locationName || '').trim() || 'Joining details follow by email'
+    const date = weekdayDate(event.date, 'Fecha por confirmar')
+    const time = String(event.time || '').trim() || 'Hora por confirmar'
+    const location = String(event.location || event.locationName || '').trim() || 'Los detalles para unirte llegan por email'
     const joinUrl = (String(event.locationName || '').match(/https?:\/\/[^\s<"']+/) ?? [''])[0]
     const eventUrl = `https://joseunstoppable.com/events/${encodeURIComponent(String(event.slug || '').trim())}`
     const title = String(event.title || '').trim() || 'José Unstoppable event'
@@ -736,9 +736,9 @@ function EmailsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => void 
       </div>
 
       {([
-        { key: 'emailConfirmation' as const, label: 'Confirmation', sub: 'Sent immediately on registration', icon: 'ti-circle-check' },
-        { key: 'emailReminder' as const, label: 'Reminder', sub: 'Sent before the event', icon: 'ti-bell' },
-        { key: 'emailFollowUp' as const, label: 'Follow-up', sub: 'Sent after the event', icon: 'ti-mail-forward' },
+        { key: 'emailConfirmation' as const, label: 'Confirmación', sub: 'Se envía al inscribirse', icon: 'ti-circle-check' },
+        { key: 'emailReminder' as const, label: 'Recordatorio', sub: 'Se envía antes del evento', icon: 'ti-bell' },
+        { key: 'emailFollowUp' as const, label: 'Seguimiento', sub: 'Se envía después del evento', icon: 'ti-mail-forward' },
       ]).map(({ key, label, sub, icon }) => (
         <div key={key} style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 12, overflow: 'hidden' }}>
           <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--os-line)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -749,7 +749,7 @@ function EmailsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => void 
                 <div style={{ fontSize: 12, color: 'var(--os-text-faint)' }}>{sub}</div>
               </div>
             </div>
-            <button onClick={() => setPreview(t[key])} style={BtnGhost({ fontSize: 12, padding: '6px 12px' })}>Preview</button>
+            <button onClick={() => setPreview(t[key])} style={BtnGhost({ fontSize: 12, padding: '6px 12px' })}>Vista previa</button>
           </div>
           <div style={{ padding: '14px 18px' }}>
             <textarea value={t[key]} onChange={e => setT(v => ({ ...v, [key]: e.target.value }))} rows={8} style={{ ...I, resize: 'vertical', fontFamily: 'monospace', fontSize: 12 }} />
@@ -758,23 +758,23 @@ function EmailsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => void 
       ))}
 
       <div style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 12, padding: '16px 18px' }}>
-        <label style={L}>Send Reminder</label>
+        <label style={L}>Enviar recordatorio</label>
         <select value={String(t.reminderHoursBefore)} onChange={e => setT(v => ({ ...v, reminderHoursBefore: Number(e.target.value) }))} style={{ ...I, maxWidth: 260 }}>
-          <option value="0">No automatic reminder</option>
-          <option value="1">1 hour before</option>
-          <option value="3">3 hours before</option>
-          <option value="24">24 hours before</option>
-          <option value="48">48 hours before</option>
+          <option value="0">Sin recordatorio automático</option>
+          <option value="1">1 hora antes</option>
+          <option value="3">3 horas antes</option>
+          <option value="24">24 horas antes</option>
+          <option value="48">48 horas antes</option>
         </select>
       </div>
 
-      <button onClick={save} style={Btn()}>{saved ? '✓ Templates Saved' : 'Save Email Templates'}</button>
+      <button onClick={save} style={Btn()}>{saved ? '✓ Plantillas guardadas' : 'Guardar plantillas de email'}</button>
 
       {preview && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', borderRadius: 16, width: '100%', maxWidth: 620, maxHeight: '80vh', overflow: 'auto' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--os-line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontWeight: 700 }}>Email Preview</span>
+              <span style={{ fontWeight: 700 }}>Vista previa del email</span>
               <button onClick={() => setPreview(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 18, color: 'var(--os-text-faint)' }}>✕</button>
             </div>
             <div style={{ padding: 20 }} dangerouslySetInnerHTML={{ __html: preview }} />
@@ -803,7 +803,7 @@ function SettingsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
   function patchFaq(id: string, k: 'question' | 'answer', v: string) { setFaqs(f => f.map(q => q.id === id ? { ...q, [k]: v } : q)) }
 
   async function handleDelete() {
-    if (!(await confirmAction({ message: 'Delete this event and ALL its attendees?', detail: 'This cannot be undone.' }))) return
+    if (!(await confirmAction({ message: '¿Eliminar este evento y TODOS sus asistentes?', detail: 'No se puede deshacer.' }))) return
     deleteEvent(event.id)
     router.push('/admin/events')
   }
@@ -820,44 +820,44 @@ function SettingsTab({ event, onUpdate }: { event: CrmEvent; onUpdate: () => voi
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, maxWidth: 640 }}>
       <div style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 12, padding: '18px 20px' }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--os-text)', marginBottom: 14 }}>URL & SEO</div>
+        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--os-text)', marginBottom: 14 }}>URL y SEO</div>
         <div style={{ marginBottom: 12 }}>
-          <label style={L}>Event Slug</label>
+          <label style={L}>Slug del evento</label>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
             <span style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>joseunstoppable.com/events/</span>
             <input value={slug} onChange={e => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-'))} style={{ ...I, flex: 1 }} />
           </div>
-          {slug !== event.slug && <div style={{ fontSize: 11.5, color: 'var(--os-warn)', marginTop: 6 }}>⚠ Changing the slug will break existing shared links</div>}
+          {slug !== event.slug && <div style={{ fontSize: 11.5, color: 'var(--os-warn)', marginTop: 6 }}>⚠ Cambiar el slug romperá los enlaces que ya compartiste</div>}
         </div>
       </div>
 
       <div style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 12, padding: '18px 20px' }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--os-text)', marginBottom: 4 }}>Registration Settings</div>
-        <Toggle value={waitlist} onChange={setWaitlist} label="Enable Waitlist when sold out" />
-        <Toggle value={approval} onChange={setApproval} label="Require approval before confirming" />
+        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--os-text)', marginBottom: 4 }}>Ajustes de inscripción</div>
+        <Toggle value={waitlist} onChange={setWaitlist} label="Activar lista de espera cuando se agote" />
+        <Toggle value={approval} onChange={setApproval} label="Requerir aprobación antes de confirmar" />
       </div>
 
       <div style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 12, padding: '18px 20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--os-text)' }}>FAQ</div>
-          <button onClick={addFaq} style={BtnGhost({ fontSize: 12, padding: '6px 12px' })}><i className="ti ti-plus" /> Add Question</button>
+          <button onClick={addFaq} style={BtnGhost({ fontSize: 12, padding: '6px 12px' })}><i className="ti ti-plus" /> Añadir pregunta</button>
         </div>
-        {faqs.length === 0 && <div style={{ fontSize: 13, color: 'var(--os-text-faint)', textAlign: 'center', padding: '20px 0' }}>No FAQ items yet</div>}
+        {faqs.length === 0 && <div style={{ fontSize: 13, color: 'var(--os-text-faint)', textAlign: 'center', padding: '20px 0' }}>Aún no hay preguntas frecuentes</div>}
         {faqs.map(q => (
           <div key={q.id} style={{ marginBottom: 12, background: 'var(--os-card-alt)', borderRadius: 10, padding: '12px 14px' }}>
-            <input value={q.question} onChange={e => patchFaq(q.id, 'question', e.target.value)} placeholder="Question…" style={{ ...I, marginBottom: 8, fontWeight: 700 }} />
-            <textarea value={q.answer} onChange={e => patchFaq(q.id, 'answer', e.target.value)} placeholder="Answer…" rows={2} style={{ ...I, resize: 'vertical', marginBottom: 6 }} />
-            <button onClick={() => removeFaq(q.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--os-bad)', fontSize: 12, fontWeight: 600 }}>Remove</button>
+            <input value={q.question} onChange={e => patchFaq(q.id, 'question', e.target.value)} placeholder="Pregunta…" style={{ ...I, marginBottom: 8, fontWeight: 700 }} />
+            <textarea value={q.answer} onChange={e => patchFaq(q.id, 'answer', e.target.value)} placeholder="Respuesta…" rows={2} style={{ ...I, resize: 'vertical', marginBottom: 6 }} />
+            <button onClick={() => removeFaq(q.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--os-bad)', fontSize: 12, fontWeight: 600 }}>Quitar</button>
           </div>
         ))}
       </div>
 
-      <button onClick={save} style={Btn()}>{saved ? '✓ Settings Saved' : 'Save Settings'}</button>
+      <button onClick={save} style={Btn()}>{saved ? '✓ Ajustes guardados' : 'Guardar ajustes'}</button>
 
       <div style={{ background: 'var(--os-card)', border: '2px solid var(--os-bad-soft)', borderRadius: 12, padding: '18px 20px' }}>
-        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--os-bad)', marginBottom: 8 }}>Danger Zone</div>
-        <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginBottom: 14 }}>Permanently delete this event and all attendee data. This action cannot be undone.</div>
-        <button onClick={handleDelete} style={{ background: 'var(--os-bad)', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>Delete Event</button>
+        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--os-bad)', marginBottom: 8 }}>Zona peligrosa</div>
+        <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginBottom: 14 }}>Elimina para siempre este evento y todos los datos de sus asistentes. No se puede deshacer.</div>
+        <button onClick={handleDelete} style={{ background: 'var(--os-bad)', border: 'none', borderRadius: 8, padding: '9px 18px', fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>Eliminar evento</button>
       </div>
     </div>
   )
@@ -894,13 +894,13 @@ export default function EventEditorPage() {
   const attendeeCount = getAttendees(event.id).length
 
   const tabs: { key: Tab; label: string; icon: string }[] = [
-    { key: 'overview', label: 'Overview', icon: 'ti-chart-bar' },
-    { key: 'details', label: 'Details', icon: 'ti-info-circle' },
-    { key: 'speakers', label: `Speakers (${event.speakers.length})`, icon: 'ti-microphone' },
-    { key: 'schedule', label: `Schedule (${event.agenda.length})`, icon: 'ti-list' },
-    { key: 'attendees', label: `Attendees (${attendeeCount})`, icon: 'ti-users' },
+    { key: 'overview', label: 'Resumen', icon: 'ti-chart-bar' },
+    { key: 'details', label: 'Detalles', icon: 'ti-info-circle' },
+    { key: 'speakers', label: `Ponentes (${event.speakers.length})`, icon: 'ti-microphone' },
+    { key: 'schedule', label: `Programa (${event.agenda.length})`, icon: 'ti-list' },
+    { key: 'attendees', label: `Asistentes (${attendeeCount})`, icon: 'ti-users' },
     { key: 'emails', label: 'Emails', icon: 'ti-mail' },
-    { key: 'settings', label: 'Settings', icon: 'ti-settings' },
+    { key: 'settings', label: 'Ajustes', icon: 'ti-settings' },
   ]
 
   const statusColors: Record<string, { bg: string; color: string }> = {
@@ -914,8 +914,8 @@ export default function EventEditorPage() {
   const live = getAttendees(event.id).filter(a => a.status !== 'cancelled' && a.status !== 'waitlisted')
   const seatCount = event.price > 0 ? live.filter(a => a.paid).length : live.length
   const dateLine = event.date
-    ? new Date(event.date.slice(0, 10) + 'T12:00:00Z').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
-    : 'No date set'
+    ? new Date(event.date.slice(0, 10) + 'T12:00:00Z').toLocaleDateString('es-ES', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+    : 'Sin fecha'
   const zone = (event.timezone || 'Europe/Madrid').split('/').pop()!.replace(/_/g, ' ')
 
   return (
@@ -923,26 +923,26 @@ export default function EventEditorPage() {
       <div className="evx-banner">
 
         <img src={eventImage(event)} alt="" />
-        <Link href="/admin/events" className="evx-banner-back"><EvIcon name="ti-arrow-left" /> All events</Link>
+        <Link href="/admin/events" className="evx-banner-back"><EvIcon name="ti-arrow-left" /> Todos los eventos</Link>
         <div className="evx-banner-top">
           <a href={`/events/${event.slug}`} target="_blank" rel="noreferrer" className="evx-btn evx-btn-glass" style={{ padding: '8px 14px' }}>
-            <EvIcon name="ti-external-link" /> Public page
+            <EvIcon name="ti-external-link" /> Página pública
           </a>
         </div>
         <div className="evx-banner-row">
           <div style={{ minWidth: 0 }}>
             <span className="evx-status" style={{ color: sc.color === 'var(--os-text-faint)' ? '#5a5274' : sc.color }}>{event.status}</span>
-            <h1>{event.title || 'Untitled Event'}</h1>
+            <h1>{event.title || 'Evento sin título'}</h1>
             <div className="evx-meta">
               <span><EvIcon name="ti-calendar" />{dateLine}</span>
               {event.time && <span><EvIcon name="ti-clock" />{event.time}{event.endTime ? `–${event.endTime}` : ''} {zone}</span>}
-              <span><EvIcon name={event.format === 'online' ? 'ti-video' : 'ti-map-pin'} />{event.locationName || (event.format === 'online' ? 'Online' : 'Location to add')}</span>
-              <span><EvIcon name="ti-ticket" />{event.price > 0 ? `${event.currency === 'EUR' ? '€' : '$'}${event.price}` : 'Free'}</span>
+              <span><EvIcon name={event.format === 'online' ? 'ti-video' : 'ti-map-pin'} />{event.locationName || (event.format === 'online' ? 'Online' : 'Falta el lugar')}</span>
+              <span><EvIcon name="ti-ticket" />{event.price > 0 ? (event.currency === 'USD' ? `$${event.price}` : `${event.price} €`) : 'Gratis'}</span>
             </div>
           </div>
           <div className="evx-count" style={{ marginTop: 0 }}>
-            <div className="evx-count-cell"><div className="evx-count-n">{seatCount}</div><div className="evx-count-l">{event.price > 0 ? 'Paid seats' : 'Registered'}</div></div>
-            {event.capacity > 0 && <div className="evx-count-cell"><div className="evx-count-n">{Math.max(0, event.capacity - seatCount)}</div><div className="evx-count-l">Seats open</div></div>}
+            <div className="evx-count-cell"><div className="evx-count-n">{seatCount}</div><div className="evx-count-l">{event.price > 0 ? 'Plazas pagadas' : 'Inscritos'}</div></div>
+            {event.capacity > 0 && <div className="evx-count-cell"><div className="evx-count-n">{Math.max(0, event.capacity - seatCount)}</div><div className="evx-count-l">Plazas libres</div></div>}
           </div>
         </div>
       </div>
@@ -966,27 +966,21 @@ export default function EventEditorPage() {
   )
 }
 
-const RECORDING_SLOT = '[paste the recording link here]'
-const DRIVE_LINK = 'https://drive.google.com/file/d/1tCEDZZy22RWcL61OUKz2dcTVXLcAtNbH/view?usp=sharing'
+const RECORDING_SLOT = '[pega aquí el enlace de la grabación]'
 const STRATEGY_OFFER = {
-  subject: 'Your recording, your AI Game Plan, and a seat at $150',
+  subject: 'Tu grabación de la masterclass y tu llamada gratuita',
   message: [
-    'Hi {{name}},',
-    'Thank you for being part of {{eventTitle}}. Here is everything from the session in one place.',
-    `The recording: ${DRIVE_LINK}`,
-    'Your participant workbook, the AI Game Plan: https://joseunstoppable.com/game-plan',
-    'How to open it:\n1. Click the link above.\n2. Type the email you registered for the workshop with (this one) and press Open.\n3. Work through it step by step and tick each step as you finish it.\n\nYour progress saves by itself to your email. Want to continue on your laptop or another phone? Open the same link there and type the same email. Your ticks and answers are waiting for you.\nIf it says your email is not on the list, use the exact email you registered with, or reply to this email and I will sort it.',
-    'Prefer to download or print it? Once you are in, the PDF version is here: https://joseunstoppable.com/game-plan/pdf',
-    'A few of you asked if we could go deeper on your own business, so I am opening a handful of private 90 minute Strategy Sessions. We go through your questions, set up the Claude workflows and systems your business needs, and you leave with a written blueprint and plan for what to do next.',
-    'The session is $250. Because you were in the room, it is $150 for you.',
-    'Want one? Just reply to this email with "Strategy Session" and I will send you the invoice. Once it is paid we pick the date together.',
-    'One session covers the 90 minutes and the written plan. Anything beyond that is quoted separately.',
+    'Hola {{name}},',
+    'Gracias por estar en {{eventTitle}}. Aquí tienes todo lo de la sesión en un solo sitio.',
+    `La grabación: ${RECORDING_SLOT}`,
+    'Si quieres aplicar el método con un plan hecho para ti, reserva tu llamada gratuita de 30 minutos. Me cuentas dónde estás y a dónde quieres llegar, y si no puedo ayudarte, te lo digo: https://joseunstoppable.com/reserva',
+    '¿Alguna duda? Responde a este correo o escríbeme por WhatsApp y te contesto yo mismo.',
     'José',
   ].join('\n\n'),
 }
 
 function applyVars(text: string, name: string, title?: string): string {
-  return text.replace(/\{\{name\}\}/g, name).replace(/\{\{eventTitle\}\}/g, String(title || 'the event'))
+  return text.replace(/\{\{name\}\}/g, name).replace(/\{\{eventTitle\}\}/g, String(title || 'el evento'))
 }
 
 function messageToHtml(message: string): string {
@@ -1030,7 +1024,7 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
       const d = await res.json().catch(() => null)
       if (!res.ok || !d?.success) {
         setFailed(true)
-        setResult(`Nothing was sent. ${d?.error || `The server answered ${res.status}.`}`)
+        setResult(`No se envió nada. ${d?.error || `El servidor respondió ${res.status}.`}`)
       } else {
         setFailed(d.failed > 0)
         setSentSummary({ sent: d.sent ?? 0, failed: d.failed ?? 0, excluded: d.excluded ?? 0, alreadySent: d.alreadySent ?? 0, guard: d.guard ?? 'none' })
@@ -1038,18 +1032,18 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
         setResult(null)
       }
     } catch {
-      setFailed(true); setResult('Could not reach the server. Nothing was sent.')
+      setFailed(true); setResult('No se pudo conectar con el servidor. No se envió nada.')
     }
     setSending(false)
   }
 
   async function send(onlyEmails?: string[]) {
     if (!subject.trim() || !message.trim()) {
-      setFailed(true); setResult('It needs both a subject and a message.'); return
+      setFailed(true); setResult('Hace falta un asunto y un mensaje.'); return
     }
     const slot = [RECORDING_SLOT].find(x => message.includes(x))
     if (slot) {
-      setFailed(true); setResult('Paste the link in place of "' + slot + '" first.'); return
+      setFailed(true); setResult('Primero pega el enlace en lugar de "' + slot + '".'); return
     }
 
     if (!onlyEmails && !armed) { setArmed(true); setResult(null); return }
@@ -1070,18 +1064,18 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
       const d = await res.json().catch(() => null)
       if (!res.ok || !d?.success) {
         setFailed(true)
-        setResult(`Nothing was sent. ${d?.error || `The server answered ${res.status}.`}`)
+        setResult(`No se envió nada. ${d?.error || `El servidor respondió ${res.status}.`}`)
       } else {
         setFailed(d.failed > 0)
         setFailedList(Array.isArray(d.failedList) ? d.failedList : [])
         setResult(
-          `Sent to ${d.sent}.` +
-          (d.excluded ? ` ${d.excluded} skipped, they are already members.` : '') +
-          (d.failed ? ` ${d.failed} failed.` : '')
+          `Enviado a ${d.sent}.` +
+          (d.excluded ? ` ${d.excluded} omitidos, ya son miembros.` : '') +
+          (d.failed ? ` ${d.failed} fallaron.` : '')
         )
       }
     } catch {
-      setFailed(true); setResult('Could not reach the server. Nothing was sent.')
+      setFailed(true); setResult('No se pudo conectar con el servidor. No se envió nada.')
     }
     setSending(false)
   }
@@ -1089,50 +1083,49 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
   return (
     <div style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderLeft: '3px solid var(--os-warn)', borderRadius: 12, padding: '20px 22px' }}>
       <div style={{ fontSize: 15.5, fontWeight: 700, color: 'var(--os-text)', marginBottom: 4 }}>
-        Send an offer to this event
+        Enviar un mensaje a los inscritos
       </div>
       <p style={{ margin: '0 0 16px', fontSize: 13, color: 'var(--os-text-faint)', maxWidth: '62ch' }}>
-        A one-off message to the people who registered: the replay link, a follow-up, an
-        invitation. Written fresh, sent once, not saved as a template.
+        Un mensaje puntual a quienes se inscribieron: la grabación, un seguimiento, una
+        invitación. Se escribe una vez, se envía una vez y no se guarda como plantilla.
       </p>
 
       {}
       {isWorkshop && (
         <div style={{ background: 'var(--os-good-soft)', border: '1px solid var(--os-good)', borderRadius: 10, padding: '14px 16px', marginBottom: 16, fontSize: 13.5, color: 'var(--os-text)', lineHeight: 1.55 }}>
-          <strong>The workshop follow-up is filled in below</strong>: the recording, the AI Game Plan with how to open it, the PDF and the $150 Strategy Session.
-          Press <strong>Preview</strong> to read it as guests will, then <strong>Send to this event</strong> (it asks you to press twice). It goes to every paid seat.
+          <strong>El seguimiento de la masterclass está rellenado abajo</strong>: la grabación y la invitación a la llamada gratuita.
+          Pulsa <strong>Vista previa</strong> para leerlo como lo verán, y después <strong>Enviar a este evento</strong> (pide pulsar dos veces).
         </div>
       )}
       {isMasterclass && (
       <div style={{ background: 'var(--os-base-2)', border: '1px solid var(--os-line)', borderRadius: 10, padding: '14px 16px', marginBottom: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--os-text)', marginBottom: 4 }}>
-          The masterclass follow-up
+          El seguimiento de la masterclass
         </div>
         <p style={{ margin: '0 0 12px', fontSize: 12.5, color: 'var(--os-text-faint)', maxWidth: '62ch' }}>
-          Thank you for joining, then the Circle as the one action, with the replay, the
-          course, working with José directly and WhatsApp underneath. Uses the audience and
-          the exclusions selected below.
+          Agradecimiento por asistir, la grabación y la invitación a trabajar con José, con WhatsApp
+          debajo. Usa el público y las exclusiones que elijas abajo.
         </p>
         {sentSummary ? (
           <div style={{ background: 'var(--os-good-soft)', border: '1px solid var(--os-good)', borderRadius: 10, padding: '14px 16px' }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--os-text)', marginBottom: 6 }}>
               <i className="ti ti-circle-check" style={{ marginRight: 6 }} />
               {sentSummary.sent === 0
-                ? 'Nobody new to send to'
-                : `Sent to ${sentSummary.sent} ${sentSummary.sent === 1 ? 'person' : 'people'}`}
+                ? 'No hay nadie nuevo a quien enviar'
+                : `Enviado a ${sentSummary.sent} ${sentSummary.sent === 1 ? 'persona' : 'personas'}`}
             </div>
             <div style={{ fontSize: 13, color: 'var(--os-text-muted)', lineHeight: 1.6 }}>
-              {sentSummary.alreadySent > 0 && <>{sentSummary.alreadySent} already had it and were skipped.<br /></>}
-              {sentSummary.excluded > 0 && <>{sentSummary.excluded} skipped, already members.<br /></>}
+              {sentSummary.alreadySent > 0 && <>{sentSummary.alreadySent} ya lo tenían y se omitieron.<br /></>}
+              {sentSummary.excluded > 0 && <>{sentSummary.excluded} omitidos, ya son miembros.<br /></>}
               {sentSummary.failed > 0
-                ? <><strong style={{ color: 'var(--os-bad)' }}>{sentSummary.failed} failed</strong> and did not go out. Usually a dead address, and they stay unstamped so they can be retried.<br /></>
-                : <>None failed.<br /></>}
+                ? <><strong style={{ color: 'var(--os-bad)' }}>{sentSummary.failed} fallaron</strong> y no salieron. Suele ser una dirección inexistente; quedan sin marcar para poder reintentarlo.<br /></>
+                : <>Ninguno falló.<br /></>}
               {sentSummary.guard === 'per-recipient'
-                ? <>Everyone who received it is marked, so pressing send again can only ever reach people who have not had it.<br /></>
-                : <><strong style={{ color: 'var(--os-warn)' }}>The once-only guard is not installed.</strong> Run supabase/add-masterclass-sent.sql, or a second send will go to everyone again.<br /></>}
-              Bounces and opens are in Resend, not here: an address can accept a
-              message and bounce it minutes later, so this count is what was handed
-              over, not what landed.
+                ? <>Todos los que lo recibieron quedan marcados, así que volver a enviar solo llega a quien aún no lo tiene.<br /></>
+                : <><strong style={{ color: 'var(--os-warn)' }}>La protección de envío único no está instalada.</strong> Ejecuta supabase/add-masterclass-sent.sql o un segundo envío llegará otra vez a todos.<br /></>}
+              Los rebotes y aperturas están en Resend, no aquí: una dirección puede aceptar un
+              mensaje y rebotarlo minutos después, así que esto cuenta lo que se entregó al
+              servicio, no lo que llegó.
             </div>
             {!resendUnlocked ? (
               <button
@@ -1140,36 +1133,36 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
                 style={{ marginTop: 12 }}
                 onClick={() => setResendUnlocked(true)}
               >
-                {sentSummary.guard === 'per-recipient' ? 'Send to anyone new' : 'I need to send it again'}
+                {sentSummary.guard === 'per-recipient' ? 'Enviar a los nuevos' : 'Necesito enviarlo otra vez'}
               </button>
             ) : (
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginTop: 12 }}>
                 <span style={{ fontSize: 13, color: 'var(--os-bad)', fontWeight: 700 }}>
                   {sentSummary.guard === 'per-recipient'
-                    ? 'This sends only to people who have not had it yet.'
-                    : 'Without the guard installed, this sends to EVERYONE again.'}
+                    ? 'Esto solo se envía a quien aún no lo ha recibido.'
+                    : 'Sin la protección instalada, esto se envía otra vez a TODOS.'}
                 </span>
                 <button className="os-btn os-btn-primary" disabled={sending} onClick={() => { setSentSummary(null); setResendUnlocked(false); setPreparedArmed(true) }}>
-                  Yes, arm it again
+                  Sí, prepararlo otra vez
                 </button>
-                <button className="os-btn" onClick={() => setResendUnlocked(false)}>Cancel</button>
+                <button className="os-btn" onClick={() => setResendUnlocked(false)}>Cancelar</button>
               </div>
             )}
           </div>
         ) : (
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
             <a className="os-btn" href="/api/os/email-preview?kind=masterclass" target="_blank" rel="noopener noreferrer">
-              Preview it
+              Vista previa
             </a>
             <button
               className="os-btn os-btn-primary"
               disabled={sending}
               onClick={() => sendPrepared()}
             >
-              {sending ? 'Sending…' : preparedArmed ? `Yes, send it to ${audience === 'attended' ? 'everyone marked attended' : audience === 'paid' ? 'every paid seat' : 'everyone who registered'}` : 'Send the follow-up'}
+              {sending ? 'Enviando…' : preparedArmed ? `Sí, enviarlo a ${audience === 'attended' ? 'todos los que asistieron' : audience === 'paid' ? 'todas las plazas pagadas' : 'todos los inscritos'}` : 'Enviar el seguimiento'}
             </button>
             {preparedArmed && !sending && (
-              <button className="os-btn" onClick={() => setPreparedArmed(false)}>Cancel</button>
+              <button className="os-btn" onClick={() => setPreparedArmed(false)}>Cancelar</button>
             )}
           </div>
         )}
@@ -1178,13 +1171,13 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
 
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 12 }}>
         <select className="os-select" value={audience} onChange={e => setAudience(e.target.value as 'all' | 'paid' | 'attended')}>
-          <option value="all">Everyone who registered</option>
-          <option value="paid">Only paid seats (and anyone marked attended)</option>
-          <option value="attended">Only those marked attended</option>
+          <option value="all">Todos los inscritos</option>
+          <option value="paid">Solo plazas pagadas (y quien asistió)</option>
+          <option value="attended">Solo quienes asistieron</option>
         </select>
         <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, color: 'var(--os-text-muted)' }}>
           <input type="checkbox" checked={excludeMembers} onChange={e => setExcludeMembers(e.target.checked)} />
-          Skip anyone who already joined
+          Omitir a quien ya es cliente
         </label>
       </div>
 
@@ -1194,13 +1187,13 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
         onClick={() => { setSubject(STRATEGY_OFFER.subject); setMessage(STRATEGY_OFFER.message); setAudience('paid'); setExcludeMembers(false); setArmed(false); setResult(null) }}
         style={{ marginBottom: 10 }}
       >
-        Fill in the workshop follow-up (recording, Game Plan, $150 session)
+        Rellenar el seguimiento de la masterclass (grabación + llamada gratuita)
       </button>
       <input
         className="os-input"
         value={subject}
         onChange={e => { setSubject(e.target.value); setArmed(false) }}
-        placeholder="Subject line"
+        placeholder="Asunto"
         style={{ width: '100%', marginBottom: 10 }}
       />
       <textarea
@@ -1208,7 +1201,7 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
         value={message}
         onChange={e => { setMessage(e.target.value); setArmed(false) }}
         rows={10}
-        placeholder={'Write it as you would say it. A blank line starts a new paragraph.\n\nPaste the replay link on its own line.'}
+        placeholder={'Escríbelo como lo dirías. Una línea en blanco empieza un párrafo nuevo.\n\nPega el enlace de la grabación en su propia línea.'}
         style={{ width: '100%' }}
       />
 
@@ -1219,32 +1212,32 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
           disabled={!message.trim()}
           onClick={() => setShowPreview(v => !v)}
         >
-          {showPreview ? 'Hide preview' : 'Preview'}
+          {showPreview ? 'Ocultar vista previa' : 'Vista previa'}
         </button>
         <button
           className="os-btn os-btn-primary os-btn-sm"
           disabled={sending || !subject.trim() || !message.trim()}
           onClick={() => send()}
         >
-          {sending ? 'Sending…' : armed ? 'Press again to send it' : 'Send to this event'}
+          {sending ? 'Enviando…' : armed ? 'Pulsa otra vez para enviarlo' : 'Enviar a este evento'}
         </button>
         {armed && (
           <span style={{ fontSize: 12.5, color: 'var(--os-warn)', fontWeight: 600 }}>
-            This sends real email and cannot be taken back.
+            Esto envía emails reales y no se puede deshacer.
           </span>
         )}
       </div>
 
       {failedList.length > 0 && !sending && (
         <div style={{ marginTop: 12, background: 'var(--os-base-2)', border: '1px solid var(--os-bad)', borderRadius: 10, padding: '12px 14px' }}>
-          <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--os-text)', marginBottom: 6 }}>Did not go out</div>
+          <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--os-text)', marginBottom: 6 }}>No salieron</div>
           {failedList.map(f => (
             <div key={f.email} style={{ fontSize: 13, color: 'var(--os-text-muted)', lineHeight: 1.6 }}>
               <strong style={{ color: 'var(--os-text)' }}>{f.name || f.email}</strong> ({f.email}): {f.reason}
             </div>
           ))}
           <button className="os-btn os-btn-primary os-btn-sm" style={{ marginTop: 10 }} onClick={() => send(failedList.map(f => f.email))}>
-            Retry these {failedList.length}
+            Reintentar estos {failedList.length}
           </button>
         </div>
       )}
@@ -1252,7 +1245,7 @@ function OfferBroadcast({ event }: { event: CrmEvent }) {
       {showPreview && (
         <div style={{ marginTop: 14, background: '#ffffff', color: '#212A4D', border: '1px solid var(--os-line)', borderRadius: 10, padding: '18px 20px', fontSize: 15, lineHeight: 1.6, maxWidth: 640 }}>
           <div style={{ fontSize: 12, color: '#6E6A7C', marginBottom: 10 }}>
-            Preview, with a sample name. Subject: <strong>{applyVars(subject, 'Maria', event.title)}</strong>
+            Vista previa con un nombre de ejemplo. Asunto: <strong>{applyVars(subject, 'Maria', event.title)}</strong>
           </div>
           <div dangerouslySetInnerHTML={{ __html: messageToHtml(applyVars(message, 'Maria', event.title)) }} />
         </div>

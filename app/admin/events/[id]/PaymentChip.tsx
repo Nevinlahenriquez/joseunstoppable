@@ -7,7 +7,7 @@ function when(iso: string): string {
   if (!iso) return ''
   const d = new Date(iso)
   if (isNaN(d.getTime())) return ''
-  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
+  return d.toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })
 }
 
 function stripeLink(a: EventAttendee): string {
@@ -26,8 +26,8 @@ export default function PaymentChip({ a, onOpenProof }: { a: EventAttendee; onOp
   const card = a.paymentMethod === 'card' || a.paymentRef?.via === 'card'
   const bank = !card && (a.paymentMethod === 'bank' || !!a.paymentRef?.via?.startsWith('bank') || !!a.proofPath)
   const circle = !card && (a.paymentMethod === 'circle' || a.paymentRef?.via === 'circle')
-  const label = card ? 'Card' : bank ? 'Bank' : circle ? 'Incluido' : 'Paid'
-  const currency = a.paymentRef?.currency || 'USD'
+  const label = card ? 'Tarjeta' : bank ? 'Banco' : circle ? 'Incluido' : 'Pagado'
+  const currency = a.paymentRef?.currency || 'EUR'
 
   function show() {
     if (hideTimer.current) clearTimeout(hideTimer.current)
@@ -76,35 +76,35 @@ export default function PaymentChip({ a, onOpenProof }: { a: EventAttendee; onOp
             boxShadow: '0 12px 32px rgba(0,0,0,.28)', fontSize: 12.5, color: 'var(--os-text-primary)',
           }}>
           <div style={{ fontWeight: 800, fontSize: 13.5, marginBottom: 8, color: 'var(--os-success, #16a34a)' }}>
-            {card ? 'Stripe payment confirmed' : bank ? 'Paid by bank transfer' : circle ? 'Incluido sin coste' : 'Marked paid'}
+            {card ? 'Pago con Stripe confirmado' : bank ? 'Pagado por transferencia' : circle ? 'Incluido sin coste' : 'Marcado como pagado'}
           </div>
-          <Row k="Amount" v={`${currency === 'USD' ? '$' : currency + ' '}${a.paidAmount || 0}`} />
-          {a.paidAt && <Row k="Paid" v={when(a.paidAt)} />}
-          {card && a.paymentRef?.payerEmail && a.paymentRef.payerEmail.toLowerCase() !== a.email.toLowerCase() && <Row k="Card email" v={a.paymentRef.payerEmail} />}
-          {card && a.paymentRef?.paymentIntent && <Row k="Payment" v={a.paymentRef.paymentIntent} mono />}
+          <Row k="Importe" v={currency === 'USD' ? `$${a.paidAmount || 0}` : `${a.paidAmount || 0} ${currency === 'EUR' ? '€' : currency}`} />
+          {a.paidAt && <Row k="Pagado" v={when(a.paidAt)} />}
+          {card && a.paymentRef?.payerEmail && a.paymentRef.payerEmail.toLowerCase() !== a.email.toLowerCase() && <Row k="Email de la tarjeta" v={a.paymentRef.payerEmail} />}
+          {card && a.paymentRef?.paymentIntent && <Row k="Pago" v={a.paymentRef.paymentIntent} mono />}
           {bank && (
-            <Row k="Confirmed by" v={
+            <Row k="Confirmado por" v={
               a.paymentRef?.via === 'bank-auto' ? 'Del justificante subido'
                 : markedBy ? markedBy
-                : a.paymentRef?.via === 'bank-manual' ? 'Marked by hand' : 'Marked by hand'
+                : a.paymentRef?.via === 'bank-manual' ? 'Marcado a mano' : 'Marcado a mano'
             } />
           )}
-          {bank && insight && <Row k="Justificante" v={insight === 'match' ? 'Proof matched' : `Check by hand${a.proofCheck?.reasons?.length ? `: ${a.proofCheck.reasons.join(' ')}` : ''}`} />}
-          <Row k="Ticket" v={a.ticketCode} mono />
+          {bank && insight && <Row k="Justificante" v={insight === 'match' ? 'El justificante coincide' : `Revisar a mano${a.proofCheck?.reasons?.length ? `: ${a.proofCheck.reasons.join(' ')}` : ''}`} />}
+          <Row k="Entrada" v={a.ticketCode} mono />
           <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
             {card && (
               <a href={stripeLink(a)} target="_blank" rel="noreferrer"
                 style={{ fontWeight: 700, fontSize: 12, color: 'var(--os-accent)', textDecoration: 'none' }}>
-                Open in Stripe ↗
+                Abrir en Stripe ↗
               </a>
             )}
             {a.proofPath && (
               <button type="button" onClick={() => { setOpen(false); onOpenProof() }}
                 style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontWeight: 700, fontSize: 12, color: 'var(--os-accent)' }}>
-                View transfer proof ↗
+                Ver justificante ↗
               </button>
             )}
-            {bank && !a.proofPath && <span style={{ fontSize: 11.5, color: 'var(--os-text-muted)' }}>No proof uploaded. Check your bank account.</span>}
+            {bank && !a.proofPath && <span style={{ fontSize: 11.5, color: 'var(--os-text-muted)' }}>No se subió justificante. Revisa tu cuenta bancaria.</span>}
           </div>
         </div>
       )}

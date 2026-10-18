@@ -51,13 +51,13 @@ export function hasUnsyncedWrites(): boolean {
 
 export function explainFailure(reason: string): string {
   if (reason.includes('401') || reason.toLowerCase().includes('unauthor')) {
-    return 'Your admin session expired. Sign in again, then retry.'
+    return 'Tu sesión ha caducado. Vuelve a entrar y reintenta.'
   }
   if (reason.includes('500') || reason.toLowerCase().includes('config')) {
-    return 'The server could not reach the database.'
+    return 'El servidor no pudo conectar con la base de datos.'
   }
   if (reason.toLowerCase().includes('network') || reason.toLowerCase().includes('fetch')) {
-    return 'No connection to the server.'
+    return 'Sin conexión con el servidor.'
   }
   return reason
 }

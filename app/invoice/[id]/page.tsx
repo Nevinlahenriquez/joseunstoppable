@@ -9,11 +9,11 @@ import { copyText } from '@/lib/clipboard'
 type Params = { id: string }
 
 function fmt(n: number, cur: string) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format(n)
 }
 
 function fmtDate(d: string) {
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return new Date(d + 'T00:00:00').toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 const BIZ = {
@@ -45,13 +45,13 @@ function CopyRow({ label, value, mono, small, copied, onCopy }: {
       <button
         className="no-print"
         onClick={() => onCopy(label, value)}
-        aria-label={`Copy ${label}`}
+        aria-label={`Copiar ${label}`}
         style={{
           flexShrink: 0, border: '1px solid #ded5f5', background: isOn ? '#12805a' : '#fff',
-          color: isOn ? '#fff' : '#6d28d9', borderRadius: 5, padding: '3px 9px',
+          color: isOn ? '#fff' : '#0C2A43', borderRadius: 5, padding: '3px 9px',
           fontSize: 10.5, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
         }}
-      >{isOn ? 'Copied' : 'Copy'}</button>
+      >{isOn ? 'Copiado' : 'Copiar'}</button>
     </div>
   )
 }
@@ -76,13 +76,13 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
     setDownloading(true)
     try {
       const res = await fetch(`/api/invoice-pdf?id=${inv.id}`)
-      if (!res.ok) { const e = await res.json(); alert(e.detail || 'PDF failed'); return }
+      if (!res.ok) { const e = await res.json(); alert(e.detail || 'No se pudo generar el PDF'); return }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url; a.download = `Factura-${inv.number}.pdf`; a.click()
       URL.revokeObjectURL(url)
-    } catch { alert('Could not generate PDF') }
+    } catch { alert('No se pudo generar el PDF') }
     finally { setDownloading(false) }
   }
 
@@ -122,10 +122,10 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
   }, [id])
 
   if (invoice === 'loading') {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0eeee', fontFamily: 'Georgia, serif', color: '#aaa' }}>Loading…</div>
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0eeee', fontFamily: 'Georgia, serif', color: '#aaa' }}>Cargando…</div>
   }
   if (!invoice) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', color: '#aaa' }}>Invoice not found.</div>
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Georgia, serif', color: '#aaa' }}>Factura no encontrada.</div>
   }
 
   const subtotal = invoice.lineItems.reduce((s, li) => s + li.quantity * li.price, 0)
@@ -140,7 +140,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
           {}
           <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'rgba(14,113,172,0.15)' }}>
             <div style={{
-              height: '100%', background: 'linear-gradient(90deg, #0E71AC, #a855f7, #0E71AC)',
+              height: '100%', background: 'linear-gradient(90deg, #0E71AC, #5BBDEB, #0E71AC)',
               backgroundSize: '200% 100%',
               animation: 'pdfSlide 1.4s ease-in-out infinite',
               width: '60%',
@@ -150,14 +150,14 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
           {}
           <div style={{
             position: 'absolute', bottom: 32, left: '50%', transform: 'translateX(-50%)',
-            background: '#12002a', color: '#fff', borderRadius: 100,
+            background: '#0C2A43', color: '#fff', borderRadius: 100,
             padding: '12px 24px', fontSize: 13.5, fontWeight: 600,
             display: 'flex', alignItems: 'center', gap: 10,
             boxShadow: '0 8px 32px rgba(0,0,0,0.22)',
             fontFamily: 'Inter, sans-serif', whiteSpace: 'nowrap',
             pointerEvents: 'none',
           }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a855f7" strokeWidth="2.5" style={{ flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5BBDEB" strokeWidth="2.5" style={{ flexShrink: 0 }}>
               <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
               <polyline points="7 10 12 15 17 10"/>
               <line x1="12" y1="15" x2="12" y2="3"/>
@@ -226,16 +226,16 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
         position: 'sticky', top: 0, zIndex: 10, boxShadow: '0 1px 4px rgba(0,0,0,0.06)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 30, height: 30, background: '#12002a', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+          <div style={{ width: 30, height: 30, background: '#0C2A43', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             <Image src="/icon.png" alt="José Unstoppable" width={24} height={24} />
           </div>
           <span style={{ fontWeight: 700, fontSize: 13.5, color: '#1a1a2e' }}>José Unstoppable</span>
           <span className="inv-top-num" style={{ fontSize: 12, color: '#aaa', marginLeft: 4 }}>/ Invoice #{invoice.number}</span>
         </div>
         <button onClick={() => handleDownloadPdf(invoice)} disabled={downloading}
-          style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', background: downloading ? '#888' : '#12002a', color: '#fff', border: 'none', borderRadius: 8, cursor: downloading ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: 12.5, fontFamily: 'inherit', letterSpacing: 0.2 }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', background: downloading ? '#888' : '#0C2A43', color: '#fff', border: 'none', borderRadius: 8, cursor: downloading ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: 12.5, fontFamily: 'inherit', letterSpacing: 0.2 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          {downloading ? 'Generating…' : 'Download PDF'}
+          {downloading ? 'Generando…' : 'Descargar PDF'}
         </button>
       </div>
 
@@ -252,12 +252,12 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
             {}
             <div className="inv-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 44 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <div style={{ width: 88, height: 88, background: '#12002a', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                <div style={{ width: 88, height: 88, background: '#0C2A43', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                   <Image src="/icon.png" alt="José Unstoppable" width={81} height={81} style={{ objectFit: 'contain' }} />
                 </div>
                 <div style={{ lineHeight: 1.75, fontSize: 12.5, color: '#555' }}>
-                  <div style={{ fontWeight: 700, fontSize: 13.5, color: '#12002a', marginBottom: 2 }}>{BIZ.name}</div>
-                  <div style={{ color: '#12002a', fontWeight: 500 }}>{BIZ.legal}</div>
+                  <div style={{ fontWeight: 700, fontSize: 13.5, color: '#0C2A43', marginBottom: 2 }}>{BIZ.name}</div>
+                  <div style={{ color: '#0C2A43', fontWeight: 500 }}>{BIZ.legal}</div>
                   <div>{BIZ.address}</div>
                   <div>{BIZ.email}</div>
                   <div>{BIZ.phone}</div>
@@ -265,45 +265,45 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                 <div style={{ fontSize: 12, color: '#888', lineHeight: 1.8 }}>
                   <div>{BIZ.website}</div>
                   <div style={{ overflowWrap: 'anywhere' }}>IBAN: {BIZ.iban}</div>
-                  <div>Tax ID: {BIZ.taxId}</div>
+                  {BIZ.taxId && <div>NIF: {BIZ.taxId}</div>}
                 </div>
               </div>
 
               <div className="inv-meta" style={{ textAlign: 'right' }}>
-                <div className="inv-meta-title" style={{ fontSize: 26, fontWeight: 800, color: '#12002a', letterSpacing: -0.5, marginBottom: 16 }}>
-                  Invoice #{invoice.number}
+                <div className="inv-meta-title" style={{ fontSize: 26, fontWeight: 800, color: '#0C2A43', letterSpacing: -0.5, marginBottom: 16 }}>
+                  Factura #{invoice.number}
                 </div>
                 <div style={{ fontSize: 12.5, color: '#666', lineHeight: 2.1 }}>
                   <div className="inv-meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
-                    <span style={{ color: '#999', fontWeight: 500 }}>Issue Date</span>
-                    <span style={{ fontWeight: 600, color: '#12002a', minWidth: 130, textAlign: 'right' }}>{fmtDate(invoice.issueDate)}</span>
+                    <span style={{ color: '#999', fontWeight: 500 }}>Fecha de emisión</span>
+                    <span style={{ fontWeight: 600, color: '#0C2A43', minWidth: 130, textAlign: 'right' }}>{fmtDate(invoice.issueDate)}</span>
                   </div>
                   <div className="inv-meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
-                    <span style={{ color: '#999', fontWeight: 500 }}>Due Date</span>
-                    <span style={{ fontWeight: 600, color: invoice.status === 'overdue' ? '#dc2626' : '#12002a', minWidth: 130, textAlign: 'right' }}>{fmtDate(invoice.dueDate)}</span>
+                    <span style={{ color: '#999', fontWeight: 500 }}>Vencimiento</span>
+                    <span style={{ fontWeight: 600, color: invoice.status === 'overdue' ? '#dc2626' : '#0C2A43', minWidth: 130, textAlign: 'right' }}>{fmtDate(invoice.dueDate)}</span>
                   </div>
                   <div className="inv-meta-row" style={{ display: 'flex', gap: 24, justifyContent: 'flex-end' }}>
-                    <span style={{ color: '#999', fontWeight: 500 }}>Sales rep</span>
-                    <span style={{ fontWeight: 500, color: '#12002a', minWidth: 130, textAlign: 'right' }}>José Unstoppable</span>
+                    <span style={{ color: '#999', fontWeight: 500 }}>Comercial</span>
+                    <span style={{ fontWeight: 500, color: '#0C2A43', minWidth: 130, textAlign: 'right' }}>José Unstoppable</span>
                   </div>
                 </div>
               </div>
             </div>
 
             {}
-            <div style={{ borderTop: '2px solid #12002a', marginBottom: 28 }} />
+            <div style={{ borderTop: '2px solid #0C2A43', marginBottom: 28 }} />
 
             {}
             <div className="no-break inv-bill" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, marginBottom: 36 }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>Bill To</div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: '#12002a', marginBottom: 2 }}>{invoice.clientName}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>Facturar a</div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: '#0C2A43', marginBottom: 2 }}>{invoice.clientName}</div>
                 {invoice.clientCompany && <div style={{ fontWeight: 600, fontSize: 13, color: '#333' }}>{invoice.clientCompany}</div>}
                 {invoice.clientAddress && <div style={{ fontSize: 12.5, color: '#666', whiteSpace: 'pre-line', marginTop: 4, lineHeight: 1.7 }}>{invoice.clientAddress}</div>}
               </div>
               {(invoice.clientEmail || invoice.clientPhone) && (
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>Contact</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 10 }}>Contacto</div>
                   {invoice.clientEmail && <div style={{ fontSize: 12.5, color: '#555', lineHeight: 1.8 }}>{invoice.clientEmail}</div>}
                   {invoice.clientPhone && <div style={{ fontSize: 12.5, color: '#555' }}>{invoice.clientPhone}</div>}
                   {invoice.clientVat && <div style={{ fontSize: 12.5, color: '#555' }}>VAT ID: {invoice.clientVat}</div>}
@@ -313,8 +313,8 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
             {}
             {invoice.projectTitle && (
-              <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid #f0eafc' }}>
-                <div style={{ fontSize: 17, fontWeight: 800, color: '#12002a', lineHeight: 1.4 }}>{invoice.projectTitle}</div>
+              <div style={{ marginBottom: 24, paddingBottom: 20, borderBottom: '1px solid #E4F4FD' }}>
+                <div style={{ fontSize: 17, fontWeight: 800, color: '#0C2A43', lineHeight: 1.4 }}>{invoice.projectTitle}</div>
               </div>
             )}
 
@@ -329,7 +329,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
                 {proposal.services.length > 0 && (
                   <div className="no-break" style={{ marginBottom: 24 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Services Included</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Servicios incluidos</div>
                     <ul style={{ margin: 0, padding: '0 0 0 18px', listStyle: 'none' }}>
                       {proposal.services.map((s, i) => (
                         <li key={i} style={{ fontSize: 13, color: '#444', lineHeight: 1.8, paddingLeft: 4, position: 'relative' }}>
@@ -343,7 +343,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
                 {proposal.deliverables.length > 0 && (
                   <div className="no-break" style={{ marginBottom: 28 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>What You Walk Away With</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Lo que te llevas</div>
                     <ul style={{ margin: 0, padding: '0 0 0 18px', listStyle: 'none' }}>
                       {proposal.deliverables.map((d, i) => (
                         <li key={i} style={{ fontSize: 13, color: '#444', lineHeight: 1.8, paddingLeft: 4, position: 'relative' }}>
@@ -357,47 +357,47 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
                 {proposal.paymentSchedule.length > 1 && (
                   <div className="no-break" style={{ marginBottom: 28 }}>
-                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Full Engagement Roadmap</div>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Plan completo del programa</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 10 }}>
                       {proposal.paymentSchedule.map((phase, i) => (
-                        <div key={i} style={{ background: i === (invoice as Invoice).phaseIndex ? '#12002a' : '#F1F8FD', border: `1px solid ${i === (invoice as Invoice).phaseIndex ? '#12002a' : '#E4F4FD'}`, borderRadius: 8, padding: '12px 14px' }}>
+                        <div key={i} style={{ background: i === (invoice as Invoice).phaseIndex ? '#0C2A43' : '#F1F8FD', border: `1px solid ${i === (invoice as Invoice).phaseIndex ? '#0C2A43' : '#E4F4FD'}`, borderRadius: 8, padding: '12px 14px' }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: i === (invoice as Invoice).phaseIndex ? '#c4b5fd' : '#0E71AC', marginBottom: 4 }}>{phase.label}</div>
-                          <div style={{ fontSize: 16, fontWeight: 800, color: i === (invoice as Invoice).phaseIndex ? '#fff' : '#12002a' }}>{fmt(phase.amount, proposal.currency)}<span style={{ fontSize: 11, fontWeight: 500, opacity: 0.6 }}>/mo</span></div>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: i === (invoice as Invoice).phaseIndex ? '#fff' : '#0C2A43' }}>{fmt(phase.amount, proposal.currency)}<span style={{ fontSize: 11, fontWeight: 500, opacity: 0.6 }}>/mo</span></div>
                           {phase.note && <div style={{ fontSize: 11, color: i === (invoice as Invoice).phaseIndex ? '#c4b5fd' : '#999', marginTop: 5, lineHeight: 1.5 }}>{phase.note}</div>}
                         </div>
                       ))}
                     </div>
-                    <div style={{ fontSize: 11, color: '#999', marginTop: 10, fontStyle: 'italic' }}>Highlighted phase is billed on this invoice. Subsequent months invoiced automatically.</div>
+                    <div style={{ fontSize: 11, color: '#999', marginTop: 10, fontStyle: 'italic' }}>La fase resaltada es la que se cobra en esta factura. Los meses siguientes se facturan automáticamente.</div>
                   </div>
                 )}
 
-                <div style={{ borderTop: '2px solid #12002a', marginBottom: 24 }} />
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>This Invoice</div>
+                <div style={{ borderTop: '2px solid #0C2A43', marginBottom: 24 }} />
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 12 }}>Esta factura</div>
               </>
             )}
 
             {}
             <table className="inv-items" style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 0 }}>
               <thead>
-                <tr style={{ background: '#12002a' }}>
-                  {['Product or Service', 'Qty', 'Price', 'Line Total'].map((h, i) => (
+                <tr style={{ background: '#0C2A43' }}>
+                  {['Producto o servicio', 'Cant.', 'Precio', 'Total'].map((h, i) => (
                     <th key={h} style={{
                       padding: '11px 14px', textAlign: i === 0 ? 'left' : 'right',
-                      fontSize: 11, fontWeight: 700, color: '#e8e0f8', letterSpacing: 0.6, textTransform: 'uppercase'
+                      fontSize: 11, fontWeight: 700, color: '#E4F4FD', letterSpacing: 0.6, textTransform: 'uppercase'
                     }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {invoice.lineItems.map((li, i) => (
-                  <tr key={li.id} className="no-break" style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
+                  <tr key={li.id} className="no-break" style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#E4F4FD' : '#F1F8FD'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
                     <td style={{ padding: '14px 14px' }}>
-                      <div style={{ fontWeight: 700, fontSize: 13.5, color: '#12002a' }}>{li.name}</div>
+                      <div style={{ fontWeight: 700, fontSize: 13.5, color: '#0C2A43' }}>{li.name}</div>
                       {li.description && <div style={{ fontSize: 12, color: '#888', marginTop: 4, lineHeight: 1.6 }}>{li.description}</div>}
                     </td>
-                    <td data-label="Qty" style={{ padding: '14px 14px', textAlign: 'right', fontSize: 13, color: '#555' }}>{li.quantity}</td>
-                    <td data-label="Price" style={{ padding: '14px 14px', textAlign: 'right', fontSize: 13, color: '#555' }}>{fmt(li.price, invoice.currency)}</td>
-                    <td data-label="Line total" style={{ padding: '14px 14px', textAlign: 'right', fontSize: 13.5, fontWeight: 700, color: '#12002a' }}>{fmt(li.quantity * li.price, invoice.currency)}</td>
+                    <td data-label="Cant." style={{ padding: '14px 14px', textAlign: 'right', fontSize: 13, color: '#555' }}>{li.quantity}</td>
+                    <td data-label="Precio" style={{ padding: '14px 14px', textAlign: 'right', fontSize: 13, color: '#555' }}>{fmt(li.price, invoice.currency)}</td>
+                    <td data-label="Total" style={{ padding: '14px 14px', textAlign: 'right', fontSize: 13.5, fontWeight: 700, color: '#0C2A43' }}>{fmt(li.quantity * li.price, invoice.currency)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -405,26 +405,26 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
             {}
             <div className="no-break inv-totals-wrap" style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 28, marginBottom: 8 }}>
-              <div className="inv-totals" style={{ minWidth: 280, borderTop: '2px solid #12002a', paddingTop: 16 }}>
+              <div className="inv-totals" style={{ minWidth: 280, borderTop: '2px solid #0C2A43', paddingTop: 16 }}>
                 {[
                   { label: 'Subtotal', value: fmt(subtotal, invoice.currency) },
-                  { label: 'Taxes', value: fmt(invoice.taxes, invoice.currency) },
+                  { label: 'Impuestos', value: fmt(invoice.taxes, invoice.currency) },
                 ].map(r => (
-                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #f0eafc' }}>
+                  <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #E4F4FD' }}>
                     <span style={{ fontSize: 13, color: '#888' }}>{r.label}</span>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>{r.value}</span>
                   </div>
                 ))}
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #f0eafc' }}>
-                  <span style={{ fontSize: 13.5, fontWeight: 700, color: '#12002a' }}>Invoice Total</span>
-                  <span style={{ fontSize: 14, fontWeight: 800, color: '#12002a' }}>{fmt(total, invoice.currency)}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #E4F4FD' }}>
+                  <span style={{ fontSize: 13.5, fontWeight: 700, color: '#0C2A43' }}>Total factura</span>
+                  <span style={{ fontSize: 14, fontWeight: 800, color: '#0C2A43' }}>{fmt(total, invoice.currency)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
-                  <span style={{ fontSize: 13, color: '#888' }}>Amount Paid</span>
+                  <span style={{ fontSize: 13, color: '#888' }}>Importe pagado</span>
                   <span style={{ fontSize: 13, color: '#888' }}>{fmt(invoice.amountPaid, invoice.currency)}</span>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 18px', background: '#12002a', borderRadius: 8, marginTop: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#e8e0f8' }}>Balance Due</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 18px', background: '#0C2A43', borderRadius: 8, marginTop: 8 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#E4F4FD' }}>Pendiente de pago</span>
                   <span style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{fmt(balance, invoice.currency)}</span>
                 </div>
               </div>
@@ -433,7 +433,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
           </div>
 
           {}
-          <div className="print-break inv-sec" style={{ padding: '52px 60px 52px', borderTop: '8px solid #12002a' }}>
+          <div className="print-break inv-sec" style={{ padding: '52px 60px 52px', borderTop: '8px solid #0C2A43' }}>
 
             {}
             {invoice.notes && (
@@ -444,7 +444,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
             {}
             <div className="no-break" style={{ marginBottom: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 16 }}>Payment Methods</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 16 }}>Formas de pago</div>
 
               {}
               {}
@@ -461,9 +461,9 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                   <div className="no-print" style={{ marginBottom: 20, background: 'linear-gradient(135deg,#eefaf3,#e2f5ec)', border: '1px solid #bde5d0', borderRadius: 10, padding: '20px 22px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
                     <div>
                       <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0d3a24', marginBottom: 3 }}>
-                        {invoice.paymentUrlLabel?.trim() || 'Pay now'}
+                        {invoice.paymentUrlLabel?.trim() || 'Pagar ahora'}
                       </div>
-                      <div style={{ fontSize: 12, color: '#406553' }}>Opens a secure payment page. Nothing to copy.</div>
+                      <div style={{ fontSize: 12, color: '#406553' }}>Abre una página de pago segura. No hay que copiar nada.</div>
                     </div>
                     <a
                       href={safe}
@@ -471,7 +471,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                       rel="noopener noreferrer"
                       style={{ background: '#12805a', color: '#fff', border: 'none', borderRadius: 8, padding: '13px 26px', fontSize: 14.5, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}
                     >
-                      {invoice.paymentUrlLabel?.trim() || 'Pay now'} &rarr;
+                      {invoice.paymentUrlLabel?.trim() || 'Pagar ahora'} &rarr;
                     </a>
                   </div>
                 )
@@ -479,10 +479,10 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
               {}
               {invoice.cardPayment !== false && (
-              <div className="no-print" style={{ marginBottom: 20, background: 'linear-gradient(135deg,#f5f0ff,#E4F4FD)', border: '1px solid #d9cef7', borderRadius: 10, padding: '20px 22px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
+              <div className="no-print" style={{ marginBottom: 20, background: 'linear-gradient(135deg,#F1F8FD,#E4F4FD)', border: '1px solid #d9cef7', borderRadius: 10, padding: '20px 22px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#12002a', marginBottom: 3 }}>Pay by card, instantly</div>
-                  <div style={{ fontSize: 12, color: '#5b5470' }}>Secure checkout by Stripe. No bank details to copy.</div>
+                  <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0C2A43', marginBottom: 3 }}>Paga con tarjeta, al instante</div>
+                  <div style={{ fontSize: 12, color: '#5b5470' }}>Pago seguro con Stripe. Sin datos bancarios que copiar.</div>
                 </div>
                 <button
                   onClick={async () => {
@@ -502,8 +502,8 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                     } finally { setPaying(false) }
                   }}
                   disabled={paying}
-                  style={{ background: paying ? '#b9a9e8' : 'linear-gradient(180deg,#8b5cf6,#6d28d9)', color: '#fff', border: 'none', borderRadius: 999, padding: '13px 28px', fontWeight: 700, fontSize: 14.5, cursor: paying ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
-                >{paying ? 'Opening checkout…' : 'Pay now by card'}</button>
+                  style={{ background: paying ? '#b9a9e8' : 'linear-gradient(180deg,#0E71AC,#0C2A43)', color: '#fff', border: 'none', borderRadius: 999, padding: '13px 28px', fontWeight: 700, fontSize: 14.5, cursor: paying ? 'default' : 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+                >{paying ? 'Abriendo el pago…' : 'Pagar con tarjeta'}</button>
                 {payError && <div style={{ flexBasis: '100%', fontSize: 12.5, color: '#b91c1c' }}>{payError}</div>}
               </div>
               )}
@@ -516,14 +516,14 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
               <div className="inv-pay-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(240px,1fr))', gap: 20 }}>
                 {wants('wise') && (
                 <div style={{ background: '#F1F8FD', border: '1px solid #E4F4FD', borderRadius: 8, padding: '18px 20px' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#12002a', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Bank transfer</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#0C2A43', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 10 }}>Transferencia bancaria</div>
                   {}
                   <div style={{ fontSize: 12, color: '#555', lineHeight: 1.9 }}>
-                    <CopyRow label="Name" value={BIZ.legal} copied={copiedField} onCopy={copyField} />
+                    <CopyRow label="Titular" value={BIZ.legal} copied={copiedField} onCopy={copyField} />
                     <CopyRow label="IBAN" value={BIZ.iban} mono copied={copiedField} onCopy={copyField} />
                     <CopyRow label="SWIFT/BIC" value={BIZ.swift} mono copied={copiedField} onCopy={copyField} />
-                    <CopyRow label="Bank address" value={process.env.NEXT_PUBLIC_BANK_ADDRESS || ""} small copied={copiedField} onCopy={copyField} />
-                    <CopyRow label="Reference" value={`Invoice ${invoice.number}`} copied={copiedField} onCopy={copyField} />
+                    <CopyRow label="Dirección del banco" value={process.env.NEXT_PUBLIC_BANK_ADDRESS || ""} small copied={copiedField} onCopy={copyField} />
+                    <CopyRow label="Concepto" value={`Factura ${invoice.number}`} copied={copiedField} onCopy={copyField} />
                     {}
                     <div style={{ color: '#12805a', fontSize: 11, marginTop: 6, lineHeight: 1.5 }}>
                       Paying from a bank inside SEPA? Send it as a normal domestic transfer.
@@ -541,22 +541,21 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
 
             {}
             <div className="no-break">
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>Terms & Conditions</div>
+              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0E71AC', marginBottom: 14 }}>Términos y condiciones</div>
               <div style={{ fontSize: 12, color: '#666', lineHeight: 1.95 }}>
-                <p style={{ margin: '0 0 10px' }}><strong style={{ color: '#333' }}>Payment Policy:</strong> Net 7. Payment is due within 7 days of the invoice date. Late payments incur a <strong style={{ color: '#333' }}>2% monthly interest fee</strong> on the outstanding balance. For monthly retainers, failure to communicate or pay within 7 days may result in immediate suspension of services.</p>
+                <p style={{ margin: '0 0 10px' }}><strong style={{ color: '#333' }}>Plazo de pago:</strong> 7 días desde la fecha de la factura. En cuotas mensuales, si el pago no llega en ese plazo el programa puede quedar en pausa hasta regularizarlo.</p>
                 {}
-                <p style={{ margin: '0 0 10px' }}><strong style={{ color: '#333' }}>Tax &amp; Currency:</strong> No VAT/Sales Tax applied (International B2B service).{invoice.currency === 'AWG' ? <> The fixed exchange rate is <strong style={{ color: '#333' }}>$1.00 USD = 1.80 AWG/Florin</strong>.</> : null}</p>
-                <p style={{ margin: 0 }}><strong style={{ color: '#333' }}>Important Note:</strong> Bank details have changed compared to previous invoices. Please use the information above for all future transfers.</p>
+                                <p style={{ margin: 0 }}><strong style={{ color: '#333' }}>Dudas:</strong> escribe a {BIZ.email} y te respondo lo antes posible.</p>
               </div>
             </div>
 
             {}
             <div className="inv-foot" style={{ marginTop: 48, paddingTop: 20, borderTop: '1px solid #E4F4FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div style={{ fontSize: 11, color: '#bbb' }}>
-                <div style={{ fontWeight: 600, color: '#888', marginBottom: 2 }}>José Lorenso Antonio Unstoppable</div>
+                <div style={{ fontWeight: 600, color: '#888', marginBottom: 2 }}>{BIZ.legal}</div>
                 <div>{BIZ.email} · {BIZ.website}</div>
               </div>
-              <div style={{ width: 40, height: 40, background: '#12002a', borderRadius: 6, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: 40, height: 40, background: '#0C2A43', borderRadius: 6, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Image src="/icon.png" alt="José Unstoppable" width={32} height={32} />
               </div>
             </div>

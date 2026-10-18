@@ -14,7 +14,7 @@ type Props = {
   autoFocus?: boolean
 }
 
-export function SearchSelect({ value, items, onChange, placeholder = 'Search…', emptyLabel, style, autoFocus }: Props) {
+export function SearchSelect({ value, items, onChange, placeholder = 'Buscar…', emptyLabel, style, autoFocus }: Props) {
   const [open, setOpen] = useState(false)
   const [q, setQ] = useState('')
   const [hi, setHi] = useState(0)
@@ -67,7 +67,7 @@ export function SearchSelect({ value, items, onChange, placeholder = 'Search…'
           }}
         />
         {value && (
-          <button type="button" aria-label="Clear" onClick={() => pick('')}
+          <button type="button" aria-label="Borrar" onClick={() => pick('')}
             style={{ width: 30, height: 30, border: 'none', background: 'transparent', color: 'var(--os-text-faint)', fontSize: 16, cursor: 'pointer', flexShrink: 0 }}>×</button>
         )}
       </div>
@@ -103,7 +103,7 @@ export function SearchSelect({ value, items, onChange, placeholder = 'Search…'
               </li>
             )
           })}
-          {shown.length === 0 && <li style={{ padding: '10px', fontSize: 12.5, color: 'var(--os-text-faint)' }}>No match.</li>}
+          {shown.length === 0 && <li style={{ padding: '10px', fontSize: 12.5, color: 'var(--os-text-faint)' }}>Sin resultados.</li>}
         </ul>
       )}
     </div>

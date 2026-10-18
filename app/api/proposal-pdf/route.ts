@@ -18,15 +18,15 @@ const BIZ = {
 }
 
 function fmt(n: number, currency: string) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
 }
 
 function fmtDate(d: string) {
-  return new Date(d + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return new Date(d + 'T00:00:00').toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 const BASE_CSS = `
-@page { size: Letter; margin: 0; }
+@page { size: A4; margin: 0; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { width: 100%; }
 body {
@@ -131,7 +131,7 @@ hr.rule {
   align-items: flex-start;
   gap: 10px;
   padding: 8px 0;
-  border-bottom: 1px solid #f0eafc;
+  border-bottom: 1px solid #E4F4FD;
   font-size: 10pt;
   color: #1a0030;
   line-height: 1.5;
@@ -155,7 +155,7 @@ hr.rule {
 .deliverables-list { list-style: none; margin-bottom: 20px; }
 .deliverables-list li {
   padding: 9px 0;
-  border-bottom: 1px solid #f0eafc;
+  border-bottom: 1px solid #E4F4FD;
   font-size: 10pt;
   color: #1a0030;
   display: flex;
@@ -186,7 +186,7 @@ hr.rule {
 .payment-table thead th:last-child { text-align: right; }
 .payment-table tbody td {
   padding: 9px 12px;
-  border-bottom: 1px solid #f0eafc;
+  border-bottom: 1px solid #E4F4FD;
   font-size: 10pt;
 }
 .payment-table tbody td:last-child { text-align: right; font-weight: 700; }
@@ -290,17 +290,17 @@ function buildProposalHtml(p: Proposal & { signerSignature?: string }, signed: b
     ? (() => {
         const name = escapeHtml(signerName || p.signerName || p.clientName)
 
-        const dateStr = signerDate || (p.signedAt ? new Date(p.signedAt).toLocaleString('en-US', {
+        const dateStr = signerDate || (p.signedAt ? new Date(p.signedAt).toLocaleString('es-ES', {
           timeZone: 'Europe/Madrid', month: 'long', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit',
         }) + ' (hora de España)' : '')
         const imgTag = p.signerSignature
-          ? `<img class="sig-img" src="${p.signerSignature}" alt="Signature" />`
+          ? `<img class="sig-img" src="${p.signerSignature}" alt="Firma" />`
           : `<div class="sig-box-cursive">${name}</div>`
         return `<div class="sig-box">
-          <div class="sig-box-label">Signed by Client</div>
+          <div class="sig-box-label">Firmado por el cliente</div>
           ${imgTag}
           <div class="sig-box-name">${name}</div>
-          <div class="sig-box-date">Electronically signed${dateStr ? ' · ' + escapeHtml(dateStr) : ''}</div>
+          <div class="sig-box-date">Firmado electrónicamente${dateStr ? ' · ' + escapeHtml(dateStr) : ''}</div>
         </div>`
       })()
     : `<div style="border:1.5px dashed #d4b8ff;border-radius:12px;padding:32px 22px;text-align:center;color:#bbb;font-size:9pt;margin-bottom:20px;">
@@ -403,24 +403,24 @@ function buildProposalHtml(p: Proposal & { signerSignature?: string }, signed: b
     <div class="terms-box">
       ${results ? L(
         `<strong>Payment:</strong> Nothing is paid on signing. Each commission invoice is due within 7 days. No VAT applies (international B2B service).<br><strong>Extras:</strong> Anything outside the scope above is quoted separately and paid before the work starts.<br><strong>Validity:</strong> This proposal expires ${fmtDate(validUntil)}.<br><strong>Ownership:</strong> Everything built belongs to the client from day one.<br><strong>Confidentiality:</strong> Both parties keep the terms of this proposal confidential.`,
-        `<strong>Pago:</strong> No se paga nada al firmar. Cada factura de comisión se paga dentro de 7 días. Sin IVA (servicio B2B internacional).<br><strong>Extras:</strong> Cualquier trabajo fuera del alcance de arriba se cotiza aparte y se paga antes de empezar.<br><strong>Validez:</strong> Esta propuesta vence el ${fmtDate(validUntil)}.<br><strong>Propiedad:</strong> Todo lo que se construye es del cliente desde el primer día.<br><strong>Confidencialidad:</strong> Ambas partes mantienen confidenciales los términos de esta propuesta.`,
-      ) : `<strong>Payment:</strong> Each milestone is due within 7 days of the invoice date. Late payments incur 2% monthly interest. No VAT applies (international B2B service).<br>
-      <strong>Validity:</strong> This proposal expires ${fmtDate(validUntil)}.<br>
-      <strong>Intellectual Property:</strong> All delivered work becomes property of the client upon receipt of full payment.<br>
-      <strong>Confidentiality:</strong> Both parties agree to keep the terms of this proposal confidential.`}
+        `<strong>Pago:</strong> No se paga nada al firmar. Cada factura de comisión se paga dentro de 7 días.<br><strong>Extras:</strong> Cualquier trabajo fuera del alcance de arriba se cotiza aparte y se paga antes de empezar.<br><strong>Validez:</strong> Esta propuesta vence el ${fmtDate(validUntil)}.<br><strong>Confidencialidad:</strong> Ambas partes mantienen confidenciales los términos de esta propuesta.`,
+      ) : `<strong>Pago:</strong> Cada pago se abona dentro de los 7 días siguientes a la fecha de la factura.<br>
+      <strong>Validez:</strong> Esta propuesta vence el ${fmtDate(validUntil)}.<br>
+      <strong>Garantía:</strong> Si sigues el plan durante los 90 días (entrenos y check-ins semanales) y no ves resultados, te devuelvo el 100% de tu dinero.<br>
+      <strong>Confidencialidad:</strong> Ambas partes mantienen confidenciales los términos de esta propuesta.`}
     </div>
   </div>
 
   ${p.bankInfo ? `
   <div class="section-block">
     <div class="bank-box">
-      <div class="bank-box-title">Payment Instructions</div>
+      <div class="bank-box-title">Instrucciones de pago</div>
       <div class="bank-box-body">${escapeHtml(p.bankInfo).replace(/\n/g, '<br>')}</div>
     </div>
   </div>` : `
   <div class="section-block">
     <div class="bank-box">
-      <div class="bank-box-title">Payment Details</div>
+      <div class="bank-box-title">Datos de pago</div>
       <div class="bank-box-body" style="display:flex;gap:48px">
         <div>
           <strong>Transferencia bancaria</strong><br>
@@ -449,19 +449,19 @@ function buildProposalHtml(p: Proposal & { signerSignature?: string }, signed: b
       <div class="sig-party-label">Service Provider</div>
       <div class="sig-party-name">${BIZ.name}</div>
       <div class="sig-party-sub">${BIZ.email}</div>
-      <div class="sig-line">Authorized · José Unstoppable</div>
+      <div class="sig-line">Autorizado · José Unstoppable</div>
     </div>
     <div class="sig-party">
-      <div class="sig-party-label">Client</div>
+      <div class="sig-party-label">Cliente</div>
       <div class="sig-party-name">${escapeHtml(p.clientName)}</div>
       <div class="sig-party-sub">${escapeHtml(p.clientEmail)}${p.clientCompany ? ` · ${escapeHtml(p.clientCompany)}` : ''}</div>
-      <div class="sig-line">Authorized representative</div>
+      <div class="sig-line">Firma del cliente</div>
     </div>
   </div>
 
   ${sigContent}
 
-  ${p.notes ? `<div class="terms-box" style="margin-top:16px"><strong>Notes:</strong> ${escapeHtml(p.notes)}</div>` : ''}
+  ${p.notes ? `<div class="terms-box" style="margin-top:16px"><strong>Notas:</strong> ${escapeHtml(p.notes)}</div>` : ''}
 
   <div class="page-footer">
     <div>${BIZ.name} &nbsp;·&nbsp; ${p.ref} &nbsp;·&nbsp; ${BIZ.email}</div>
@@ -485,7 +485,7 @@ async function pdfShift(html: string): Promise<Buffer> {
     },
     body: JSON.stringify({
       source: html,
-      format: 'Letter',
+      format: 'A4',
       margin: '0',
     }),
   })
@@ -513,7 +513,7 @@ export async function GET(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     const { data, error } = await sb.from('proposals').select('*').eq('token', token).single()
-    if (error || !data) return NextResponse.json({ error: 'Proposal not found', detail: error?.message }, { status: 404 })
+    if (error || !data) return NextResponse.json({ error: 'Propuesta no encontrada', detail: error?.message }, { status: 404 })
 
     const p: Proposal & { signerSignature?: string } = {
       id: data.id, token: data.token, ref: data.ref,
@@ -548,6 +548,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    return NextResponse.json({ error: 'Failed to generate PDF', detail: message }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo generar el PDF', detail: message }, { status: 500 })
   }
 }

@@ -9,7 +9,7 @@ type Person = {
   block: '' | 'unpaid' | 'cancelled'; sent: Record<string, boolean>
 }
 
-const fmt = (iso: string) => new Date(iso).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+const fmt = (iso: string) => new Date(iso).toLocaleString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 
 export default function AttendeeMail({ eventId }: { eventId: string }) {
   const [stages, setStages] = useState<Stage[]>([])
@@ -25,9 +25,9 @@ export default function AttendeeMail({ eventId }: { eventId: string }) {
     try {
       const res = await fetch(`/api/os/event-attendee-mail?eventId=${encodeURIComponent(eventId)}`, { cache: 'no-store' })
       const j = await res.json().catch(() => ({}))
-      if (!res.ok || !j.ok) { setErr(j.error || `Could not load (${res.status})`); return }
+      if (!res.ok || !j.ok) { setErr(j.error || `No se pudo cargar (${res.status})`); return }
       setErr(''); setStages(j.stages); setPeople(j.people); setNow(Date.now())
-    } catch { setErr('Could not load the list.') }
+    } catch { setErr('No se pudo cargar la lista.') }
   }, [eventId])
 
   useEffect(() => {
@@ -57,11 +57,11 @@ export default function AttendeeMail({ eventId }: { eventId: string }) {
       })
       const j = await res.json().catch(() => ({}))
       const who = p.name || p.email
-      if (!res.ok || !j.ok) say(j.error || `Did not send to ${who}.`)
-      else if (kind === 'sequence') say(j.failed ? `${j.sent} sent to ${who}, ${j.failed} failed.` : `Sequence sent to ${who} (${j.sent} email${j.sent === 1 ? '' : 's'}).`)
-      else say(`Sent to ${who}.`)
+      if (!res.ok || !j.ok) say(j.error || `No se envió a ${who}.`)
+      else if (kind === 'sequence') say(j.failed ? `${j.sent} enviados a ${who}, ${j.failed} fallaron.` : `Secuencia enviada a ${who} (${j.sent} ${j.sent === 1 ? 'email' : 'emails'}).`)
+      else say(`Enviado a ${who}.`)
       await load()
-    } catch { say('Network error, nothing was sent.') }
+    } catch { say('Error de red, no se envió nada.') }
     finally { setBusy('') }
   }
 
@@ -75,24 +75,24 @@ export default function AttendeeMail({ eventId }: { eventId: string }) {
     <div className="evx-mail">
       <div className="evx-mail-head">
         <div>
-          <div className="evx-mail-title">Who got what</div>
-          <div className="evx-mail-sub">A tick is an email the mail service accepted. Press any email to send it again, or resend the whole sequence.</div>
+          <div className="evx-mail-title">Quién recibió qué</div>
+          <div className="evx-mail-sub">Un check es un email que el servicio de correo aceptó. Pulsa cualquier email para reenviarlo o reenvía toda la secuencia.</div>
         </div>
-        <input className="evx-mail-search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search a name or email" />
+        <input className="evx-mail-search" value={q} onChange={e => setQ(e.target.value)} placeholder="Busca un nombre o email" />
       </div>
 
       {err && <div className="evx-mail-note evx-mail-bad">{err}</div>}
-      {!err && !people && <div className="evx-mail-note">Loading…</div>}
-      {people && people.length === 0 && <div className="evx-mail-note">Nobody has registered yet.</div>}
+      {!err && !people && <div className="evx-mail-note">Cargando…</div>}
+      {people && people.length === 0 && <div className="evx-mail-note">Aún no se ha inscrito nadie.</div>}
 
       {people && people.length > 0 && (
         <div className="evx-mail-scroll">
           <table className="evx-mail-table">
             <thead>
               <tr>
-                <th className="evx-mail-who">Attendee</th>
+                <th className="evx-mail-who">Asistente</th>
                 {stages.map(s => (
-                  <th key={s.kind} title={s.dueAt ? fmt(s.dueAt) : 'At registration'}>{s.label}</th>
+                  <th key={s.kind} title={s.dueAt ? fmt(s.dueAt) : 'Al inscribirse'}>{s.label}</th>
                 ))}
                 <th />
               </tr>
@@ -103,7 +103,7 @@ export default function AttendeeMail({ eventId }: { eventId: string }) {
                 return (
                   <tr key={p.id} className={blocked ? 'is-blocked' : ''}>
                     <td className="evx-mail-who">
-                      <div className="evx-mail-name">{p.name || 'No name'}</div>
+                      <div className="evx-mail-name">{p.name || 'Sin nombre'}</div>
                       <div className="evx-mail-email">{p.email}</div>
                     </td>
                     {stages.map(s => {
@@ -113,12 +113,12 @@ export default function AttendeeMail({ eventId }: { eventId: string }) {
                       const future = due !== null && due > now
                       const state = sent ? 'sent' : future ? 'later' : 'missed'
                       const tip = blocked
-                        ? (p.block === 'unpaid' ? 'Waiting for payment' : 'Cancelled')
-                        : `${s.label}: ${sent ? 'sent' : future ? `due ${fmt(s.dueAt!)}` : 'not sent'}. Press to send it now.`
+                        ? (p.block === 'unpaid' ? 'Esperando el pago' : 'Cancelado')
+                        : `${s.label}: ${sent ? 'enviado' : future ? `sale el ${fmt(s.dueAt!)}` : 'no enviado'}. Pulsa para enviarlo ahora.`
                       return (
                         <td key={s.kind}>
                           {armed === key ? (
-                            <button className="evx-mail-cell is-armed" onClick={() => fire(p, s.kind)}>Send</button>
+                            <button className="evx-mail-cell is-armed" onClick={() => fire(p, s.kind)}>Enviar</button>
                           ) : (
                             <button
                               className={`evx-mail-cell is-${state}`}
@@ -135,16 +135,16 @@ export default function AttendeeMail({ eventId }: { eventId: string }) {
                     })}
                     <td className="evx-mail-act">
                       {blocked ? (
-                        <span className="evx-mail-wait">{p.block === 'unpaid' ? 'Waiting for payment' : 'Cancelled'}</span>
+                        <span className="evx-mail-wait">{p.block === 'unpaid' ? 'Esperando el pago' : 'Cancelado'}</span>
                       ) : (
                         <button
                           className={`evx-btn ${armed === `${p.id}:sequence` ? 'evx-btn-primary' : 'evx-btn-ghost'} evx-mail-seq`}
                           disabled={busy === `${p.id}:sequence`}
                           onClick={() => fire(p, 'sequence')}
-                          title="The confirmation with the joining link, plus the reminder that is due now (or the follow-up once it is over)."
+                          title="La confirmación con el enlace para unirse, más el recordatorio que toca ahora (o el seguimiento si ya terminó)."
                         >
                           <EvIcon name="ti-refresh" size={14} />
-                          {busy === `${p.id}:sequence` ? 'Sending…' : armed === `${p.id}:sequence` ? 'Send now' : 'Resend sequence'}
+                          {busy === `${p.id}:sequence` ? 'Enviando…' : armed === `${p.id}:sequence` ? 'Enviar ahora' : 'Reenviar secuencia'}
                         </button>
                       )}
                     </td>
@@ -157,9 +157,9 @@ export default function AttendeeMail({ eventId }: { eventId: string }) {
       )}
 
       <div className="evx-mail-legend">
-        <span><span className="evx-mail-cell is-sent"><EvIcon name="ti-check" size={12} /></span> Sent</span>
-        <span><span className="evx-mail-cell is-later"><EvIcon name="ti-clock" size={11} /></span> Goes out later</span>
-        <span><span className="evx-mail-cell is-missed"><span className="evx-mail-dash" /></span> Not sent</span>
+        <span><span className="evx-mail-cell is-sent"><EvIcon name="ti-check" size={12} /></span> Enviado</span>
+        <span><span className="evx-mail-cell is-later"><EvIcon name="ti-clock" size={11} /></span> Sale más tarde</span>
+        <span><span className="evx-mail-cell is-missed"><span className="evx-mail-dash" /></span> No enviado</span>
       </div>
 
       {toast && <div className="evx-mail-toast" role="status">{toast}</div>}

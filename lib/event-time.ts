@@ -13,7 +13,7 @@ function zonesFor(timeZone: string) {
 }
 
 function zoneOffsetMinutes(timeZone: string, at: Date): number {
-  const name = new Intl.DateTimeFormat('en-US', { timeZone, timeZoneName: 'longOffset' })
+  const name = new Intl.DateTimeFormat('es-ES', { timeZone, timeZoneName: 'longOffset' })
     .formatToParts(at)
     .find(p => p.type === 'timeZoneName')?.value ?? 'GMT'
   const m = name.match(/GMT([+-])(\d{2}):(\d{2})/)
@@ -30,7 +30,7 @@ export function eventInstant(dateISO: string, time: string, timeZone: string): D
 }
 
 function formatIn(at: Date, timeZone: string): string {
-  return new Intl.DateTimeFormat('en-GB', { timeZone, hour: '2-digit', minute: '2-digit', hour12: false }).format(at)
+  return new Intl.DateTimeFormat('es-ES', { timeZone, hour: '2-digit', minute: '2-digit', hour12: false }).format(at)
 }
 
 export interface ZoneTime {

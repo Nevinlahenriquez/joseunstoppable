@@ -64,7 +64,7 @@ export default function ConfirmHost() {
             autoFocus
             style={{ flex: 1, padding: '10px', background: 'var(--os-line)', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 600, color: 'var(--os-text-muted)', cursor: 'pointer' }}
           >
-            {pending.cancelLabel ?? 'Cancel'}
+            {pending.cancelLabel ?? 'Cancelar'}
           </button>
           <button
             onClick={() => answer(true)}
@@ -74,7 +74,7 @@ export default function ConfirmHost() {
               background: destructive ? 'var(--os-bad)' : 'var(--os-accent)',
             }}
           >
-            {pending.confirmLabel ?? (destructive ? 'Delete' : 'Confirm')}
+            {pending.confirmLabel ?? (destructive ? 'Eliminar' : 'Confirmar')}
           </button>
         </div>
       </div>

@@ -96,7 +96,7 @@ export default function AttributionPage() {
 
       <div className="os-card" style={{ padding: 16, marginBottom: 16 }}>
         <div className="os-card-title">Clientes que han pagado</div>
-        {!d?.clients.length
+        {!d?.clients?.length
           ? <div className="os-empty"><div className="os-empty-sub">Aparecen aquí cuando una factura se marca como pagada.</div></div>
           : <div style={{ display: 'grid', gap: 8, marginTop: 8 }}>
               {d.clients.map(c => (

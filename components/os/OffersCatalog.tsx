@@ -23,20 +23,20 @@ const ICON: Record<OfferCategory, string> = {
 }
 
 const CAT_LABEL: Record<OfferCategory, string> = {
-  programs: 'Online Programs',
+  programs: 'Programas online',
   coaching: 'José Unstoppable',
-  communication: 'Communication Coaching',
+  communication: 'Coaching de comunicación',
   premium: 'Alto ticket',
 }
 
 function fmt(n: number, cur = 'USD') {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(n)
 }
 
 function billingLabel(b: string) {
   if (b === 'one-time') return 'one-time'
   if (b === 'monthly') return '/mo'
-  if (b === 'retainer') return ' retainer'
+  if (b === 'retainer') return ' cuota fija'
   return ''
 }
 
@@ -88,7 +88,7 @@ export default function OffersPage({ embedded }: { embedded?: boolean } = {}) {
   }
 
   async function handleDelete(id: string) {
-    if (!(await confirmAction({ message: 'Delete this offer?', detail: 'This cannot be undone.' }))) return
+    if (!(await confirmAction({ message: '¿Eliminar esta oferta?', detail: 'No se puede deshacer.' }))) return
     deleteOffer(id)
     reload()
   }
@@ -96,27 +96,27 @@ export default function OffersPage({ embedded }: { embedded?: boolean } = {}) {
   const filtered = filter === 'all' ? offers : offers.filter(o => o.category === filter)
 
   const tabs: { key: CategoryFilter; label: string }[] = [
-    { key: 'programs', label: 'Online Programs' },
+    { key: 'programs', label: 'Programas online' },
     { key: 'coaching', label: 'José Unstoppable Coaching' },
     { key: 'premium', label: 'Alto ticket' },
-    { key: 'all', label: 'All' },
+    { key: 'all', label: 'Todas' },
   ]
 
   return (
     <>
       {embedded ? (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
-          <div style={{ fontSize: 13, color: '#847a9e' }}>{offers.length} service{offers.length !== 1 ? 's' : ''} you can drop into a proposal.</div>
-          <button className="os-btn os-btn-primary" onClick={handleNew}><i className="ti ti-plus" /> New Offer</button>
+          <div style={{ fontSize: 13, color: '#847a9e' }}>{offers.length} {offers.length === 1 ? 'servicio' : 'servicios'} que puedes añadir a una propuesta.</div>
+          <button className="os-btn os-btn-primary" onClick={handleNew}><i className="ti ti-plus" /> Nueva oferta</button>
         </div>
       ) : (
         <div className="os-page-header">
           <div>
-            <div className="os-page-title">Offers</div>
-            <div className="os-page-sub">{offers.length} offer{offers.length !== 1 ? 's' : ''} in your catalog</div>
+            <div className="os-page-title">Ofertas</div>
+            <div className="os-page-sub">{offers.length} {offers.length === 1 ? 'oferta' : 'ofertas'} en tu catálogo</div>
           </div>
           <button className="os-btn os-btn-primary" onClick={handleNew}>
-            <i className="ti ti-plus" /> New Offer
+            <i className="ti ti-plus" /> Nueva oferta
           </button>
         </div>
       )}
@@ -144,8 +144,8 @@ export default function OffersPage({ embedded }: { embedded?: boolean } = {}) {
       {filtered.length === 0 && (
         <div className="os-empty">
           <div style={{ fontSize: 32, marginBottom: 10 }}>📦</div>
-          <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>No offers yet</div>
-          <div style={{ color: 'var(--os-text-faint)', fontSize: 14 }}>Create your first offer to use in proposals.</div>
+          <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Aún no hay ofertas</div>
+          <div style={{ color: 'var(--os-text-faint)', fontSize: 14 }}>Crea tu primera oferta para usarla en propuestas.</div>
         </div>
       )}
 
@@ -193,7 +193,7 @@ export default function OffersPage({ embedded }: { embedded?: boolean } = {}) {
                       </span>
                     )}
                     <span style={{ fontSize: 12, color: 'var(--os-text-faint)' }}>
-                      {count} proposal{count !== 1 ? 's' : ''}
+                      {count} {count === 1 ? 'propuesta' : 'propuestas'}
                     </span>
                   </div>
                 </div>
@@ -212,7 +212,7 @@ export default function OffersPage({ embedded }: { embedded?: boolean } = {}) {
                     style={{ padding: '6px 12px', fontSize: 12 }}
                     onClick={() => handleToggleActive(o)}
                   >
-                    {o.active ? <><i className="ti ti-eye-off" /> Deactivate</> : <><i className="ti ti-eye" /> Activate</>}
+                    {o.active ? <><i className="ti ti-eye-off" /> Desactivar</> : <><i className="ti ti-eye" /> Activar</>}
                   </button>
                   <button
                     type="button"

@@ -24,6 +24,6 @@ export function detectSpam(body: Record<string, unknown> | null | undefined): Sp
 }
 
 export const SPAM_REJECTION = {
-  body: { error: 'Your submission could not be processed. Please try again.' },
+  body: { error: 'No se pudo procesar el envío. Inténtalo de nuevo.' },
   status: 400,
 } as const

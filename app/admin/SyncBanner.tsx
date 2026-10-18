@@ -25,7 +25,7 @@ export default function SyncBanner() {
 
     const left = await retryFailedWrites()
     setRetrying(false)
-    if (left > 0) setResult(`${left} still could not save.`)
+    if (left > 0) setResult(`${left} siguen sin guardarse.`)
   }
 
   return (
@@ -46,10 +46,10 @@ export default function SyncBanner() {
       <span style={{ fontSize: 17, flexShrink: 0 }} aria-hidden>⚠️</span>
       <div style={{ flex: 1, minWidth: 180 }}>
         <div style={{ fontWeight: 800, fontSize: 13.5, color: 'var(--os-bad)' }}>
-          {fails.length === 1 ? '1 change did not save' : `${fails.length} changes did not save`}
+          {fails.length === 1 ? '1 cambio no se guardó' : `${fails.length} cambios no se guardaron`}
         </div>
         <div style={{ fontSize: 12.5, color: 'var(--os-text)' }}>
-          {result ?? reason} Your work is still on this screen.
+          {result ?? reason} Tu trabajo sigue en esta pantalla.
         </div>
       </div>
       <button
@@ -63,7 +63,7 @@ export default function SyncBanner() {
           opacity: retrying ? 0.6 : 1, flexShrink: 0,
         }}
       >
-        {retrying ? 'Retrying…' : 'Retry'}
+        {retrying ? 'Reintentando…' : 'Reintentar'}
       </button>
     </div>
   )

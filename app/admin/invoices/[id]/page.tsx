@@ -21,11 +21,11 @@ export default function EditInvoicePage() {
       .catch(() => setInvoice(null))
   }, [id])
 
-  if (invoice === undefined) return <div style={{ padding: 40, color: 'var(--os-text-faint)' }}>Loading invoice…</div>
+  if (invoice === undefined) return <div style={{ padding: 40, color: 'var(--os-text-faint)' }}>Cargando factura…</div>
   if (invoice === null) {
     return (
       <div style={{ padding: 40, color: 'var(--os-text-muted)' }}>
-        Invoice not found. <Link href="/admin/invoices" style={{ color: 'var(--os-accent)', fontWeight: 700 }}>Back to invoices</Link>
+        Factura no encontrada. <Link href="/admin/invoices" style={{ color: 'var(--os-accent)', fontWeight: 700 }}>Volver a facturas</Link>
       </div>
     )
   }

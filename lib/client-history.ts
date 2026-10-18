@@ -41,6 +41,8 @@ export interface PersonRecord {
   lastTouch?: string
 }
 
+const ACTIVITY_TITLE: Record<string, string> = { call: 'Llamada', email: 'Email', whatsapp: 'WhatsApp', meeting: 'Reunión', note: 'Nota', stage: 'Cambio de etapa' }
+
 const key = (e?: string) => (e ?? '').trim().toLowerCase()
 
 export function invoiceTotal(inv: Invoice): number {
@@ -69,46 +71,46 @@ export function buildPersonHistory(
 
   for (const l of leads) {
     push({ id: `lead-${l.id}`, at: l.createdAt, kind: 'lead',
-      title: 'Entered the system', detail: l.source ? `via ${l.source}` : undefined })
+      title: 'Entró en el sistema', detail: l.source ? `vía ${l.source}` : undefined })
   }
 
   for (const d of deals) {
     push({ id: `deal-${d.id}`, at: d.createdAt, kind: 'lead',
-      title: 'Added to the pipeline', detail: d.service || d.stage, href: `/admin/deals/${d.id}` })
+      title: 'Añadido al pipeline', detail: d.service || d.stage, href: `/admin/deals/${d.id}` })
 
     if (!isOpenDeal(d)) {
       const won = d.stage !== 'lost'
       push({ id: `close-${d.id}`, at: d.updatedAt ?? d.createdAt, kind: won ? 'won' : 'lost',
-        title: won ? 'Deal won' : 'Deal closed without a sale',
+        title: won ? 'Oportunidad ganada' : 'Oportunidad cerrada sin venta',
         detail: d.service, amount: won ? d.value : undefined, href: `/admin/deals/${d.id}` })
     }
 
     for (const a of (d.activity ?? []) as ActivityEntry[]) {
       push({ id: `act-${d.id}-${a.id}`, at: a.ts ?? d.createdAt, kind: 'activity',
-        title: a.type ? String(a.type).charAt(0).toUpperCase() + String(a.type).slice(1) : 'Interaction',
+        title: a.type ? (ACTIVITY_TITLE[String(a.type)] ?? String(a.type)) : 'Interacción',
         detail: a.text, href: `/admin/deals/${d.id}` })
     }
   }
 
   for (const p of proposals) {
     push({ id: `prop-${p.id}`, at: p.sentAt ?? p.createdAt, kind: 'proposal',
-      title: p.sentAt ? 'Offer sent' : 'Offer drafted', detail: p.title,
+      title: p.sentAt ? 'Propuesta enviada' : 'Propuesta en borrador', detail: p.title,
       amount: p.total, currency: p.currency, href: `/admin/proposals` })
     if (p.signedAt) {
       push({ id: `sign-${p.id}`, at: p.signedAt, kind: 'signed',
-        title: 'Offer signed', detail: p.title, amount: p.total, currency: p.currency, href: `/admin/proposals` })
+        title: 'Propuesta firmada', detail: p.title, amount: p.total, currency: p.currency, href: `/admin/proposals` })
     }
   }
 
   for (const inv of invoices) {
     if (inv.status !== 'draft') {
       push({ id: `inv-${inv.id}`, at: inv.sentAt ?? inv.issueDate ?? inv.createdAt, kind: 'invoice',
-        title: inv.recurring ? 'Recurring invoice raised' : 'Invoice sent',
+        title: inv.recurring ? 'Factura recurrente emitida' : 'Factura enviada',
         detail: inv.projectTitle || inv.number, amount: invoiceTotal(inv), currency: inv.currency,
         href: `/admin/invoices` })
     }
     if (inv.paidAt) {
-      push({ id: `paid-${inv.id}`, at: inv.paidAt, kind: 'paid', title: 'Payment received',
+      push({ id: `paid-${inv.id}`, at: inv.paidAt, kind: 'paid', title: 'Pago recibido',
         detail: inv.projectTitle || inv.number, amount: invoiceTotal(inv), currency: inv.currency,
         href: `/admin/invoices` })
     }
@@ -116,11 +118,11 @@ export function buildPersonHistory(
 
   for (const a of attendees) {
     push({ id: `evt-${a.id}`, at: a.registeredAt, kind: 'event',
-      title: `Registered for ${a.eventTitle || 'an event'}`,
-      detail: a.paid ? 'Paid ticket' : undefined, href: `/admin/events/${a.eventId}` })
+      title: `Inscrito en ${a.eventTitle || 'un evento'}`,
+      detail: a.paid ? 'Entrada pagada' : undefined, href: `/admin/events/${a.eventId}` })
     if (a.checkedIn) {
       push({ id: `evt-in-${a.id}`, at: a.checkedInAt || a.registeredAt, kind: 'checkin',
-        title: `Attended ${a.eventTitle || 'the event'}`, href: `/admin/events/${a.eventId}` })
+        title: `Asistió a ${a.eventTitle || 'el evento'}`, href: `/admin/events/${a.eventId}` })
     }
   }
 
@@ -171,23 +173,23 @@ const S = (id: ContactState, label: string, hint: string, color: string): StateO
 
 export const STATES_BY_STAGE: Record<PersonStatus, StateOption[]> = {
   lead: [
-    S('hot',  'Hot',  'Ready to buy, move now', '#dc2626'),
-    S('warm', 'Warm', 'Interested, needs another touch', '#e0683f'),
-    S('cold', 'Cold', 'No movement, park it', '#6b78e8'),
+    S('hot',  'Caliente',  'Listo para comprar, actúa ya', '#dc2626'),
+    S('warm', 'Templado', 'Interesado, necesita otro contacto', '#e0683f'),
+    S('cold', 'Frío', 'Sin movimiento, déjalo aparcado', '#6b78e8'),
   ],
   client: [
-    S('active', 'Active', 'Delivering now', '#1f8a5b'),
-    S('paused', 'Paused', 'Still a client, work on hold', '#e8a516'),
-    S('upsell', 'Upsell', 'Ready for the next level', '#0E71AC'),
+    S('active', 'Activo', 'En el programa ahora', '#1f8a5b'),
+    S('paused', 'En pausa', 'Sigue siendo cliente, programa en pausa', '#e8a516'),
+    S('upsell', 'Upsell', 'Listo para el siguiente nivel', '#0E71AC'),
   ],
   'past-client': [
-    S('reengage', 'Re-engage', 'Worth reaching out to again', '#0891b2'),
-    S('lost',     'Lost',      'Not coming back, keep the record', '#9a8cba'),
+    S('reengage', 'Recuperar', 'Merece la pena volver a escribirle', '#0891b2'),
+    S('lost',     'Perdido',   'No va a volver, conserva el registro', '#9a8cba'),
   ],
   contact: [
-    S('new',  'New',  'In the base, nothing decided yet', '#6b78e8'),
-    S('warm', 'Warm', 'Worth a conversation', '#e0683f'),
-    S('cold', 'Cold', 'Keep on file', '#9a8cba'),
+    S('new',  'Nuevo',  'En la base, nada decidido aún', '#6b78e8'),
+    S('warm', 'Templado', 'Merece una conversación', '#e0683f'),
+    S('cold', 'Frío', 'Guardar en archivo', '#9a8cba'),
   ],
 }
 
@@ -202,14 +204,14 @@ export function resolveState(stage: PersonStatus, stored?: string): StateOption 
 
 export const STATUS_LABEL: Record<PersonStatus, string> = {
   lead: 'Lead',
-  client: 'Active client',
-  'past-client': 'Past client',
-  contact: 'Contact',
+  client: 'Cliente activo',
+  'past-client': 'Antiguo cliente',
+  contact: 'Contacto',
 }
 
 export const STATUS_HINT: Record<PersonStatus, string> = {
-  lead: 'Actively in the pipeline',
-  client: 'Paying now',
-  'past-client': 'Has paid before, nothing open',
-  contact: 'Not in the pipeline',
+  lead: 'En el pipeline ahora',
+  client: 'Pagando ahora',
+  'past-client': 'Pagó antes, nada abierto',
+  contact: 'Fuera del pipeline',
 }

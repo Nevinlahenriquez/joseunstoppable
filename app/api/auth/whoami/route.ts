@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     editor,
     partner,
     staff,
-    label: editor ? 'Content editor' : partner ? 'Socio' : staff ? 'Team' : 'José Unstoppable',
-    sub: editor ? 'Content Studio access only' : partner ? 'Shared board · Projects and Tasks' : staff ? `Team access · ${STAFF_EMAIL}` : 'Owner',
+    label: editor ? 'Editor de contenido' : partner ? 'Socio' : staff ? 'Equipo' : 'José Unstoppable',
+    sub: editor ? 'Solo acceso a contenido' : partner ? 'Tablero compartido · Proyectos y tareas' : staff ? `Acceso de equipo · ${STAFF_EMAIL}` : 'Propietario',
   })
 }

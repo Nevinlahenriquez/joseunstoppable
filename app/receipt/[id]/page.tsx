@@ -8,12 +8,12 @@ import type { Invoice } from '@/lib/crm-types'
 type Params = { id: string }
 
 function fmt(n: number, cur: string) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format(n)
 }
 
 function fmtDate(d: string) {
   const date = d.length <= 10 ? new Date(d + 'T00:00:00') : new Date(d)
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return date.toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 const BIZ = {
@@ -35,13 +35,13 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
     setDownloading(true)
     try {
       const res = await fetch(`/api/receipt-pdf?id=${encodeURIComponent(inv.id)}`)
-      if (!res.ok) { const e = await res.json().catch(() => ({})); alert(e.detail || 'PDF failed'); return }
+      if (!res.ok) { const e = await res.json().catch(() => ({})); alert(e.detail || 'No se pudo generar el PDF'); return }
       const blob = await res.blob()
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url; a.download = `Recibo-R-${inv.number}.pdf`; a.click()
       URL.revokeObjectURL(url)
-    } catch { alert('Could not generate PDF') }
+    } catch { alert('No se pudo generar el PDF') }
     finally { setDownloading(false) }
   }
 
@@ -57,10 +57,10 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
   }, [id])
 
   if (invoice === 'loading') {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eef1ee', fontFamily: 'Inter, sans-serif', color: '#aaa' }}>Loading…</div>
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#eef1ee', fontFamily: 'Inter, sans-serif', color: '#aaa' }}>Cargando…</div>
   }
   if (!invoice) {
-    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', color: '#aaa' }}>Receipt not found.</div>
+    return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Inter, sans-serif', color: '#aaa' }}>Recibo no encontrado.</div>
   }
 
   const subtotal = (invoice.lineItems ?? []).reduce((s, li) => s + li.quantity * li.price, 0)
@@ -88,12 +88,12 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
             <Image src="/icon.png" alt="José Unstoppable" width={24} height={24} />
           </div>
           <span style={{ fontWeight: 700, fontSize: 13.5, color: '#1a1a2e' }}>José Unstoppable</span>
-          <span style={{ fontSize: 12, color: '#aaa', marginLeft: 4 }}>/ Receipt {rNo}</span>
+          <span style={{ fontSize: 12, color: '#aaa', marginLeft: 4 }}>/ Recibo {rNo}</span>
         </div>
         <button onClick={() => handleDownloadPdf(invoice)} disabled={downloading}
           style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 18px', background: downloading ? '#888' : '#16a34a', color: '#fff', border: 'none', borderRadius: 8, cursor: downloading ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: 12.5, fontFamily: 'inherit', letterSpacing: 0.2 }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-          {downloading ? 'Generating…' : 'Download PDF'}
+          {downloading ? 'Generando…' : 'Descargar PDF'}
         </button>
       </div>
 
@@ -103,12 +103,12 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
           <div style={{ padding: '48px 56px 44px' }}>
 
             {}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32, paddingBottom: 24, borderBottom: '2px solid #12002a' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32, paddingBottom: 24, borderBottom: '2px solid #0C2A43' }}>
               <div>
                 <div style={{ width: 64, height: 64, background: '#0d3d1e', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', marginBottom: 14 }}>
                   <Image src="/icon.png" alt="José Unstoppable" width={58} height={58} style={{ objectFit: 'contain' }} />
                 </div>
-                <div style={{ fontWeight: 800, fontSize: 15, color: '#12002a', marginBottom: 4 }}>{BIZ.name}</div>
+                <div style={{ fontWeight: 800, fontSize: 15, color: '#0C2A43', marginBottom: 4 }}>{BIZ.name}</div>
                 <div style={{ fontSize: 12, color: '#777', lineHeight: 1.7 }}>
                   <div>{BIZ.legal}</div>
                   <div>{BIZ.address}</div>
@@ -116,9 +116,9 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: '#16a34a', marginBottom: 6 }}>Payment Receipt</div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: '#12002a', lineHeight: 1 }}>{rNo}</div>
-                <div style={{ fontSize: 12, color: '#999', marginTop: 6 }}>for Invoice #{invoice.number}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: '#16a34a', marginBottom: 6 }}>Recibo de pago</div>
+                <div style={{ fontSize: 26, fontWeight: 800, color: '#0C2A43', lineHeight: 1 }}>{rNo}</div>
+                <div style={{ fontSize: 12, color: '#999', marginTop: 6 }}>de la factura #{invoice.number}</div>
               </div>
             </div>
 
@@ -127,27 +127,27 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
               <div style={{ display: 'flex', alignItems: 'center', gap: 18 }}>
                 <div style={{ border: '2.5px solid #4ade80', color: '#4ade80', borderRadius: 8, padding: '6px 15px', fontSize: 20, fontWeight: 800, letterSpacing: 3, transform: 'rotate(-4deg)' }}>PAID</div>
                 <div>
-                  <div style={{ color: '#a7f3d0', fontSize: 10.5, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Amount Received</div>
+                  <div style={{ color: '#a7f3d0', fontSize: 10.5, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>Importe recibido</div>
                   <div style={{ color: '#fff', fontSize: 32, fontWeight: 800, lineHeight: 1 }}>{fmt(amountPaid, invoice.currency)}</div>
                 </div>
               </div>
               <div style={{ textAlign: 'right', color: '#a7f3d0', fontSize: 12.5, lineHeight: 1.7 }}>
-                Paid on<div style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>{fmtDate(paidOn)}</div>
+                Pagado el<div style={{ color: '#fff', fontWeight: 700, fontSize: 14 }}>{fmtDate(paidOn)}</div>
               </div>
             </div>
 
             {}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 28, marginBottom: 30 }}>
               <div>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#16a34a', marginBottom: 8 }}>Received From</div>
-                <div style={{ fontWeight: 700, fontSize: 14, color: '#12002a' }}>{invoice.clientName}</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#16a34a', marginBottom: 8 }}>Recibido de</div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: '#0C2A43' }}>{invoice.clientName}</div>
                 {invoice.clientCompany && <div style={{ fontSize: 13, color: '#333' }}>{invoice.clientCompany}</div>}
                 {invoice.clientEmail && <div style={{ fontSize: 12.5, color: '#777', marginTop: 2 }}>{invoice.clientEmail}</div>}
               </div>
               {invoice.projectTitle && (
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#16a34a', marginBottom: 8 }}>For</div>
-                  <div style={{ fontWeight: 600, fontSize: 13.5, color: '#12002a', lineHeight: 1.5 }}>{invoice.projectTitle}</div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#16a34a', marginBottom: 8 }}>Concepto</div>
+                  <div style={{ fontWeight: 600, fontSize: 13.5, color: '#0C2A43', lineHeight: 1.5 }}>{invoice.projectTitle}</div>
                 </div>
               )}
             </div>
@@ -155,21 +155,21 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
             {}
             <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 20 }}>
               <thead>
-                <tr style={{ background: '#12002a' }}>
-                  {['Description', 'Qty', 'Amount'].map((h, i) => (
-                    <th key={h} style={{ padding: '11px 14px', textAlign: i === 0 ? 'left' : 'right', fontSize: 11, fontWeight: 700, color: '#e8e0f8', letterSpacing: 0.6, textTransform: 'uppercase' }}>{h}</th>
+                <tr style={{ background: '#0C2A43' }}>
+                  {['Descripción', 'Cant.', 'Importe'].map((h, i) => (
+                    <th key={h} style={{ padding: '11px 14px', textAlign: i === 0 ? 'left' : 'right', fontSize: 11, fontWeight: 700, color: '#E4F4FD', letterSpacing: 0.6, textTransform: 'uppercase' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {(invoice.lineItems ?? []).map((li, i) => (
-                  <tr key={li.id} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#ede8f8' : '#f5f2fc'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
+                  <tr key={li.id} style={{ borderBottom: `1px solid ${i % 2 === 0 ? '#E4F4FD' : '#F1F8FD'}`, background: i % 2 === 0 ? '#fff' : '#F1F8FD' }}>
                     <td style={{ padding: '13px 14px' }}>
-                      <div style={{ fontWeight: 700, fontSize: 13.5, color: '#12002a' }}>{li.name}</div>
+                      <div style={{ fontWeight: 700, fontSize: 13.5, color: '#0C2A43' }}>{li.name}</div>
                       {li.description && <div style={{ fontSize: 12, color: '#888', marginTop: 3, lineHeight: 1.6 }}>{li.description}</div>}
                     </td>
                     <td style={{ padding: '13px 14px', textAlign: 'right', fontSize: 13, color: '#555' }}>{li.quantity}</td>
-                    <td style={{ padding: '13px 14px', textAlign: 'right', fontSize: 13.5, fontWeight: 700, color: '#12002a' }}>{fmt(li.quantity * li.price, invoice.currency)}</td>
+                    <td style={{ padding: '13px 14px', textAlign: 'right', fontSize: 13.5, fontWeight: 700, color: '#0C2A43' }}>{fmt(li.quantity * li.price, invoice.currency)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -183,11 +183,11 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
                 </div>
                 {invoice.taxes ? (
                   <div style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 0', fontSize: 13, color: '#888' }}>
-                    <span>Taxes / Fees</span><span>{fmt(invoice.taxes, invoice.currency)}</span>
+                    <span>Impuestos</span><span>{fmt(invoice.taxes, invoice.currency)}</span>
                   </div>
                 ) : null}
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '14px 18px', background: '#0d3d1e', borderRadius: 8, marginTop: 8 }}>
-                  <span style={{ fontSize: 14, fontWeight: 700, color: '#a7f3d0' }}>Total Paid</span>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: '#a7f3d0' }}>Total pagado</span>
                   <span style={{ fontSize: 17, fontWeight: 900, color: '#fff' }}>{fmt(amountPaid, invoice.currency)}</span>
                 </div>
               </div>
@@ -195,13 +195,13 @@ export default function ReceiptPage({ params }: { params: Promise<Params> }) {
 
             {}
             <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderLeft: '4px solid #16a34a', borderRadius: 4, padding: '14px 18px', fontSize: 13, color: '#14532d', lineHeight: 1.7 }}>
-              This receipt confirms that payment has been received in full. No balance remains outstanding. Keep this document for your records. Thank you for your business.
+              Este recibo confirma que el pago se ha recibido por completo y no queda nada pendiente. Guárdalo para tus registros. Gracias por tu confianza.
             </div>
 
             {}
             <div style={{ marginTop: 32, paddingTop: 20, borderTop: '1px solid #E4F4FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11.5, color: '#bbb' }}>
-              <div>{BIZ.name} · Receipt {rNo} · {BIZ.email}</div>
-              <div style={{ color: '#16a34a', fontWeight: 700 }}>Paid in full</div>
+              <div>{BIZ.name} · Recibo {rNo} · {BIZ.email}</div>
+              <div style={{ color: '#16a34a', fontWeight: 700 }}>Pagado por completo</div>
             </div>
 
           </div>

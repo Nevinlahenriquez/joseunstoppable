@@ -44,7 +44,7 @@ const CLIENT_STAGES = new Set(['signed', 'active', 'completed'])
 const CLOSED = new Set(['lost'])
 
 function host(ref: string | null): string {
-  if (!ref) return 'Direct or app'
+  if (!ref) return 'Directo o app'
   try {
     const h = new URL(ref).hostname.replace(/^www\./, '')
     if (/instagram/.test(h)) return 'Instagram'
@@ -52,9 +52,9 @@ function host(ref: string | null): string {
     if (/whatsapp|wa\.me/.test(h)) return 'WhatsApp'
     if (/linkedin|lnkd/.test(h)) return 'LinkedIn'
     if (/google\./.test(h)) return 'Google'
-    if (/joseunstoppable/.test(h)) return 'Our own site'
+    if (/joseunstoppable/.test(h)) return 'Tu propia web'
     return h
-  } catch { return 'Direct or app' }
+  } catch { return 'Directo o app' }
 }
 
 function tally(items: string[]): { label: string; count: number }[] {
@@ -96,7 +96,7 @@ export function computeEventAnalytics(ev: EventRow, attendees: AttendeeRow[], vi
   const pipeEmails = new Set(mine.filter(d => !CLOSED.has(String(d.stage)) && !CLIENT_STAGES.has(String(d.stage))).map(d => d.client_email!.toLowerCase()))
 
   return {
-    event: { id: ev.id, slug: ev.slug, title: ev.title, status: ev.status, date: ev.date?.slice(0, 10) ?? '', time: ev.time, timezone: ev.timezone, price: Number(ev.price) || 0, currency: ev.currency || 'USD', capacity: Number(ev.capacity) || 0 },
+    event: { id: ev.id, slug: ev.slug, title: ev.title, status: ev.status, date: ev.date?.slice(0, 10) ?? '', time: ev.time, timezone: ev.timezone, price: Number(ev.price) || 0, currency: ev.currency || 'EUR', capacity: Number(ev.capacity) || 0 },
     daysToGo,
     views: views.length,
     visitors,
@@ -112,7 +112,7 @@ export function computeEventAnalytics(ev: EventRow, attendees: AttendeeRow[], vi
     showRate: past && registered ? showedUp / registered : null,
     capacityFill: ev.capacity ? registered / Number(ev.capacity) : null,
     byDay: days,
-    sources: tally(seated.map(a => (a.source || 'event page').replace(/_/g, ' '))),
+    sources: tally(seated.map(a => (a.source || 'página del evento').replace(/_/g, ' '))),
     referrers: tally(views.map(v => host(v.referrer))),
     inPipeline: pipeEmails.size,
     becameClients: clientEmails.size,
@@ -141,17 +141,17 @@ export async function gatherEventAnalytics(db: SupabaseClient, eventId: string, 
 
 export function ruleInsights(a: EventAnalytics): string[] {
   const out: string[] = []
-  const cur = a.event.currency === 'EUR' ? '€' : '$'
+  const cur = a.event.currency === 'USD' ? '$' : '€'
   if (a.daysToGo !== null && a.daysToGo >= 0) {
-    if (a.event.status !== 'published') out.push(`This event is still a draft, ${a.daysToGo} days out. Nobody can sign up until it is published.`)
-    if (a.capacityFill !== null && a.capacityFill < 0.3 && a.daysToGo <= 7) out.push(`${a.registered} of ${a.event.capacity} seats are taken with ${a.daysToGo} days to go. Push the invitation posts and a WhatsApp broadcast today.`)
-    if (a.unpaid > 0) out.push(`${a.unpaid} people started checkout and did not pay. A personal message to each is the cheapest seat you will sell.`)
-    if (a.visitors >= 30 && a.visitToSignup !== null && a.visitToSignup < 0.05) out.push(`${a.visitors} people saw the page and ${a.registered} signed up (${Math.round(a.visitToSignup * 100)}%). The page is the bottleneck: sharpen the headline and the first screen.`)
-    if (a.visitors === 0) out.push('No page visits are recorded yet. Visits are tracked from 9 October, so share the link and this fills in.')
+    if (a.event.status !== 'published') out.push(`Este evento sigue en borrador y faltan ${a.daysToGo} días. Nadie puede inscribirse hasta que lo publiques.`)
+    if (a.capacityFill !== null && a.capacityFill < 0.3 && a.daysToGo <= 7) out.push(`${a.registered} de ${a.event.capacity} plazas ocupadas y faltan ${a.daysToGo} días. Empuja hoy las publicaciones de invitación y un mensaje de difusión por WhatsApp.`)
+    if (a.unpaid > 0) out.push(`${a.unpaid} personas empezaron el pago y no lo terminaron. Un mensaje personal a cada una es la plaza más barata que venderás.`)
+    if (a.visitors >= 30 && a.visitToSignup !== null && a.visitToSignup < 0.05) out.push(`${a.visitors} personas vieron la página y ${a.registered} se inscribieron (${Math.round(a.visitToSignup * 100)}%). El cuello de botella es la página: mejora el titular y la primera pantalla.`)
+    if (a.visitors === 0) out.push('Aún no hay visitas registradas. Se cuentan desde el 9 de octubre: comparte el enlace y esto se irá llenando.')
   } else if (a.daysToGo !== null) {
-    if (a.showRate !== null) out.push(`${a.showedUp} of ${a.registered} showed up (${Math.round(a.showRate * 100)}%).`)
-    out.push(`${a.inPipeline} attendees are in the pipeline and ${a.becameClients} became clients. Everyone who came and is not in the pipeline is the follow-up list.`)
+    if (a.showRate !== null) out.push(`${a.showedUp} de ${a.registered} vinieron (${Math.round(a.showRate * 100)}%).`)
+    out.push(`${a.inPipeline} asistentes están en el pipeline y ${a.becameClients} se hicieron clientes. Quien vino y no está en el pipeline es tu lista de seguimiento.`)
   }
-  if (a.revenue > 0) out.push(`${cur}${a.revenue.toLocaleString('en-US')} taken from ${a.paid} paid seats.`)
+  if (a.revenue > 0) out.push(`${a.revenue.toLocaleString('es-ES')} ${cur} ingresados con ${a.paid} plazas pagadas.`)
   return out.slice(0, 4)
 }
