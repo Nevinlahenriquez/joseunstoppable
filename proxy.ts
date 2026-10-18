@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifySessionToken, isAuthConfigured, SESSION_COOKIE } from '@/lib/auth'
+import { verifySessionToken, isAuthConfigured, adminOpen, SESSION_COOKIE } from '@/lib/auth'
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
@@ -10,6 +10,12 @@ export async function proxy(req: NextRequest) {
     url.pathname = '/admin/login'
     url.search = ''
     return NextResponse.redirect(url)
+  }
+
+  if (adminOpen()) {
+    const open = NextResponse.next()
+    open.headers.set('X-Robots-Tag', 'noindex, nofollow')
+    return open
   }
 
   if (!isAuthConfigured()) {

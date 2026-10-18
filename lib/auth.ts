@@ -74,7 +74,14 @@ export function isAuthConfigured(): boolean {
   return rawSecret() !== null && (!!process.env.GOOGLE_CLIENT_ID || !!process.env.OS_ADMIN_PASSWORD)
 }
 
+// ADMIN_OPEN=1 in Vercel turns the /admin password off while the dashboard is
+// being reviewed. Remove the variable to lock it again, no deploy needed.
+export function adminOpen(): boolean {
+  return process.env.ADMIN_OPEN === '1'
+}
+
 function devBypass(): boolean {
+  if (adminOpen()) return true
   return process.env.NODE_ENV !== 'production' && !isAuthConfigured()
 }
 
