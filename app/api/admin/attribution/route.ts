@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
   const [stored, overrides] = await Promise.all([readSetting<Partial<FeeSettings>>('fee', DEFAULT_FEE), readSetting<FeeOverrides>('fee-overrides', {})])
   // A setting saved before the percentage mode existed has no mode or percent: fill them from the default.
   const fee: FeeSettings = { ...DEFAULT_FEE, ...stored, mode: stored.mode === 'flat' ? 'flat' : 'percent',
-    tiers: (stored.tiers?.length ? stored.tiers : DEFAULT_FEE.tiers).map(t => ({ from: t.from, perClient: t.perClient ?? 25, percent: t.percent ?? 5 })) }
+    tiers: (stored.tiers?.length ? stored.tiers : DEFAULT_FEE.tiers).map(t => ({ from: t.from, perClient: t.perClient ?? 25, percent: t.percent ?? 10 })) }
   const db = await serviceDb()
   if (!db) return NextResponse.json({ ...NO_DB, fee, overrides, adParams: AD_URL_PARAMS })
 
