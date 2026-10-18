@@ -4,14 +4,14 @@
 //
 // Two modes: a flat amount per client, or a percentage of what each client
 // pays inside the window. Tiers are by client number: client N is billed at
-// the tier N falls in (default 5% for clients 1 to 10, 10% from the 11th).
+// the tier N falls in (default 5% for clients 1 to 10, 7% from the 11th).
 
 export type FeeTier = { from: number; perClient: number; percent: number }
 export type FeeSettings = { startDate: string; months: number; mode: 'flat' | 'percent'; tiers: FeeTier[]; currency: string }
 
 export const DEFAULT_FEE: FeeSettings = {
   startDate: '', months: 3, mode: 'percent', currency: 'EUR',
-  tiers: [{ from: 1, perClient: 25, percent: 5 }, { from: 11, perClient: 25, percent: 10 }],
+  tiers: [{ from: 1, perClient: 25, percent: 5 }, { from: 11, perClient: 25, percent: 7 }],
 }
 
 export type FeeOverrides = Record<string, 'ad' | 'not-ad'>
