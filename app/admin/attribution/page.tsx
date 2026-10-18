@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { copyText } from '@/lib/clipboard'
 import type { FeeSettings } from '@/lib/fee'
 
-type Client = { email: string; name: string; firstPaidAt: string; revenue: number; channel: string; ad: boolean; overridden: boolean; inWindow: boolean }
+type Client = { email: string; name: string; firstPaidAt: string; revenue: number; windowRevenue: number; channel: string; ad: boolean; overridden: boolean; inWindow: boolean; number: number; fee: number; rate: string }
 type Data = {
   ok: boolean; error?: string; fee: FeeSettings; adParams: string; channels: string[]
   leadsBy: Record<string, number>; callsBy: Record<string, number>; paidBy: Record<string, number>
@@ -62,18 +62,26 @@ export default function AttributionPage() {
             <div className="os-form-group"><label className="os-label">Empieza el</label><input className="os-input" type="date" value={fee.startDate} onChange={e => setFee({ ...fee, startDate: e.target.value })} /></div>
             <div className="os-form-group"><label className="os-label">Meses</label><input className="os-input" type="number" value={fee.months} onChange={e => setFee({ ...fee, months: Number(e.target.value) })} /></div>
           </div>
-          <div className="os-label">Importe por cliente nuevo (por tramos)</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+            <span className="os-label" style={{ margin: 0 }}>Tipo de comisión</span>
+            <select className="os-select" value={fee.mode} onChange={e => setFee({ ...fee, mode: e.target.value === 'flat' ? 'flat' : 'percent' })}>
+              <option value="percent">Porcentaje de lo que paga cada cliente</option>
+              <option value="flat">Importe fijo por cliente</option>
+            </select>
+          </div>
+          <div className="os-label">{fee.mode === 'percent' ? 'Porcentaje por tramo (según el número de cliente)' : 'Importe por cliente nuevo (por tramos)'}</div>
           {fee.tiers.map((t, i) => (
             <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               <span>Desde el cliente nº</span>
               <input className="os-input" type="number" style={{ width: 90 }} value={t.from} onChange={e => setFee({ ...fee, tiers: fee.tiers.map((x, j) => (j === i ? { ...x, from: Number(e.target.value) } : x)) })} />
-              <input className="os-input" type="number" style={{ width: 110 }} value={t.perClient} onChange={e => setFee({ ...fee, tiers: fee.tiers.map((x, j) => (j === i ? { ...x, perClient: Number(e.target.value) } : x)) })} />
-              <span>{fee.currency} por cliente</span>
+              {fee.mode === 'percent'
+                ? <><input className="os-input" type="number" style={{ width: 90 }} value={t.percent} onChange={e => setFee({ ...fee, tiers: fee.tiers.map((x, j) => (j === i ? { ...x, percent: Number(e.target.value) } : x)) })} /><span>% de lo que paga</span></>
+                : <><input className="os-input" type="number" style={{ width: 110 }} value={t.perClient} onChange={e => setFee({ ...fee, tiers: fee.tiers.map((x, j) => (j === i ? { ...x, perClient: Number(e.target.value) } : x)) })} /><span>{fee.currency} por cliente</span></>}
               {fee.tiers.length > 1 && <button className="os-icon-btn" aria-label="Quitar tramo" onClick={() => setFee({ ...fee, tiers: fee.tiers.filter((_, j) => j !== i) })}>✕</button>}
             </div>
           ))}
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <button className="os-btn" onClick={() => setFee({ ...fee, tiers: [...fee.tiers, { from: (fee.tiers.at(-1)?.from ?? 0) + 5, perClient: fee.tiers.at(-1)?.perClient ?? 25 }] })}>+ Tramo</button>
+            <button className="os-btn" onClick={() => setFee({ ...fee, tiers: [...fee.tiers, { from: (fee.tiers.at(-1)?.from ?? 0) + 10, perClient: fee.tiers.at(-1)?.perClient ?? 25, percent: fee.tiers.at(-1)?.percent ?? 10 }] })}>+ Tramo</button>
             <button className="os-btn" style={{ marginLeft: 'auto' }} onClick={() => void put({ fee }, 'Comisión guardada.')}>Guardar</button>
           </div>
           {d && (
@@ -96,7 +104,7 @@ export default function AttributionPage() {
                   <strong>{c.name}</strong>
                   <span style={{ color: 'var(--os-text-muted)', fontSize: 13 }}>{c.firstPaidAt ? new Date(c.firstPaidAt).toLocaleDateString('es-ES') : 'sin fecha'} · {eur(c.revenue)}</span>
                   <span className="os-chip" style={c.ad ? { color: 'var(--os-accent)' } : undefined}>{c.ad ? AD : c.channel}{c.overridden ? ' (a mano)' : ''}</span>
-                  {c.ad && c.inWindow && <span style={{ color: 'var(--os-good)', fontSize: 13 }}>cuenta para la comisión</span>}
+                  {c.ad && c.inWindow && <span style={{ color: 'var(--os-good)', fontSize: 13 }}>cliente nº {c.number} · {c.rate}{fee?.mode === 'percent' ? ` de ${eur(c.windowRevenue)}` : ''} = {eur(c.fee)}</span>}
                   <select className="os-select" style={{ marginLeft: 'auto' }} value={c.overridden ? (c.ad ? 'ad' : 'not-ad') : ''} onChange={e => void put({ override: { email: c.email, value: e.target.value || null } }, 'Corregido.')}>
                     <option value="">Según la etiqueta</option>
                     <option value="ad">Vino de un anuncio</option>

@@ -3,7 +3,7 @@ import { isAdminRequest } from '@/lib/auth'
 import { serviceDb, NO_DB } from '@/lib/os-supabase'
 import { readSetting, writeSetting } from '@/lib/app-settings'
 import { AD_TAG, AD_URL_PARAMS, CHANNEL_TAGS, channelOf } from '@/lib/lead-attribution'
-import { DEFAULT_FEE, feeFor, windowEnd, type FeeOverrides, type FeeSettings } from '@/lib/fee'
+import { DEFAULT_FEE, feeLines, windowEnd, type FeeOverrides, type FeeSettings } from '@/lib/fee'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +12,10 @@ const tagsOf = (t: unknown): string[] => (Array.isArray(t) ? t.filter((x): x is 
 
 export async function GET(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 })
-  const [fee, overrides] = await Promise.all([readSetting<FeeSettings>('fee', DEFAULT_FEE), readSetting<FeeOverrides>('fee-overrides', {})])
+  const [stored, overrides] = await Promise.all([readSetting<Partial<FeeSettings>>('fee', DEFAULT_FEE), readSetting<FeeOverrides>('fee-overrides', {})])
+  // A setting saved before the percentage mode existed has no mode or percent: fill them from the default.
+  const fee: FeeSettings = { ...DEFAULT_FEE, ...stored, mode: stored.mode === 'flat' ? 'flat' : 'percent',
+    tiers: (stored.tiers?.length ? stored.tiers : DEFAULT_FEE.tiers).map(t => ({ from: t.from, perClient: t.perClient ?? 25, percent: t.percent ?? 5 })) }
   const db = await serviceDb()
   if (!db) return NextResponse.json({ ...NO_DB, fee, overrides, adParams: AD_URL_PARAMS })
 
@@ -43,30 +46,38 @@ export async function GET(req: NextRequest) {
   const callsBy = tally()
   for (const b of bookings.data ?? []) if (b.status !== 'cancelled') callsBy[(CHANNEL_TAGS as readonly string[]).includes(b.source) ? b.source : chanOf(key(b.email))]++
 
-  // Paying clients: first paid invoice per email.
+  const start = fee.startDate ? new Date(fee.startDate + 'T00:00:00Z').toISOString() : ''
+  const end = windowEnd(fee)?.toISOString() ?? ''
+  const inWin = (at: string) => !!start && !!at && at >= start && at < end
+
+  // Paying clients: first paid invoice per email, total paid, and paid inside the window.
+  const windowRev = new Map<string, number>()
   const firstPaid = new Map<string, { at: string; name: string; total: number }>()
   for (const inv of invoices.data ?? []) {
     if (inv.status !== 'paid' || inv.deleted_at) continue
     const e = key(inv.client_email); if (!e) continue
     const at = inv.paid_at ?? ''
     const sum = Array.isArray(inv.line_items) ? inv.line_items.reduce((a: number, li: { qty?: number; price?: number; quantity?: number; unitPrice?: number }) => a + (Number(li.qty ?? li.quantity ?? 1) * Number(li.price ?? li.unitPrice ?? 0)), 0) : 0
+    if (inWin(at)) windowRev.set(e, (windowRev.get(e) ?? 0) + sum)
     const prev = firstPaid.get(e)
     if (!prev || (at && at < prev.at)) firstPaid.set(e, { at, name: inv.client_name || names.get(e) || e, total: (prev?.total ?? 0) + sum })
     else prev.total += sum
   }
-  const start = fee.startDate ? new Date(fee.startDate + 'T00:00:00Z').toISOString() : ''
-  const end = windowEnd(fee)?.toISOString() ?? ''
   const clients = [...firstPaid.entries()].map(([email, v]) => {
-    const inWindow = !!start && !!v.at && v.at >= start && v.at < end
-    return { email, name: v.name, firstPaidAt: v.at, revenue: Math.round(v.total * 100) / 100, channel: chanOf(email), ad: isAd(email), overridden: !!overrides[email], inWindow }
+    const inWindow = inWin(v.at)
+    return { email, name: v.name, firstPaidAt: v.at, revenue: Math.round(v.total * 100) / 100, windowRevenue: Math.round((windowRev.get(email) ?? 0) * 100) / 100, channel: chanOf(email), ad: isAd(email), overridden: !!overrides[email], inWindow, number: 0, fee: 0, rate: '' }
   }).sort((a, b) => b.firstPaidAt.localeCompare(a.firstPaidAt))
-  const counted = clients.filter(c => c.ad && c.inWindow).length
+  // Number the counted clients in the order they first paid, then price each one.
+  const countedList = clients.filter(c => c.ad && c.inWindow).sort((a, b) => a.firstPaidAt.localeCompare(b.firstPaidAt))
+  feeLines(countedList.map(c => ({ revenue: c.windowRevenue })), fee).forEach((l, i) => { countedList[i].number = i + 1; countedList[i].fee = l.fee; countedList[i].rate = l.rate })
+  const counted = countedList.length
+  const feeTotal = Math.round(countedList.reduce((a, c) => a + c.fee, 0) * 100) / 100
   const paidBy = tally()
   for (const c of clients) paidBy[c.ad ? AD_TAG : c.channel === AD_TAG ? 'Directo' : c.channel]++
 
   return NextResponse.json({
     ok: true, fee, overrides, adParams: AD_URL_PARAMS, channels: CHANNEL_TAGS,
-    leadsBy, callsBy, paidBy, clients, counted, feeTotal: feeFor(counted, fee.tiers), windowEnd: end,
+    leadsBy, callsBy, paidBy, clients, counted, feeTotal, windowEnd: end,
   })
 }
 
@@ -76,10 +87,11 @@ export async function PUT(req: NextRequest) {
   const body = await req.json().catch(() => ({}))
   if (body.fee) {
     const f = body.fee
-    const tiers = (Array.isArray(f.tiers) ? f.tiers : []).map((t: { from?: unknown; perClient?: unknown }) => ({ from: Math.max(1, Math.round(Number(t.from) || 1)), perClient: Math.max(0, Number(t.perClient) || 0) })).slice(0, 10)
+    const tiers = (Array.isArray(f.tiers) ? f.tiers : []).map((t: { from?: unknown; perClient?: unknown; percent?: unknown }) => ({ from: Math.max(1, Math.round(Number(t.from) || 1)), perClient: Math.max(0, Number(t.perClient) || 0), percent: Math.min(100, Math.max(0, Number(t.percent) || 0)) })).slice(0, 10)
     const clean: FeeSettings = {
       startDate: /^\d{4}-\d{2}-\d{2}$/.test(f.startDate ?? '') ? f.startDate : '',
       months: Math.min(36, Math.max(1, Math.round(Number(f.months) || 3))),
+      mode: f.mode === 'flat' ? 'flat' : 'percent',
       tiers: tiers.length ? tiers : DEFAULT_FEE.tiers,
       currency: typeof f.currency === 'string' ? f.currency.slice(0, 3).toUpperCase() : 'EUR',
     }
