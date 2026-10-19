@@ -1,7 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import { sendEmail, wrapEmail, detailRows, firstNameOf, money, SITE_URL } from '@/lib/email'
 import { escapeHtml } from '@/lib/escape-html'
-import { list, newToken, str, type Answers, type OnboardingRow } from '@/lib/onboarding'
+import { healthSummary, list, newToken, parqYes, str, type Answers, type OnboardingRow } from '@/lib/onboarding'
 
 // Server side of the onboarding flow: started automatically the moment a deal
 // becomes a client, and written back onto that deal once the client answers.
@@ -19,6 +19,8 @@ export type NewClient = {
   amount?: number | null
   currency?: string | null
   trigger: 'payment' | 'stage' | 'manual'
+  // Manual only: false keeps the link out of their inbox (José sends it himself).
+  sendEmail?: boolean
 }
 
 export const onboardingLink = (token: string) => `${SITE_URL}/onboarding/${token}`
@@ -56,21 +58,29 @@ export async function ensureOnboarding(db: SupabaseClient, c: NewClient): Promis
   const { error } = await db.from('onboardings').insert(row)
   if (error) return null
 
-  let emailed = false
-  if (email) {
-    const url = welcomeLink(row.token)
-    const html = wrapEmail(
-      'Tu onboarding',
-      `<p>Hola ${escapeHtml(firstNameOf(row.name, ''))},</p>` +
-        '<p>Pago confirmado: bienvenido/a al equipo. Antes de preparar tu plan de entrenamiento y nutrición necesito conocerte bien, así que rellena tu onboarding (5 minutos). En tu página de bienvenida tienes un vídeo mío y los siguientes pasos.</p>' +
-        '<p>Cuando lo envíes, mándame por WhatsApp 3 fotos (frontal, perfil y espalda) y te escribo para agendar la llamada de bienvenida. Tu plan estará listo 48-72 h después de la llamada.</p>',
-      { label: 'Abrir mi bienvenida', href: url },
-      'Empezamos: rellena tu onboarding',
-    )
-    emailed = await sendEmail(email, 'Empezamos: tu onboarding con José', html).catch(() => false)
-  }
+  const emailed = email && c.sendEmail !== false ? await emailOnboarding(db, row) : false
   if (c.trigger !== 'manual') await notifyClientClosed(c).catch(() => {})
   return { row, created: true, emailed }
+}
+
+// Email the client their welcome link (video, steps, button into the form).
+// Used when the onboarding starts and by "Enviar por email" in the dashboard.
+export async function emailOnboarding(db: SupabaseClient, row: Pick<OnboardingRow, 'id' | 'token' | 'name' | 'email' | 'status'>): Promise<boolean> {
+  if (!row.email) return false
+  const resend = row.status !== 'sent'
+  const html = wrapEmail(
+    'Tu onboarding',
+    `<p>Hola ${escapeHtml(firstNameOf(row.name, ''))},</p>` +
+      (resend
+        ? '<p>Te dejo otra vez el enlace a tu onboarding. Lo que ya rellenaste está guardado, así que sigues donde lo dejaste (son 5 minutos).</p>'
+        : '<p>Bienvenido/a al equipo. Antes de preparar tu plan de entrenamiento y nutrición necesito conocerte bien, así que rellena tu onboarding (5 minutos). En tu página de bienvenida tienes un vídeo mío y los siguientes pasos.</p>') +
+      '<p>Cuando lo envíes, mándame por WhatsApp 3 fotos (frontal, perfil y espalda) y te escribo para agendar la llamada de bienvenida. Tu plan estará listo 48-72 h después de la llamada.</p>',
+    { label: resend ? 'Seguir con mi onboarding' : 'Abrir mi bienvenida', href: resend ? onboardingLink(row.token) : welcomeLink(row.token) },
+    'Empezamos: rellena tu onboarding',
+  )
+  const ok = await sendEmail(row.email, resend ? 'Tu onboarding con José te está esperando' : 'Empezamos: tu onboarding con José', html).catch(() => false)
+  if (ok) await db.from('onboardings').update({ last_sent_at: new Date().toISOString() }).eq('id', row.id)
+  return ok
 }
 
 // The deal that belongs to a payment: the newest one with the same email.
@@ -110,7 +120,7 @@ export async function writeAnswersToDeal(db: SupabaseClient, dealId: string, a: 
     `Entrena: ${v('dias')} · ${v('lugar')}`,
     `Compromiso ${v('compromiso')}/10`,
   ].filter(Boolean).join('\n')
-  const health = list(a, 'salud_ok').length ? '' : v('salud')
+  const health = parqYes(a).length || (!list(a, 'salud_ok').length && v('salud')) ? healthSummary(a) : ''
   const patch: Record<string, unknown> = {}
   // Their goals become tags on the deal (Perder grasa, Ganar músculo, Ganar confianza…).
   const tags = Array.isArray(deal.tags) ? (deal.tags as string[]) : []

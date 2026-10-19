@@ -88,7 +88,7 @@ const TABLES: Record<string, Col[]> = {
   onboardings: [
     ['token', 'text'], ['name', 'text'], ['email', 'text'], ['phone', 'text'], ['deal_id', 'text'],
     ['status', 'text'], ['answers', 'jsonb'], ['source', 'text'], ['created_at', 'timestamptz default now()'],
-    ['opened_at', 'timestamptz'], ['completed_at', 'timestamptz'],
+    ['opened_at', 'timestamptz'], ['completed_at', 'timestamptz'], ['updated_at', 'timestamptz'], ['last_sent_at', 'timestamptz'],
   ],
   app_settings: [['value', 'jsonb'], ['updated_at', 'timestamptz default now()']],
   // One row per person, rebuilt from the tables above (lib/contacts-db.ts).

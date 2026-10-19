@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { PAYMENT_METHODS, PAYMENT_TERMS, paymentDetailsText } from '@/lib/payment-details'
 import { currencyOptions } from '@/lib/fx'
 import { SearchSelect } from '@/components/os/SearchSelect'
@@ -21,6 +21,31 @@ export default function PaymentsPage() {
   const [links, setLinks] = useState<MadeLink[]>([])
   const [copied, setCopied] = useState('')
   const [contactKey, setContactKey] = useState('')
+  const [revolut, setRevolut] = useState('')
+  const [revolutSaved, setRevolutSaved] = useState('')
+  const [revolutMsg, setRevolutMsg] = useState<{ text: string; bad?: boolean } | null>(null)
+
+  useEffect(() => {
+    void fetch('/api/payment-settings').then(r => r.json()).catch(() => null).then(d => {
+      if (d?.revolutUrl) { setRevolut(d.revolutUrl); setRevolutSaved(d.revolutUrl) }
+    })
+  }, [])
+
+  async function saveRevolut(e: React.FormEvent) {
+    e.preventDefault()
+    setRevolutMsg({ text: 'Guardando…' })
+    const d = await fetch('/api/payment-settings', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ revolutUrl: revolut }) })
+      .then(r => r.json()).catch(() => null)
+    if (d?.ok) {
+      setRevolut(d.revolutUrl); setRevolutSaved(d.revolutUrl)
+      setRevolutMsg({ text: d.revolutUrl ? 'Guardado. Sale en todas tus facturas como «Pagar con Revolut».' : 'Quitado de las facturas.' })
+    } else setRevolutMsg({ text: d?.error || 'No se pudo guardar.', bad: true })
+  }
+
+  const detailsText = () => [
+    ...(revolutSaved ? [`Revolut\nPaga al instante: ${revolutSaved}`] : []),
+    paymentDetailsText(),
+  ].join('\n\n')
 
   const people = usePeople()
   const contactItems = people.map(p => ({
@@ -147,6 +172,21 @@ export default function PaymentsPage() {
             The same block that goes on every invoice.
           </p>
 
+          <form onSubmit={saveRevolut} style={{ marginBottom: 18, padding: '14px 16px', borderRadius: 14, background: 'var(--os-line)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13.5, fontWeight: 700, color: 'var(--os-text)' }}>
+              <i className="ti ti-wallet" /> Revolut
+              {revolutSaved && <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-good)' }}>Activo en tus facturas</span>}
+            </div>
+            <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', margin: '2px 0 8px' }}>
+              Pega tu enlace revolut.me (en la app: Perfil → Compartir tu enlace revolut.me). Tus clientes ven un botón «Pagar con Revolut» en cada factura.
+            </div>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <input className="os-input" value={revolut} onChange={e => setRevolut(e.target.value)} placeholder="revolut.me/tuusuario" style={{ flex: '1 1 200px', minWidth: 0 }} />
+              <button className="os-btn os-btn-primary os-btn-sm" disabled={revolut.trim() === revolutSaved}>Guardar</button>
+            </div>
+            {revolutMsg && <div style={{ marginTop: 8, fontSize: 12.5, color: revolutMsg.bad ? 'var(--os-bad)' : 'var(--os-text-muted)' }}>{revolutMsg.text}</div>}
+          </form>
+
           {PAYMENT_METHODS.filter(m => m.enabled).map(m => (
             <div key={m.id} style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 13.5, fontWeight: 700, color: 'var(--os-text)' }}>{m.label}</div>
@@ -162,7 +202,7 @@ export default function PaymentsPage() {
             {PAYMENT_TERMS.map(t => <div key={t}>{t}</div>)}
           </div>
 
-          <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => copy('details', paymentDetailsText())}>
+          <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => copy('details', detailsText())}>
             {copied === 'details' ? '✓ Copied' : 'Copy for an email'}
           </button>
 

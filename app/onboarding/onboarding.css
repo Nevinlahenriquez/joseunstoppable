@@ -159,3 +159,8 @@
 .ob details.more summary::-webkit-details-marker{display:none}
 .ob details.more summary::before{content:"+ "}
 .ob details.more[open] summary::before{content:"– "}
+.ob .parq{display:grid;gap:4px}
+.ob .parq-q{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14.5px;line-height:1.45;color:var(--navy)}
+.ob .parq-q .chips{margin-top:0;flex-shrink:0;flex-wrap:nowrap}
+.ob .parq-q .chip span{min-width:52px;text-align:center;padding:8px 12px}
+@media (max-width:560px){.ob .parq-q{flex-direction:column;align-items:flex-start;gap:8px}}
