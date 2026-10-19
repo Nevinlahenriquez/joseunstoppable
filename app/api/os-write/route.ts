@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminRequest } from '@/lib/auth'
-import { CLIENT_STAGES, ensureOnboardingForDeal, notifyClientClosed } from '@/lib/onboarding-server'
+import { CLIENT_STAGES, ensureOnboarding, startFromPayment } from '@/lib/onboarding-server'
 
 export const runtime = 'nodejs'
 
@@ -26,16 +26,21 @@ export async function POST(req: NextRequest) {
 
     if (op === 'upsert') {
       if (!row || !row.id) return NextResponse.json({ ok: false, error: 'missing row' }, { status: 400 })
-      // A deal that just became a client starts its onboarding (link emailed to them).
-      const becameClient = table === 'deals' && CLIENT_STAGES.includes(String(row.stage ?? ''))
-      const before = becameClient ? (await sb.from('deals').select('stage').eq('id', row.id).maybeSingle()).data : null
+      // A payment confirmed (invoice now paid) or a deal marked Won starts the
+      // client's onboarding: link emailed to them, coach told, once.
+      let watch = (table === 'invoices' && row.status === 'paid') || (table === 'deals' && CLIENT_STAGES.includes(String(row.stage ?? '')))
+      const prev = watch ? await sb.from(table).select(table === 'invoices' ? 'status' : 'stage').eq('id', row.id).maybeSingle() : null
+      // If the old row can't be read, don't guess: save normally and start nothing.
+      const before = (prev?.data ?? null) as { status?: string; stage?: string } | null
+      if (prev?.error) watch = false
       const { error } = await sb.from(table).upsert(row, { onConflict: 'id' })
       if (error) return NextResponse.json({ ok: false, error: error.message })
-      if (becameClient && !CLIENT_STAGES.includes(String(before?.stage ?? ''))) {
-        const [ob] = await Promise.all([
-          ensureOnboardingForDeal(sb, row as { id: string }).catch(() => null),
-          notifyClientClosed(row).catch(() => {}),
-        ])
+      if (watch) {
+        const ob = table === 'invoices'
+          ? (before?.status !== 'paid' ? await startFromPayment(sb, row).catch(() => null) : null)
+          : (!CLIENT_STAGES.includes(String(before?.stage ?? ''))
+              ? await ensureOnboarding(sb, { dealId: String(row.id), name: row.client_name as string, email: row.client_email as string, phone: row.client_phone as string, service: row.service as string, amount: Number(row.value) || null, currency: row.currency as string, trigger: 'stage' }).catch(() => null)
+              : null)
         if (ob) return NextResponse.json({ ok: true, onboarding: { token: ob.row.token, created: ob.created, emailed: ob.emailed } })
       }
       return NextResponse.json({ ok: true })

@@ -17,7 +17,8 @@ import { EmailText } from '@/components/os/CopyEmail'
 import { activateOnboarding, OnboardingAnswers, OnboardingShare, StatusPill } from '@/components/os/Onboarding'
 import type { OnboardingRow } from '@/lib/onboarding'
 
-const CLIENT_STAGES = ['signed', 'active', 'completed']
+// Won / kept as client: the payment is in, so onboarding starts (Signed is only the contract).
+const CLIENT_STAGES = ['active', 'completed']
 
 type ViewMode = 'pipeline' | 'table' | 'insights'
 

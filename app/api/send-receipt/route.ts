@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { startFromPayment } from '@/lib/onboarding-server'
 import { isAdminRequest } from '@/lib/auth'
 import { EMAIL_FROM, OWNER_EMAIL } from '@/lib/email'
 import { buildReceiptEmail, receiptNumber } from '@/lib/receipt-email'
@@ -72,6 +73,8 @@ export async function POST(req: NextRequest) {
     await sb.from('invoices').update({
       status: 'paid', paid_at: paidAt, amount_paid: amountPaid,
     }).eq('id', invoiceId)
+    // Payment confirmed: the client's onboarding goes out (no-op if it already has).
+    if (inv.status !== 'paid') await startFromPayment(sb, { ...inv, amount_paid: amountPaid }).catch(() => null)
 
     if (!clientEmail) {
 

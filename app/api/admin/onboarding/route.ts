@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { isAdminRequest } from '@/lib/auth'
 import { serviceDb, NO_DB, isMissingTable } from '@/lib/os-supabase'
 import { newToken } from '@/lib/onboarding'
-import { ensureOnboardingForDeal } from '@/lib/onboarding-server'
+import { ensureOnboarding } from '@/lib/onboarding-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
 
   // From a deal: the same path as marking it a client, so it never doubles up and the link is emailed.
   if (dealId) {
-    const ob = await ensureOnboardingForDeal(db, { id: dealId, client_name: name, client_email: email, client_phone: phone })
+    const ob = await ensureOnboarding(db, { dealId, name, email, phone, trigger: 'manual' })
     if (!ob) return NextResponse.json({ ok: false, error: MISSING }, { status: 503 })
     return NextResponse.json({ ok: true, onboarding: ob.row, existing: !ob.created, emailed: ob.emailed })
   }
