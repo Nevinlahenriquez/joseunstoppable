@@ -7,6 +7,7 @@ import { channelTag } from '@/lib/lead-attribution'
 import { sendCapiEvent } from '@/lib/meta-capi'
 import { sendEmail, wrapEmail, detailRows, firstNameOf, OWNER_EMAIL, SITE_URL } from '@/lib/email'
 import { escapeHtml } from '@/lib/escape-html'
+import { googleCalendarUtcUrl } from '@/lib/calendar-links'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -93,10 +94,18 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ name, email, whatsapp, source: 'reserva', goal: 'Llamada gratuita', notes: `Llamada: ${when}\n\n${answers}`, tags: [channel, 'Llamada reservada'], pageUrl, referrer, visitorId: attribution.visitorId }),
   }).catch(() => {})
 
-  const ownerHtml = wrapEmail('Llamada reservada', `<p>${escapeHtml(name)} ha reservado una llamada.</p>` + detailRows([
+  // Without Google connected there is no event yet, so both emails carry a
+  // one-click "add to Google Calendar" link instead.
+  const calLink = (title: string, details: string) =>
+    startIso && endIso && !meetUrl ? googleCalendarUtcUrl({ title, details, startIso, endIso }) : ''
+  const ownerCal = calLink(`Llamada con ${name}`, [`WhatsApp: ${whatsapp || '-'}`, `Email: ${email || '-'}`, `Origen: ${channel}`, '', answers].join('\n'))
+  const clientCal = calLink('Llamada con José Unstoppable', 'Llamada gratuita. José te escribe por WhatsApp con el enlace.')
+  const calButton = (href: string) => href ? `<p><a href="${href}">Añadir a Google Calendar</a></p>` : ''
+
+  const ownerHtml = wrapEmail('Llamada reservada', `<p>${escapeHtml(name)} ha reservado una llamada.</p>` + calButton(ownerCal) + detailRows([
     ['Cuándo', when], ['WhatsApp', whatsapp], ['Email', email], ['Origen', channel], ['Meet', meetUrl ?? 'Sin Google conectado'],
   ]) + (answers ? `<p style="white-space:pre-line">${escapeHtml(answers)}</p>` : ''), { label: 'Abrir llamadas', href: `${SITE_URL}/admin/bookings` })
-  const clientHtml = email ? wrapEmail('Tu llamada está reservada', `<p>Hola ${escapeHtml(firstNameOf(name, ''))},</p><p>Tu llamada gratuita de ${av.duration} minutos está reservada: <strong>${escapeHtml(when)}</strong> (hora de España).</p>` + (meetUrl ? `<p>Te conectas aquí: <a href="${meetUrl}">${meetUrl}</a></p>` : '<p>Te escribo por WhatsApp con el enlace.</p>') + (av.meetingNote ? `<p>${escapeHtml(av.meetingNote)}</p>` : '') + '<p>Si no puedes, respóndeme a este correo y la cambiamos.</p>') : ''
+  const clientHtml = email ? wrapEmail('Tu llamada está reservada', `<p>Hola ${escapeHtml(firstNameOf(name, ''))},</p><p>Tu llamada gratuita de ${av.duration} minutos está reservada: <strong>${escapeHtml(when)}</strong> (hora de España).</p>` + (meetUrl ? `<p>Te conectas aquí: <a href="${meetUrl}">${meetUrl}</a></p>` : '<p>Te escribo por WhatsApp con el enlace.</p>') + (av.meetingNote ? `<p>${escapeHtml(av.meetingNote)}</p>` : '') + calButton(clientCal) + '<p>Si no puedes, respóndeme a este correo y la cambiamos.</p>') : ''
 
   await Promise.allSettled([
     crm,

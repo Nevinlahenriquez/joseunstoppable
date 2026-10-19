@@ -1,9 +1,7 @@
 import { randomBytes, scrypt as scryptCb, timingSafeEqual } from 'node:crypto'
 import { promisify } from 'node:util'
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { isAdminEmail, readToken, signToken } from '@/lib/auth'
-import { sendEmail, wrapEmail, SITE_URL } from '@/lib/email'
-import { newToken } from '@/lib/onboarding'
+import { isAdminEmail } from '@/lib/auth'
 
 // Admin logins kept in the `admin_users` table, so José can add an email and
 // password from /admin/access without touching Vercel. The owner passcode in
@@ -41,31 +39,8 @@ export async function verifyAdminUser(db: SupabaseClient, email: string, pw: str
   return true
 }
 
-// Emails a one-time admin sign-in link to an owner email (OS_ADMIN_EMAIL /
-// OS_ALLOWED_EMAILS) or anyone in admin_users. Others get nothing.
-export async function sendAdminLink(db: SupabaseClient, rawEmail: string): Promise<boolean> {
-  const email = rawEmail.trim().toLowerCase()
-  const known = isAdminEmail(email) || !!(await adminUser(db, email))
-  if (!known) return false
-  const nonce = newToken()
-  const { error } = await db.from('admin_users').upsert({ id: email, login_nonce: nonce }, { onConflict: 'id' })
-  if (error) return false
-  const t = await signToken({ kind: 'admin-link', email, n: nonce }, '30m')
-  const html = wrapEmail(
-    'Entrar al panel',
-    '<p>Pulsa el botón para entrar al panel de José Unstoppable. El enlace sirve una vez y caduca en 30 minutos.</p>' +
-      '<p>Si no lo has pedido tú, ignora este email.</p>',
-    { label: 'Entrar al panel', href: `${SITE_URL}/admin/login?t=${encodeURIComponent(t)}` },
-  )
-  return sendEmail(email, 'Tu enlace para entrar al panel', html).catch(() => false)
-}
-
-export async function consumeAdminLink(db: SupabaseClient, t: string): Promise<string | null> {
-  const p = await readToken(t, 'admin-link')
-  const email = typeof p?.email === 'string' ? p.email : ''
-  const n = typeof p?.n === 'string' ? p.n : ''
-  if (!email || !n) return null
-  const { data } = await db.from('admin_users').update({ login_nonce: null, last_login_at: new Date().toISOString() })
-    .eq('id', email).eq('login_nonce', n).select('id')
-  return data?.length ? email : null
+// True for an owner email (env) or anyone added in /admin/access.
+export async function isKnownAdmin(db: SupabaseClient | null, email: string): Promise<boolean> {
+  if (isAdminEmail(email)) return true
+  return !!db && !!(await adminUser(db, email).catch(() => null))
 }

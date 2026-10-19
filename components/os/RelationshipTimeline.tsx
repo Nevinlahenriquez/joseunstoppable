@@ -67,7 +67,7 @@ export default function RelationshipTimeline({
 
       {onAddToPipeline && (
         person.openDeal ? (
-          <Link href={`/admin/deals/${person.openDeal.id}`} className="os-btn os-btn-ghost os-btn-sm" style={{ margin: '8px 0', display: 'inline-flex' }}>
+          <Link href={`/admin/deals?deal=${encodeURIComponent(person.openDeal.id)}`} className="os-btn os-btn-ghost os-btn-sm" style={{ margin: '8px 0', display: 'inline-flex' }}>
             <i className="ti ti-arrow-up-right" /> Already in the pipeline · {person.openDeal.stage}
           </Link>
         ) : addingNote === null ? (

@@ -1,8 +1,8 @@
 'use client'
 
+import { Suspense, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
-import { useEffect, useRef, useState } from 'react'
-import '../../portal/portal.css'
 
 declare global {
   interface Window {
@@ -19,70 +19,54 @@ declare global {
 
 const CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''
 
-type Status = 'idle' | 'signing' | 'denied' | 'error' | 'throttled' | 'sent' | 'link-bad'
+type Mode = 'link' | 'passcode'
+type Status = 'idle' | 'busy' | 'sent' | 'denied' | 'throttled' | 'expired' | 'error'
 
-// Admin sign-in: email + password (or the owner passcode), or a one-time
-// link emailed to an admin address. Shares the portal's sign-in look.
 export default function OsLoginPage() {
+  return <Suspense><LoginGate /></Suspense>
+}
+
+function LoginGate() {
   const btnRef = useRef<HTMLDivElement>(null)
-  const [mode, setMode] = useState<'password' | 'link'>('password')
-  const [status, setStatus] = useState<Status>('idle')
-  const [message, setMessage] = useState('')
+  const linkExpired = useSearchParams().get('link') === 'expired'
+  const [mode, setMode] = useState<Mode>('link')
+  const [status, setStatus] = useState<Status>(linkExpired ? 'expired' : 'idle')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [show, setShow] = useState(false)
-  const ran = useRef(false)
 
-  const fail = (res: Response, data: { error?: string }) => {
-    if (res.status === 429) { setStatus('throttled'); setMessage(data.error || ''); return }
-    setStatus(res.status === 401 ? 'denied' : 'error')
-  }
-
-  // Arriving from an emailed admin link (?t=…): sign in with it.
-  useEffect(() => {
-    if (ran.current) return
-    ran.current = true
-    const t = new URLSearchParams(window.location.search).get('t')
-    if (!t) return
-    void Promise.resolve().then(() => setStatus('signing'))
-    fetch('/api/auth/admin-link', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ t }) })
-      .then(async res => {
-        const data = await res.json().catch(() => ({}))
-        if (res.ok) { window.location.replace(data.redirect || '/admin'); return }
-        window.history.replaceState(null, '', '/admin/login')
-        setStatus('link-bad'); setMessage(data.error || '')
-      })
-      .catch(() => setStatus('error'))
-  }, [])
-
-  async function loginWithPassword(e: React.FormEvent) {
-    e.preventDefault()
-    if (!password || status === 'signing') return
-    setStatus('signing')
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (res.ok) { window.location.href = data.redirect || '/admin'; return }
-      fail(res, data)
-    } catch { setStatus('error') }
+  function switchMode(m: Mode) {
+    setMode(m)
+    setStatus('idle')
   }
 
   async function sendLink(e: React.FormEvent) {
     e.preventDefault()
-    if (!email || status === 'signing') return
-    setStatus('signing')
+    if (!email.trim() || status === 'busy') return
+    setStatus('busy')
     try {
-      const res = await fetch('/api/auth/admin-link', {
+      const res = await fetch('/api/auth/login-link', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: email.trim() }),
       })
-      const data = await res.json().catch(() => ({}))
-      if (res.ok) { setStatus('sent'); return }
-      if (res.status === 400) { setStatus('error'); setMessage(data.error || ''); return }
-      fail(res, data)
+      setStatus(res.ok ? 'sent' : res.status === 429 ? 'throttled' : 'error')
+    } catch { setStatus('error') }
+  }
+
+  async function loginWithPassword(e: React.FormEvent) {
+    e.preventDefault()
+    if (!password || status === 'busy') return
+    setStatus('busy')
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim(), password }),
+      })
+      if (res.ok) {
+        const data = await res.json().catch(() => ({}))
+        window.location.href = data.redirect || '/admin'
+        return
+      }
+      setStatus(res.status === 401 ? 'denied' : res.status === 429 ? 'throttled' : 'error')
     } catch { setStatus('error') }
   }
 
@@ -96,7 +80,7 @@ export default function OsLoginPage() {
       window.google.accounts.id.initialize({
         client_id: CLIENT_ID,
         callback: async ({ credential }) => {
-          setStatus('signing')
+          setStatus('busy')
           try {
             const res = await fetch('/api/auth/google', {
               method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -111,94 +95,154 @@ export default function OsLoginPage() {
           } catch { setStatus('error') }
         },
       })
-      window.google.accounts.id.renderButton(btnRef.current, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: 280 })
+      window.google.accounts.id.renderButton(btnRef.current, { theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: 300 })
     }
     document.head.appendChild(script)
     return () => { script.remove() }
   }, [])
 
-  const switchTo = (m: 'password' | 'link') => { setMode(m); setStatus('idle'); setMessage('') }
+  const busy = status === 'busy'
 
   return (
-    <div className="pt pt-auth">
-      <div className="pt-blob a" /><div className="pt-blob b" /><div className="pt-blob c" />
-      <div className="pt-grid" />
-      <div className="pt-card">
-        <div className="pt-logo"><img src="/icon.png" alt="" width={34} height={34} />JOSÉ UNSTOPPABLE · OS</div>
+    <main className="jl-root">
+      <style>{CSS}</style>
+      <div className="jl-orb jl-orb-a" />
+      <div className="jl-orb jl-orb-b" />
+      <div className="jl-orb jl-orb-c" />
+      <div className="jl-grid" />
 
-        {status === 'sent' ? (
-          <div className="pt-sent">
-            <div className="ring">✉️</div>
-            <h1>Revisa tu <span>email</span></h1>
-            <p className="sub" style={{ marginTop: 8 }}>Si <b>{email}</b> tiene acceso al panel, te acaba de llegar un enlace. Caduca en 30 minutos.</p>
-            <button className="pt-go" type="button" onClick={() => switchTo('password')}>Volver</button>
+      <section className="jl-card">
+        <div className="jl-brand">
+          <img src="/icon.png" alt="José Unstoppable" width={44} height={44} />
+          <div>
+            <div className="jl-brand-name">José Unstoppable</div>
+            <div className="jl-brand-sub">Command center</div>
           </div>
-        ) : (
-          <>
-            <h1>Tu <span>centro de control</span></h1>
-            <p className="sub">Leads, clientes, pagos y portal. Acceso privado.</p>
+        </div>
 
-            <div role="tablist" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 4, padding: 4, borderRadius: 14, background: 'rgba(7,23,38,.45)', border: '1px solid rgba(255,255,255,.1)', marginBottom: 18 }}>
-              {(['password', 'link'] as const).map(m => (
-                <button key={m} type="button" role="tab" aria-selected={mode === m} onClick={() => switchTo(m)}
-                  style={{ font: 'inherit', fontSize: 13.5, fontWeight: 800, padding: '9px 10px', borderRadius: 10, border: 0, cursor: 'pointer', color: mode === m ? '#071726' : 'rgba(255,255,255,.7)', background: mode === m ? 'linear-gradient(90deg,#8FD3F5,#5BBCEE)' : 'transparent', transition: 'background .2s,color .2s' }}>
-                  {m === 'password' ? 'Contraseña' : 'Enlace por email'}
-                </button>
-              ))}
+        <h1 className="jl-title">Welcome back.</h1>
+        <p className="jl-lead">Sign in to run your clients, bookings and payments.</p>
+
+        <div className="jl-tabs" role="tablist">
+          <span className="jl-tab-glow" style={{ transform: mode === 'link' ? 'translateX(0)' : 'translateX(100%)' }} />
+          <button type="button" role="tab" aria-selected={mode === 'link'} className={mode === 'link' ? 'on' : ''} onClick={() => switchMode('link')}>Email link</button>
+          <button type="button" role="tab" aria-selected={mode === 'passcode'} className={mode === 'passcode' ? 'on' : ''} onClick={() => switchMode('passcode')}>Password</button>
+        </div>
+
+        {mode === 'link' ? (
+          status === 'sent' ? (
+            <div className="jl-sent">
+              <div className="jl-sent-icon">✓</div>
+              <p className="jl-sent-title">Check your inbox</p>
+              <p className="jl-sent-text">If {email.trim()} is an admin account, a sign-in link is on its way. It works for 15 minutes.</p>
+              <button type="button" className="jl-ghost" onClick={() => setStatus('idle')}>Use another email</button>
             </div>
+          ) : (
+            <form onSubmit={sendLink} className="jl-form">
+              <label className="jl-label" htmlFor="jl-email">Email</label>
+              <input
+                id="jl-email" type="email" value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="info@joseunstoppable.com" autoComplete="email" inputMode="email" className="jl-input" autoFocus
+              />
+              <button type="submit" disabled={!email.trim() || busy} className="jl-cta">
+                {busy ? 'Sending…' : 'Send me a sign-in link'}
+              </button>
+            </form>
+          )
+        ) : (
+          <form onSubmit={loginWithPassword} className="jl-form">
+            <label className="jl-label" htmlFor="jl-user">Email</label>
+            <input
+              id="jl-user" type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="you@email.com" autoComplete="username" inputMode="email" className="jl-input"
+            />
+            <label className="jl-label" htmlFor="jl-pass">Password</label>
+            <input
+              id="jl-pass" type="password" value={password} onChange={e => setPassword(e.target.value)}
+              placeholder="Your password or owner passcode" autoComplete="current-password" className="jl-input" autoFocus
+            />
+            <button type="submit" disabled={!password || busy} className="jl-cta">
+              {busy ? 'Signing in…' : 'Sign in'}
+            </button>
+          </form>
+        )}
 
-            {mode === 'password' ? (
-              <form onSubmit={loginWithPassword}>
-                <label className="pt-field">Email
-                  <input type="email" autoComplete="username" inputMode="email" placeholder="tu@email.com" value={email} onChange={e => setEmail(e.target.value)} />
-                </label>
-                <label className="pt-field">Contraseña
-                  <span style={{ position: 'relative', display: 'block' }}>
-                    <input type={show ? 'text' : 'password'} autoComplete="current-password" placeholder="Tu contraseña o código de dueño" value={password} onChange={e => setPassword(e.target.value)} style={{ paddingRight: 64 }} />
-                    <button type="button" onClick={() => setShow(s => !s)} style={{ position: 'absolute', right: 8, bottom: 8, font: 'inherit', fontSize: 12, fontWeight: 800, letterSpacing: '.04em', color: '#8FD3F5', background: 'rgba(91,188,238,.12)', border: 0, borderRadius: 8, padding: '6px 8px', cursor: 'pointer', textTransform: 'none' }}>
-                      {show ? 'Ocultar' : 'Ver'}
-                    </button>
-                  </span>
-                </label>
-                <button className="pt-go" type="submit" disabled={!password || status === 'signing'}>
-                  {status === 'signing' ? 'Entrando…' : 'Entrar →'}
-                </button>
-              </form>
-            ) : (
-              <form onSubmit={sendLink}>
-                <label className="pt-field">Email de administrador
-                  <input type="email" required autoComplete="username" inputMode="email" placeholder="tu@email.com" value={email} onChange={e => setEmail(e.target.value)} />
-                </label>
-                <button className="pt-go" type="submit" disabled={!email || status === 'signing'}>
-                  {status === 'signing' ? 'Enviando…' : 'Enviarme el enlace →'}
-                </button>
-              </form>
-            )}
-
-            {CLIENT_ID && (
-              <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '20px 0' }}>
-                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,.12)' }} />
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,.5)' }}>o</span>
-                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,.12)' }} />
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'center' }}><div ref={btnRef} /></div>
-              </>
-            )}
-
-            {status === 'signing' && mode === 'password' && <div className="pt-msg">Comprobando…</div>}
-            {status === 'denied' && <div className="pt-msg err">Email o contraseña incorrectos. Si no la recuerdas, usa &quot;Enlace por email&quot;.</div>}
-            {status === 'throttled' && <div className="pt-msg err">{message || 'Demasiados intentos. Espera unos minutos.'}</div>}
-            {status === 'link-bad' && <div className="pt-msg err">{message || 'Este enlace ya se usó o ha caducado.'} Pide uno nuevo.</div>}
-            {status === 'error' && <div className="pt-msg err">{message || 'Algo ha fallado. Inténtalo otra vez.'}</div>}
+        {CLIENT_ID && (
+          <>
+            <div className="jl-or"><span />or<span /></div>
+            <div style={{ display: 'flex', justifyContent: 'center' }}><div ref={btnRef} /></div>
           </>
         )}
 
-        <div className="pt-fine">
-          <span>¿Eres cliente?</span>
-          <Link href="/portal">Ir a mi portal →</Link>
+        {status === 'denied' && <p className="jl-msg bad">That email and password don&apos;t match. Try the email link instead.</p>}
+        {status === 'throttled' && <p className="jl-msg bad">Too many tries. Wait 15 minutes and try again.</p>}
+        {status === 'expired' && <p className="jl-msg bad">That sign-in link has expired. Send yourself a new one.</p>}
+        {status === 'error' && <p className="jl-msg bad">Something went wrong. Please try again.</p>}
+
+        <div className="jl-foot">
+          <span>Are you a client?</span>
+          <Link href="/portal">Go to my portal →</Link>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   )
 }
+
+const CSS = `
+.jl-root{position:relative;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px 16px;overflow:hidden;
+  background:radial-gradient(120% 90% at 10% 0%,#2a0f5c 0%,transparent 55%),radial-gradient(100% 80% at 100% 100%,#0b3f6b 0%,transparent 60%),#07040f;
+  color:#fff;font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+.jl-orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.75;pointer-events:none;will-change:transform}
+.jl-orb-a{width:520px;height:520px;left:-140px;top:-160px;background:conic-gradient(from 90deg,#7b2ff7,#f107a3,#7b2ff7);animation:jl-float 16s ease-in-out infinite}
+.jl-orb-b{width:460px;height:460px;right:-120px;bottom:-140px;background:conic-gradient(from 200deg,#0E71AC,#5BBCEE,#00e0c6,#0E71AC);animation:jl-float 19s ease-in-out infinite reverse}
+.jl-orb-c{width:300px;height:300px;right:18%;top:8%;background:radial-gradient(circle,#ff8a3d,#f107a3 70%);opacity:.35;animation:jl-float 23s ease-in-out infinite}
+@keyframes jl-float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,30px) scale(1.08)}66%{transform:translate(-30px,20px) scale(.95)}}
+.jl-grid{position:absolute;inset:0;pointer-events:none;opacity:.18;
+  background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
+  background-size:48px 48px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+.jl-card{position:relative;width:420px;max-width:100%;padding:36px 32px 28px;border-radius:26px;
+  background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.04));backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
+  box-shadow:0 30px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);animation:jl-in .6s cubic-bezier(.2,.8,.2,1) both}
+.jl-card::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,rgba(241,7,163,.7),rgba(123,47,247,.4),rgba(91,188,238,.7));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+@keyframes jl-in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.jl-brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.jl-brand img{border-radius:12px;display:block;box-shadow:0 6px 24px rgba(123,47,247,.45)}
+.jl-brand-name{font-weight:800;font-size:15px;letter-spacing:.01em}
+.jl-brand-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.jl-title{font-size:34px;line-height:1.05;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;
+  background:linear-gradient(90deg,#fff 0%,#f6c6ff 45%,#9fe3ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.jl-lead{margin:0 0 24px;font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.68)}
+.jl-tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:14px;background:rgba(0,0,0,.3);margin-bottom:20px}
+.jl-tab-glow{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;transition:transform .35s cubic-bezier(.2,.8,.2,1);
+  background:linear-gradient(135deg,#7b2ff7,#f107a3);box-shadow:0 6px 20px rgba(241,7,163,.4)}
+.jl-tabs button{position:relative;z-index:1;border:0;background:none;color:rgba(255,255,255,.6);font:inherit;font-weight:700;font-size:14px;padding:10px 0;cursor:pointer;transition:color .2s}
+.jl-tabs button.on{color:#fff}
+.jl-form{display:flex;flex-direction:column;gap:10px}
+.jl-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.jl-input{width:100%;box-sizing:border-box;padding:15px 16px;border-radius:13px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.32);
+  color:#fff;font:inherit;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s}
+.jl-input::placeholder{color:rgba(255,255,255,.35)}
+.jl-input:focus{border-color:rgba(241,7,163,.75);box-shadow:0 0 0 4px rgba(241,7,163,.18)}
+.jl-cta{margin-top:6px;width:100%;padding:15px 16px;border:0;border-radius:13px;color:#fff;font:inherit;font-weight:800;font-size:15.5px;cursor:pointer;
+  background:linear-gradient(110deg,#7b2ff7 0%,#f107a3 50%,#ff8a3d 100%);background-size:200% 100%;animation:jl-sheen 6s linear infinite;
+  box-shadow:0 12px 32px rgba(241,7,163,.35);transition:transform .15s,opacity .2s}
+.jl-cta:hover:not(:disabled){transform:translateY(-1px)}
+.jl-cta:disabled{opacity:.5;cursor:default}
+@keyframes jl-sheen{0%{background-position:0% 0}50%{background-position:100% 0}100%{background-position:0% 0}}
+.jl-sent{text-align:center;padding:8px 0 4px}
+.jl-sent-icon{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;font-size:24px;font-weight:800;
+  background:linear-gradient(135deg,#00e0c6,#0E71AC);box-shadow:0 10px 30px rgba(0,224,198,.35)}
+.jl-sent-title{font-weight:800;font-size:18px;margin:0 0 6px}
+.jl-sent-text{font-size:14px;line-height:1.5;color:rgba(255,255,255,.7);margin:0 0 16px;word-break:break-word}
+.jl-ghost{border:1px solid rgba(255,255,255,.2);background:none;color:#fff;font:inherit;font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:11px;cursor:pointer}
+.jl-or{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:12px;color:rgba(255,255,255,.45)}
+.jl-or span{flex:1;height:1px;background:rgba(255,255,255,.14)}
+.jl-msg{font-size:13.5px;margin:16px 0 0;text-align:center}
+.jl-msg.bad{color:#ff9db8}
+.jl-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:26px;padding-top:18px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:rgba(255,255,255,.5)}
+.jl-foot a{color:#9fe3ff;font-weight:700;text-decoration:none}
+@media (max-width:480px){.jl-card{padding:28px 20px 22px;border-radius:22px}.jl-title{font-size:29px}}
+@media (prefers-reduced-motion:reduce){.jl-orb,.jl-cta,.jl-card{animation:none}}
+`

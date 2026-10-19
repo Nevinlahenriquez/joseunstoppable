@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { Deal, DealStage, ActivityType, ActivityEntry } from '@/lib/crm-types'
+import { GOAL_LABELS } from '@/lib/goals'
 
 export type Stage = { key: string; label: string; color: string }
 
@@ -45,7 +46,8 @@ export function stageSlug(label: string): string {
 
 export const STAGES: Stage[] = DEFAULT_STAGES
 
-export const PRESET_TAGS = ['Real Estate', 'AI Agent', 'E-commerce', 'Tour Company', 'Beauty', 'Restaurant', 'Coaching', 'Other']
+// The tags José picks from are his clients' goals (also set automatically from their answers).
+export const PRESET_TAGS = GOAL_LABELS
 
 export const PRIORITY_COLOR: Record<NonNullable<Deal['priority']>, string> = {
   low: '#cbd5e1', medium: 'var(--os-warn)', high: 'var(--os-bad)',
@@ -259,7 +261,7 @@ export function CrmDetail({ deal, layout, onPatch, onAddActivity }: DetailProps)
   const profile = (
     <>
       <div className="os-crm-section">
-        <div className="os-crm-section-title">Segments</div>
+        <div className="os-crm-section-title">Objetivos</div>
         <div className="os-crm-tags">
           {PRESET_TAGS.map(t => (
             <button key={t} className={`os-tag-chip${(deal.tags ?? []).includes(t) ? ' active' : ''}`} onClick={() => toggleTag(t)}>{t}</button>

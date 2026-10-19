@@ -829,7 +829,7 @@
 .os-crm-drawer {
   position: fixed; top: 0; right: 0; bottom: 0; left: auto; z-index: 201;
   width: min(460px, 100vw);
-  background: var(--os-card), var(--os-base-2);
+  background: var(--os-base-2);
   box-shadow: -8px 0 40px rgba(0,0,0,.45);
   display: flex; flex-direction: column;
   animation: os-slide-in .22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -3343,12 +3343,12 @@
 }
 :root[data-os-theme="light"] .os-shell::before,
 .os-shell::before { background: none; }
-.os-shell, .os-shell * { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+.os-shell, .os-shell *:not(.ti) { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
 .os-shell h1, .os-shell h2, .os-shell h3 { color: var(--os-text-primary); letter-spacing: -.01em; }
 .os-shell .os-btn-primary, .os-shell .os-primary-btn {
   background: #0E71AC; color: #FFFFFF; box-shadow: 0 8px 20px -10px rgba(14,113,172,.6);
 }
 .os-shell .os-btn-primary:hover, .os-shell .os-primary-btn:hover { background: #2A98D6; }
 .os-theme-toggle, .os-theme-row { display: none !important; }
-.os-shell .os-logo-icon, .os-shell .os-logo-icon-sm { background: #0C2A43 !important; box-shadow: none; }
-.os-shell .os-agent-avatar { background: linear-gradient(150deg,#5BBCEE,#0E71AC) !important; color: #fff; }
+.os-shell .os-logo-icon, .os-shell .os-logo-icon-sm { background: #E4F4FD !important; box-shadow: none; overflow: hidden; padding: 0; border-radius: 50%; }
+.os-shell .os-agent-avatar { background: linear-gradient(150deg,#5BBCEE,#0E71AC) !important; color: #fff; overflow: hidden; }
