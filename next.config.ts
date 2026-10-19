@@ -1,15 +1,14 @@
 import type { NextConfig } from 'next'
 
-// The public site is still the original static pages in public/. These
-// rewrites keep their clean addresses (/, /reserva, /masterclass) while the
-// Next.js app adds /admin and the API routes beside them.
+// Pages not yet rebuilt in Next.js are still the original static pages in
+// public/. These rewrites keep their clean addresses (/, /reserva) while the
+// Next.js app serves /masterclass, /events/[slug], /admin and the API routes.
 const nextConfig: NextConfig = {
   async rewrites() {
     return {
       beforeFiles: [
         { source: '/', destination: '/index.html' },
         { source: '/reserva', destination: '/reserva.html' },
-        { source: '/masterclass', destination: '/masterclass.html' },
         { source: '/onboarding', destination: '/onboarding.html' },
       ],
       afterFiles: [],
@@ -17,7 +16,10 @@ const nextConfig: NextConfig = {
     }
   },
   async redirects() {
-    return [{ source: '/os/:path*', destination: '/admin/:path*', permanent: false }]
+    return [
+      { source: '/os/:path*', destination: '/admin/:path*', permanent: false },
+      { source: '/masterclass.html', destination: '/masterclass', permanent: true },
+    ]
   },
 }
 

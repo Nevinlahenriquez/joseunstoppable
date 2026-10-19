@@ -7,7 +7,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    // suppressHydrationWarning: the public pages set data-lang on <html> before React loads.
+    <html lang="es" suppressHydrationWarning>
       <body style={{ margin: 0 }}>{children}</body>
     </html>
   )
