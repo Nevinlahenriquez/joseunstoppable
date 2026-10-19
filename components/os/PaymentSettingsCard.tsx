@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { copyText } from '@/lib/clipboard'
-import { DEFAULT_PAYMENT_SETTINGS, paymentText, revolutUrl, type PaymentSettings } from '@/lib/payment-settings'
+import { DEFAULT_PAYMENT_SETTINGS, paymentText, revolutLink, type PaymentSettings } from '@/lib/payment-settings'
 
 // "Cómo te pagan": José pastes his Revolut link once and it shows on every
 // invoice, with Bizum and the bank account as the other ways to pay.
@@ -15,23 +15,23 @@ export function PaymentSettingsCard() {
   const [editing, setEditing] = useState(false)
 
   useEffect(() => {
-    fetch('/api/admin/payment-settings').then(r => r.json()).then(d => {
+    fetch('/api/payment-settings').then(r => r.json()).then(d => {
       if (d?.settings) {
         setS(d.settings)
-        setEditing(!d.settings.revolut && !d.settings.iban && !d.settings.bizum)
+        setEditing(!d.settings.revolutUrl && !d.settings.iban && !d.settings.bizum)
       }
     }).catch(() => setEditing(true)).finally(() => setLoaded(true))
   }, [])
 
   const set = (k: keyof PaymentSettings) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setS(p => ({ ...p, [k]: e.target.value }))
-  const rev = revolutUrl(s.revolut)
-  const revBad = Boolean(s.revolut.trim()) && !rev
+  const rev = revolutLink(s.revolutUrl)
+  const revBad = Boolean(s.revolutUrl.trim()) && !rev
 
   async function save(e: React.FormEvent) {
     e.preventDefault()
     setBusy(true); setMsg(null)
     try {
-      const r = await fetch('/api/admin/payment-settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) })
+      const r = await fetch('/api/payment-settings', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(s) })
       const d = await r.json().catch(() => null)
       if (r.ok && d?.ok) { setS(d.settings); setMsg({ ok: true, text: 'Guardado. Ya sale en tus facturas.' }); setEditing(false) }
       else setMsg({ ok: false, text: d?.error || `No se pudo guardar (HTTP ${r.status}).` })
@@ -58,7 +58,7 @@ export function PaymentSettingsCard() {
       {!loaded ? <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Cargando…</div> : editing ? (
         <form onSubmit={save}>
           <label className="os-label">Tu link de Revolut</label>
-          <input className="os-input" value={s.revolut} onChange={set('revolut')} placeholder="revolut.me/tuusuario o @tuusuario" autoComplete="off" />
+          <input className="os-input" value={s.revolutUrl} onChange={set('revolutUrl')} placeholder="revolut.me/tuusuario o @tuusuario" autoComplete="off" />
           <div style={{ fontSize: 12, marginTop: 5, color: revBad ? 'var(--os-bad)' : 'var(--os-text-faint)' }}>
             {revBad ? 'Eso no es un link de Revolut.' : rev ? <>Tus clientes abrirán <strong>{rev}</strong></> : 'En Revolut: Pagos › Revolut.me › Compartir. Pega el link aquí.'}
           </div>

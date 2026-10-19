@@ -5,7 +5,7 @@ import Image from 'next/image'
 import { getInvoiceById, getProposals } from '@/lib/crm-store'
 import type { Invoice, Proposal } from '@/lib/crm-types'
 import { copyText } from '@/lib/clipboard'
-import { DEFAULT_PAYMENT_SETTINGS, fmtIban, revolutUrl, type PaymentSettings } from '@/lib/payment-settings'
+import { DEFAULT_PAYMENT_SETTINGS, fmtIban, revolutLink, type PaymentSettings } from '@/lib/payment-settings'
 
 type Params = { id: string }
 
@@ -485,7 +485,7 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
               })()}
 
               {(() => {
-                const url = revolutUrl(pay.revolut)
+                const url = revolutLink(pay.revolutUrl)
                 if (!url) return null
                 return (
                   <div style={{ marginBottom: 20, background: 'linear-gradient(135deg,#0B2E4A,#0E71AC)', borderRadius: 10, padding: '20px 22px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>

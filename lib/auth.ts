@@ -12,7 +12,7 @@ export function sessionCookieDomain(host: string | null | undefined): string | u
 
 export type Role = 'admin' | 'editor' | 'partner' | 'client'
 
-const OWNER_EMAILS = [(process.env.OS_ADMIN_EMAIL || 'hola@joseunstoppable.com').trim().toLowerCase()]
+const OWNER_EMAILS = [(process.env.OS_ADMIN_EMAIL || 'info@joseunstoppable.com').trim().toLowerCase()]
 
 export function adminEmails(): string[] {
   const fromEnv = (process.env.OS_ALLOWED_EMAILS || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
@@ -171,6 +171,29 @@ export async function createMagicToken(email: string): Promise<string> {
     .sign(key)
 }
 
+export async function createAdminLinkToken(email: string): Promise<string> {
+  const key = secretKey()
+  if (!key) throw new Error('AUTH_SECRET is not configured')
+  return new SignJWT({ email: email.trim().toLowerCase(), kind: 'admin-link' })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .setExpirationTime('15m')
+    .sign(key)
+}
+
+export async function verifyAdminLinkToken(token: string | undefined): Promise<string | null> {
+  if (!token) return null
+  const key = secretKey()
+  if (!key) return null
+  try {
+    const { payload } = await jwtVerify(token, key)
+    if (payload.kind !== 'admin-link' || typeof payload.email !== 'string') return null
+    return isAdminEmail(payload.email) ? payload.email : null
+  } catch {
+    return null
+  }
+}
+
 export async function verifyMagicToken(token: string | undefined): Promise<string | null> {
   if (!token) return null
   const key = secretKey()
@@ -190,6 +213,7 @@ export async function verifySessionToken(token: string | undefined): Promise<{ e
   if (!key) return null
   try {
     const { payload } = await jwtVerify(token, key)
+    if (payload.kind) return null
     const email = typeof payload.email === 'string' ? payload.email : ''
     if (!email) return null
 

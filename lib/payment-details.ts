@@ -59,3 +59,4 @@ export const RECEIPT_METHODS: ReceiptMethod[] = [
 ]
 
 export const RECEIPT_METHOD_MAX = 40
+

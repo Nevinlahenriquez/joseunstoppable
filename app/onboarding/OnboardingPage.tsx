@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { buildMessage, list, missingIn, sectionDone, str, waLink, EMAIL_RE, SECTIONS, type Answers } from '@/lib/onboarding'
+import { buildMessage, list, missingIn, parqYes, sectionDone, str, waLink, EMAIL_RE, PARQ, SECTIONS, type Answers } from '@/lib/onboarding'
 import './onboarding.css'
 
 const DRAFT_KEY = 'ju-onboarding-v1'
@@ -226,6 +226,7 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
                         <label className="f">Nombre y apellidos{input('nombre', { type: 'text', autoComplete: 'name', placeholder: 'Tu nombre' })}</label>
                         <label className="f">Email{input('email', { type: 'email', autoComplete: 'email', inputMode: 'email', placeholder: 'tu@email.com' })}</label>
                       </div>
+                      <div className="chips" style={{ marginTop: 0 }}>{chip('sexo', 'Mujer', 'radio')}{chip('sexo', 'Hombre', 'radio')}</div>
                       <div className="row3">
                         <label className="f">Edad{input('edad', { type: 'number', inputMode: 'numeric', min: 14, max: 99, placeholder: '34' })}</label>
                         <label className="f">Peso{unit('peso', 'kg')}</label>
@@ -254,15 +255,21 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
                     </>
                   ))}
 
-                  {section(3, 'Salud', 'Lesiones, patologías o medicación.', (
+                  {section(3, 'Salud', 'Las mismas preguntas que hace cualquier entrenador antes de empezar. Contesta Sí o No.', (
                     <>
-                      <div className="chips">
-                        <label className="chip">
-                          <input type="checkbox" name="salud_ok" checked={list(a, 'salud_ok').length > 0} onChange={e => set('salud_ok', e.target.checked ? ['1'] : [])} />
-                          <span>Nada que destacar</span>
-                        </label>
+                      <div className="parq">
+                        {PARQ.map(p => (
+                          <div className="parq-q" key={p.k}>
+                            <span>{p.q}</span>
+                            <div className="chips">{chip(p.k, 'Sí', 'radio')}{chip(p.k, 'No', 'radio')}</div>
+                          </div>
+                        ))}
                       </div>
-                      <label className="f">O cuéntame{area('salud', 'Ej. Hernia L5 hace 2 años, tomo eutirox 50 mg…')}</label>
+                      {parqYes(a).length > 0 ? (
+                        <label className="f">Cuéntame qué te pasa y qué te ha dicho el médico{area('salud', 'Ej. Tomo enalapril para la tensión desde 2022, el médico me deja entrenar…')}</label>
+                      ) : (
+                        <label className="f">Lesiones, molestias o medicación <small>(opcional)</small>{area('salud', 'Ej. Me molesta la rodilla derecha al correr…')}</label>
+                      )}
                     </>
                   ))}
 
