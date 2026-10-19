@@ -85,6 +85,11 @@ const TABLES: Record<string, Col[]> = {
     ['label', 'text'], ['url', 'text'], ['position', 'numeric'], ['active', 'boolean default true'],
     ['highlight', 'boolean default false'], ['created_at', 'timestamptz default now()'],
   ],
+  onboardings: [
+    ['token', 'text'], ['name', 'text'], ['email', 'text'], ['phone', 'text'], ['deal_id', 'text'],
+    ['status', 'text'], ['answers', 'jsonb'], ['source', 'text'], ['created_at', 'timestamptz default now()'],
+    ['opened_at', 'timestamptz'], ['completed_at', 'timestamptz'],
+  ],
   app_settings: [['value', 'jsonb'], ['updated_at', 'timestamptz default now()']],
 }
 
@@ -92,6 +97,7 @@ const INDEXES = [
   'create index if not exists funnel_events_funnel_idx on funnel_events (funnel_id, step, created_at)',
   'create index if not exists attendees_event_idx on event_attendees (event_id)',
   'create index if not exists bookings_start_idx on bookings (start_at)',
+  'create unique index if not exists onboardings_token_uq on onboardings (token)',
   'create unique index if not exists bookings_slot_uq on bookings (start_at) where status <> \'cancelled\'',
 ]
 

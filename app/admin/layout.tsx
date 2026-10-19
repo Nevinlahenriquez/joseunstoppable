@@ -40,6 +40,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/deals',    icon: 'leads', label: 'Leads' },
       { href: '/admin/bookings', icon: 'bookings', label: 'Llamadas' },
       { href: '/admin/events',   icon: 'events', label: 'Eventos' },
+      { href: '/admin/onboarding', icon: 'forms', label: 'Onboarding' },
       { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(14,113,172,.14)', badgeColor: 'var(--os-accent)' },
       { href: '/admin/links',    icon: 'funnels', label: 'Link en bio' },
       { href: '/admin/attribution', icon: 'insights', label: 'Anuncios vs directo' },
