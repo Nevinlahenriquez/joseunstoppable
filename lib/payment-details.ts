@@ -60,26 +60,3 @@ export const RECEIPT_METHODS: ReceiptMethod[] = [
 
 export const RECEIPT_METHOD_MAX = 40
 
-<<<<<<< HEAD
-// José's Revolut link (revolut.me/…), set on Get paid and shown on every invoice.
-export const PAYMENT_SETTING = 'payment_settings'
-export type PaymentSettings = { revolutUrl: string }
-export const DEFAULT_PAYMENT_SETTINGS: PaymentSettings = { revolutUrl: '' }
-
-// Accepts "revolut.me/jose", "https://revolut.me/jose", "@jose" or a Revolut checkout link.
-export function normalizeRevolut(input: string): string | null {
-  const raw = input.trim()
-  if (!raw) return ''
-  if (/^@?[a-z0-9._-]{2,40}$/i.test(raw)) return `https://revolut.me/${raw.replace(/^@/, '')}`
-  try {
-    const u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`)
-    if (u.protocol !== 'https:' && u.protocol !== 'http:') return null
-    if (!/(^|\.)revolut\.(me|com)$/i.test(u.hostname)) return null
-    u.protocol = 'https:'
-    return u.toString().replace(/\/$/, '')
-  } catch {
-    return null
-  }
-}
-=======
->>>>>>> origin/main

@@ -73,16 +73,10 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
     window.setTimeout(() => setCopiedField(c => (c === key ? '' : c)), 1800)
   }, [])
   const [payError, setPayError] = useState('')
-<<<<<<< HEAD
-  const [revolutUrl, setRevolutUrl] = useState('')
-  useEffect(() => {
-    void fetch('/api/payment-settings').then(r => r.json()).catch(() => null).then(d => { if (d?.revolutUrl) setRevolutUrl(d.revolutUrl) })
-=======
   // José's Revolut, Bizum and bank account, as saved in the dashboard.
   const [pay, setPay] = useState<PaymentSettings>(DEFAULT_PAYMENT_SETTINGS)
   useEffect(() => {
     fetch('/api/payment-settings').then(r => r.json()).then(d => { if (d?.settings) setPay(d.settings) }).catch(() => {})
->>>>>>> origin/main
   }, [])
 
   async function handleDownloadPdf(inv: Invoice) {
@@ -490,20 +484,6 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                 )
               })()}
 
-<<<<<<< HEAD
-              {revolutUrl && !(invoice.paymentUrl ?? '').trim() && (
-                <div className="no-print" style={{ marginBottom: 20, background: 'linear-gradient(135deg,#f1f5ff,#e8eefc)', border: '1px solid #cfdaf5', borderRadius: 10, padding: '20px 22px', display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div>
-                    <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0b1b3f', marginBottom: 3 }}>Pagar con Revolut</div>
-                    <div style={{ fontSize: 12, color: '#4a5878' }}>Al instante desde la app de Revolut o con tarjeta. Indica «Factura {invoice.number}».</div>
-                  </div>
-                  <a href={revolutUrl} target="_blank" rel="noopener noreferrer"
-                    style={{ background: '#0b1b3f', color: '#fff', borderRadius: 999, padding: '13px 28px', fontSize: 14.5, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap' }}>
-                    Pagar con Revolut &rarr;
-                  </a>
-                </div>
-              )}
-=======
               {(() => {
                 const url = revolutLink(pay.revolutUrl)
                 if (!url) return null
@@ -520,7 +500,6 @@ export default function InvoicePage({ params }: { params: Promise<Params> }) {
                   </div>
                 )
               })()}
->>>>>>> origin/main
 
               {}
               {invoice.cardPayment !== false && (
