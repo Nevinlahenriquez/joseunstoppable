@@ -190,12 +190,12 @@ function LoginGate() {
 
 const CSS = `
 .jl-root{position:relative;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px 16px;overflow:hidden;
-  background:radial-gradient(120% 90% at 10% 0%,#2a0f5c 0%,transparent 55%),radial-gradient(100% 80% at 100% 100%,#0b3f6b 0%,transparent 60%),#07040f;
+  background:radial-gradient(120% 90% at 10% 0%,#13466E 0%,transparent 55%),radial-gradient(100% 80% at 100% 100%,#0E71AC 0%,transparent 60%),linear-gradient(160deg,#071726 0%,#0C2A43 55%,#0A2238 100%);
   color:#fff;font-family:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
 .jl-orb{position:absolute;border-radius:50%;filter:blur(70px);opacity:.75;pointer-events:none;will-change:transform}
-.jl-orb-a{width:520px;height:520px;left:-140px;top:-160px;background:conic-gradient(from 90deg,#7b2ff7,#f107a3,#7b2ff7);animation:jl-float 16s ease-in-out infinite}
-.jl-orb-b{width:460px;height:460px;right:-120px;bottom:-140px;background:conic-gradient(from 200deg,#0E71AC,#5BBCEE,#00e0c6,#0E71AC);animation:jl-float 19s ease-in-out infinite reverse}
-.jl-orb-c{width:300px;height:300px;right:18%;top:8%;background:radial-gradient(circle,#ff8a3d,#f107a3 70%);opacity:.35;animation:jl-float 23s ease-in-out infinite}
+.jl-orb-a{width:520px;height:520px;left:-140px;top:-160px;background:conic-gradient(from 90deg,#2A98D6,#5BBCEE,#0E71AC,#2A98D6);animation:jl-float 16s ease-in-out infinite}
+.jl-orb-b{width:460px;height:460px;right:-120px;bottom:-140px;background:conic-gradient(from 200deg,#0E71AC,#5BBCEE,#8FD3F5,#0E71AC);animation:jl-float 19s ease-in-out infinite reverse}
+.jl-orb-c{width:300px;height:300px;right:18%;top:8%;background:radial-gradient(circle,#BDE7FB,#5BBCEE 70%);opacity:.25;animation:jl-float 23s ease-in-out infinite}
 @keyframes jl-float{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(40px,30px) scale(1.08)}66%{transform:translate(-30px,20px) scale(.95)}}
 .jl-grid{position:absolute;inset:0;pointer-events:none;opacity:.18;
   background-image:linear-gradient(rgba(255,255,255,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.08) 1px,transparent 1px);
@@ -204,19 +204,19 @@ const CSS = `
   background:linear-gradient(160deg,rgba(255,255,255,.12),rgba(255,255,255,.04));backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);
   box-shadow:0 30px 90px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.18);animation:jl-in .6s cubic-bezier(.2,.8,.2,1) both}
 .jl-card::before{content:'';position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
-  background:linear-gradient(135deg,rgba(241,7,163,.7),rgba(123,47,247,.4),rgba(91,188,238,.7));
+  background:linear-gradient(135deg,rgba(143,211,245,.75),rgba(14,113,172,.35),rgba(91,188,238,.75));
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
 @keyframes jl-in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 .jl-brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
-.jl-brand img{border-radius:12px;display:block;box-shadow:0 6px 24px rgba(123,47,247,.45)}
+.jl-brand img{border-radius:12px;display:block;box-shadow:0 6px 24px rgba(91,188,238,.45)}
 .jl-brand-name{font-weight:800;font-size:15px;letter-spacing:.01em}
 .jl-brand-sub{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}
 .jl-title{font-size:34px;line-height:1.05;font-weight:800;margin:0 0 8px;letter-spacing:-.02em;
-  background:linear-gradient(90deg,#fff 0%,#f6c6ff 45%,#9fe3ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+  background:linear-gradient(90deg,#fff 0%,#BDE7FB 45%,#5BBCEE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
 .jl-lead{margin:0 0 24px;font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.68)}
 .jl-tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:14px;background:rgba(0,0,0,.3);margin-bottom:20px}
 .jl-tab-glow{position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:10px;transition:transform .35s cubic-bezier(.2,.8,.2,1);
-  background:linear-gradient(135deg,#7b2ff7,#f107a3);box-shadow:0 6px 20px rgba(241,7,163,.4)}
+  background:linear-gradient(135deg,#2A98D6,#5BBCEE);box-shadow:0 6px 20px rgba(91,188,238,.45)}
 .jl-tabs button{position:relative;z-index:1;border:0;background:none;color:rgba(255,255,255,.6);font:inherit;font-weight:700;font-size:14px;padding:10px 0;cursor:pointer;transition:color .2s}
 .jl-tabs button.on{color:#fff}
 .jl-form{display:flex;flex-direction:column;gap:10px}
@@ -224,23 +224,23 @@ const CSS = `
 .jl-input{width:100%;box-sizing:border-box;padding:15px 16px;border-radius:13px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.32);
   color:#fff;font:inherit;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s}
 .jl-input::placeholder{color:rgba(255,255,255,.35)}
-.jl-input:focus{border-color:rgba(241,7,163,.75);box-shadow:0 0 0 4px rgba(241,7,163,.18)}
+.jl-input:focus{border-color:#5BBCEE;box-shadow:0 0 0 4px rgba(91,188,238,.22)}
 .jl-cta{margin-top:6px;width:100%;padding:15px 16px;border:0;border-radius:13px;color:#fff;font:inherit;font-weight:800;font-size:15.5px;cursor:pointer;
-  background:linear-gradient(110deg,#7b2ff7 0%,#f107a3 50%,#ff8a3d 100%);background-size:200% 100%;animation:jl-sheen 6s linear infinite;
-  box-shadow:0 12px 32px rgba(241,7,163,.35);transition:transform .15s,opacity .2s}
+  background:linear-gradient(110deg,#0E71AC 0%,#2A98D6 45%,#5BBCEE 100%);background-size:200% 100%;animation:jl-sheen 6s linear infinite;
+  box-shadow:0 12px 32px rgba(91,188,238,.4);transition:transform .15s,opacity .2s}
 .jl-cta:hover:not(:disabled){transform:translateY(-1px)}
 .jl-cta:disabled{opacity:.5;cursor:default}
 @keyframes jl-sheen{0%{background-position:0% 0}50%{background-position:100% 0}100%{background-position:0% 0}}
 .jl-sent{text-align:center;padding:8px 0 4px}
 .jl-sent-icon{width:52px;height:52px;margin:0 auto 14px;border-radius:50%;display:grid;place-items:center;font-size:24px;font-weight:800;
-  background:linear-gradient(135deg,#00e0c6,#0E71AC);box-shadow:0 10px 30px rgba(0,224,198,.35)}
+  background:linear-gradient(135deg,#5BBCEE,#0E71AC);box-shadow:0 10px 30px rgba(91,188,238,.4)}
 .jl-sent-title{font-weight:800;font-size:18px;margin:0 0 6px}
 .jl-sent-text{font-size:14px;line-height:1.5;color:rgba(255,255,255,.7);margin:0 0 16px;word-break:break-word}
 .jl-ghost{border:1px solid rgba(255,255,255,.2);background:none;color:#fff;font:inherit;font-weight:700;font-size:13.5px;padding:10px 16px;border-radius:11px;cursor:pointer}
 .jl-or{display:flex;align-items:center;gap:12px;margin:20px 0;font-size:12px;color:rgba(255,255,255,.45)}
 .jl-or span{flex:1;height:1px;background:rgba(255,255,255,.14)}
 .jl-msg{font-size:13.5px;margin:16px 0 0;text-align:center}
-.jl-msg.bad{color:#ff9db8}
+.jl-msg.bad{color:#FFD5C7}
 .jl-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:26px;padding-top:18px;border-top:1px solid rgba(255,255,255,.1);font-size:13px;color:rgba(255,255,255,.5)}
 .jl-foot a{color:#9fe3ff;font-weight:700;text-decoration:none}
 @media (max-width:480px){.jl-card{padding:28px 20px 22px;border-radius:22px}.jl-title{font-size:29px}}
