@@ -13,8 +13,8 @@ export const LINKS = {
   terms: '/terminos',
 } as const
 
-// Set to his profile URL to show Instagram in the footer.
-export const INSTAGRAM_URL = ''
+// Shown in the footer, on /links and in the search-engine profile.
+export const INSTAGRAM_URL = 'https://www.instagram.com/joseunstoppable/'
 
 // Owner details for the legal pages. Spanish law (LSSI) asks for the tax ID
 // and a contact address; lines stay hidden until they are filled in.

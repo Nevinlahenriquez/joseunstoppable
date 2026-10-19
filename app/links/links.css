@@ -43,3 +43,6 @@
 .lt-btn.is-main .arr { background: var(--white); }
 
 .lt-foot { margin-top: 22px; text-align: center; font-size: 13px; color: var(--muted); }
+.lt-social { display: flex; justify-content: center; gap: 22px; margin-top: 18px; }
+.lt-social a { font-weight: 700; font-size: 15px; color: var(--navy, #0E2A47); text-decoration: none; }
+.lt-social a:hover { text-decoration: underline; }
