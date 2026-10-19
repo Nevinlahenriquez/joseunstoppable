@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'José Unstoppable',
     locale: 'es_ES',
-    images: [{ url: '/images/jose-hero.jpg', width: 1200, height: 1286, alt: 'José Sánchez' }],
+    images: [{ url: '/images/jose.jpg', width: 1200, height: 1286, alt: 'José Sánchez' }],
   },
 }
 

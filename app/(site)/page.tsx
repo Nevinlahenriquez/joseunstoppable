@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import MobileBar from '@/components/site/MobileBar'
-import Tick from '@/components/site/Tick'
+import { T, Tick } from '@/components/site/bits'
 import { LINKS, PRICE, WA_HELLO, waLink } from '@/lib/site'
-import hero from '@/public/images/jose-hero.jpg'
+import hero from '@/public/images/jose.jpg'
 
 export const metadata: Metadata = {
   title: 'José Unstoppable · Vuelve a gustarte en 90 días',
@@ -274,7 +274,7 @@ export default function Home() {
           <p className="micro"><span data-es>30 minutos · Gratis · Sin compromiso</span><span data-en>30 minutes · Free · No commitment</span></p>
         </div>
       </section>
-      <MobileBar />
+      <MobileBar href={LINKS.book}><T es="Reservar llamada gratuita" en="Book a free call" /></MobileBar>
     </>
   )
 }

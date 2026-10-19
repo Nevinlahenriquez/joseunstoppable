@@ -324,7 +324,7 @@ export async function POST(req: NextRequest) {
     }
 
     reportRegistration(req, { ticketCode, email, name, phone, title: String(event.title), slug: event.slug })
-    return NextResponse.json({ success: true, attendeeId, ticketCode, ...(guest.ticketCode ? { guestTicketCode: guest.ticketCode } : {}), ...(guest.note ? { guestNote: guest.note } : {}), ...(circleMember ? { circle: true } : {}) })
+    return NextResponse.json({ success: true, attendeeId, ticketCode, ...(guest.ticketCode ? { guestTicketCode: guest.ticketCode } : {}), ...(guest.note ? { guestNote: guest.note } : {}), ...(circleMember ? { circle: true } : {}), ...(waitlisted ? { waitlisted: true } : {}) })
   } catch (err) {
     console.error('Event register error:', err)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

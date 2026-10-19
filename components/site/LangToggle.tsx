@@ -4,6 +4,10 @@ import type { Lang } from '@/lib/site'
 
 // The active button is styled from html[data-lang] in site.css, so the
 // toggle is right on first paint and needs no state of its own.
+export function currentLang(): Lang {
+  return typeof document !== 'undefined' && document.documentElement.getAttribute('data-lang') === 'en' ? 'en' : 'es'
+}
+
 export function setLang(l: Lang) {
   document.documentElement.setAttribute('data-lang', l)
   document.documentElement.lang = l

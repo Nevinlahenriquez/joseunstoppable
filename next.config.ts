@@ -1,13 +1,11 @@
 import type { NextConfig } from 'next'
 
-// The homepage, /reserva and the legal pages are Next.js pages in
-// app/(site). The pages still served from static files in public/ keep
+// The public pages are Next.js pages in app/(site). The pages still served from static files in public/ keep
 // their clean addresses through these rewrites.
 const nextConfig: NextConfig = {
   async rewrites() {
     return {
       beforeFiles: [
-        { source: '/masterclass', destination: '/masterclass.html' },
         { source: '/onboarding', destination: '/onboarding.html' },
       ],
       afterFiles: [],
@@ -21,6 +19,7 @@ const nextConfig: NextConfig = {
       { source: '/index.html', destination: '/', permanent: true },
       { source: '/index', destination: '/', permanent: true },
       { source: '/reserva.html', destination: '/reserva', permanent: true },
+      { source: '/masterclass.html', destination: '/masterclass', permanent: true },
     ]
   },
 }

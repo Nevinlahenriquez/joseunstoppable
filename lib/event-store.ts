@@ -422,7 +422,7 @@ function rowToAttendee(r: any): EventAttendee {
   }
 }
 
-function rowToEvent(r: any): CrmEvent {
+export function rowToEvent(r: any): CrmEvent {
 
   let extra: Record<string, unknown> = {}
   if (r.data) {

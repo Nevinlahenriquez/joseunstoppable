@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { T } from '@/components/site/bits'
 import useLang from '@/components/site/useLang'
 import { LINKS, PRICE, WHATSAPP } from '@/lib/site'
 
@@ -41,10 +42,6 @@ type Avail = { date: string; slots: { label: string; start: string }[] }[]
 
 const opt = (id: string, i: unknown, li: 0 | 1) => typeof i === 'number' ? STEPS.find(x => x.id === id)!.options![i][li] : ''
 const clip = (t: unknown) => { const s = String(t ?? '').trim(); return !s ? '—' : s.length > 300 ? s.slice(0, 300) + '…' : s }
-// Both languages are rendered and CSS shows one, so the first paint is
-// already in the visitor's language.
-const T = ({ es, en }: { es: string; en: string }) => <><span data-es>{es}</span><span data-en>{en}</span></>
-
 const cookie = (n: string) => { const m = document.cookie.match('(?:^|; )' + n + '=([^;]*)'); return m ? decodeURIComponent(m[1]) : '' }
 
 function post(path: string, body: Record<string, unknown>) {
