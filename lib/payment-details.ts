@@ -60,6 +60,7 @@ export const RECEIPT_METHODS: ReceiptMethod[] = [
 
 export const RECEIPT_METHOD_MAX = 40
 
+<<<<<<< HEAD
 // José's Revolut link (revolut.me/…), set on Get paid and shown on every invoice.
 export const PAYMENT_SETTING = 'payment_settings'
 export type PaymentSettings = { revolutUrl: string }
@@ -80,3 +81,5 @@ export function normalizeRevolut(input: string): string | null {
     return null
   }
 }
+=======
+>>>>>>> origin/main

@@ -152,7 +152,7 @@
   place-items: center;
   flex-shrink: 0;
   overflow: hidden;
-  box-shadow: 0 8px 20px rgba(74,45,143,.25);
+  box-shadow: 0 8px 20px rgba(12,42,67,.25);
 }
 
 .os-logo-icon img {
@@ -796,7 +796,7 @@
 
 
 .os-deal-card:hover {
-  box-shadow: 0 10px 28px -12px rgba(18,0,42,.28);
+  box-shadow: 0 10px 28px -12px rgba(12,42,67,.28);
   border-color: color-mix(in srgb, var(--os-accent) 28%, var(--os-line));
   transform: translateY(-2px);
 }
@@ -810,7 +810,7 @@
 .os-deal-card.dragging { opacity: 0.4; cursor: grabbing; }
 .os-pipeline-col.drop-active .os-pipeline-dropzone {
   border-color: var(--accent);
-  background: rgba(123, 47, 255, 0.06);
+  background: rgba(14, 113, 172, 0.06);
 }
 .os-pipeline-dropzone {
   border: 1.5px dashed rgba(26,14,0,0.12);
@@ -823,13 +823,13 @@
 .os-deal-grip { color: var(--os-text-faint); font-size: 13px; }
 .os-deal-priority { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 .os-deal-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 8px; }
-.os-chip { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: #f3eefe; color: var(--accent); }
+.os-chip { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; background: #E4F4FD; color: var(--accent); }
 
 
 .os-crm-drawer {
   position: fixed; top: 0; right: 0; bottom: 0; left: auto; z-index: 201;
   width: min(460px, 100vw);
-  background: var(--os-card), var(--os-base-2);
+  background: var(--os-base-2);
   box-shadow: -8px 0 40px rgba(0,0,0,.45);
   display: flex; flex-direction: column;
   animation: os-slide-in .22s cubic-bezier(0.16, 1, 0.3, 1);
@@ -870,6 +870,8 @@
 }
 
 .os-crm-input, .os-crm-textarea {
+  box-sizing: border-box;
+  max-width: 100%;
   width: 100%; border: 1px solid var(--os-line); border-radius: 9px;
   padding: 8px 11px; font-family: inherit; font-size: 13.5px; color: var(--os-text-primary);
   background: var(--os-base-2, var(--os-card-alt));
@@ -975,7 +977,7 @@
 
 
 .act-call, .act-follow, .act-disabled { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; }
-.act-call { background: var(--os-text-primary); color: #fff; box-shadow: 0 8px 18px -10px rgba(18,0,42,.6); }
+.act-call { background: var(--os-text-primary); color: #fff; box-shadow: 0 8px 18px -10px rgba(12,42,67,.6); }
 .act-follow { background: var(--os-card-alt); color: var(--accent); }
 .act-disabled { background: var(--os-card-alt); color: var(--os-text-faint); }
 
@@ -1054,7 +1056,7 @@
   display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--os-text-faint);
   transition: all .15s;
 }
-.os-step-current .os-step-dot { box-shadow: 0 0 0 4px rgba(123, 47, 255, 0.12); }
+.os-step-current .os-step-dot { box-shadow: 0 0 0 4px rgba(14, 113, 172, 0.12); }
 .os-step-label { font-size: 10.5px; font-weight: 600; color: var(--os-text-muted); text-align: center; line-height: 1.2; }
 .os-step-current .os-step-label, .os-step-done .os-step-label { color: var(--os-text-primary); }
 
@@ -1072,6 +1074,9 @@
 .os-label { font-size: 12.5px; font-weight: 600; color: var(--os-text-muted); }
 
 .os-input, .os-select, .os-textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
   width: 100%;
   padding: 10px 14px;
   border: 1.5px solid rgba(26,14,0,0.1);
@@ -1087,7 +1092,7 @@
 
 .os-input:focus, .os-select:focus, .os-textarea:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(123,47,255,0.12);
+  box-shadow: 0 0 0 3px rgba(14,113,172,0.14);
 }
 
 .os-textarea { resize: vertical; min-height: 100px; }
@@ -3343,12 +3348,66 @@
 }
 :root[data-os-theme="light"] .os-shell::before,
 .os-shell::before { background: none; }
-.os-shell, .os-shell * { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
+.os-shell, .os-shell *:not(.ti) { font-family: 'Plus Jakarta Sans', system-ui, sans-serif !important; }
 .os-shell h1, .os-shell h2, .os-shell h3 { color: var(--os-text-primary); letter-spacing: -.01em; }
 .os-shell .os-btn-primary, .os-shell .os-primary-btn {
   background: #0E71AC; color: #FFFFFF; box-shadow: 0 8px 20px -10px rgba(14,113,172,.6);
 }
 .os-shell .os-btn-primary:hover, .os-shell .os-primary-btn:hover { background: #2A98D6; }
 .os-theme-toggle, .os-theme-row { display: none !important; }
-.os-shell .os-logo-icon, .os-shell .os-logo-icon-sm { background: #0C2A43 !important; box-shadow: none; }
-.os-shell .os-agent-avatar { background: linear-gradient(150deg,#5BBCEE,#0E71AC) !important; color: #fff; }
+.os-shell .os-logo-icon, .os-shell .os-logo-icon-sm { background: #E4F4FD !important; box-shadow: none; overflow: hidden; padding: 0; border-radius: 50%; }
+.os-shell .os-agent-avatar { background: linear-gradient(150deg,#5BBCEE,#0E71AC) !important; color: #fff; overflow: hidden; }
+
+/* ── Leads pipeline, José's brand ───────────────────────────────────────
+   Clean white cards on the tint background; WhatsApp is the main action. */
+.os-shell { --accent: #0E71AC; }
+.os-shell .os-pipeline { gap: 16px; }
+.os-shell .os-pipeline-col { width: 300px; background: #E9F3FA; border-radius: 16px; padding: 12px 10px 10px; }
+.os-shell .os-pipeline-col-header { padding: 2px 4px 4px; color: #0C2A43; letter-spacing: .6px; }
+.os-shell .os-pipeline-col-count { background: #fff; color: #0E71AC; font-weight: 800; }
+.os-shell .os-deal-card { border: 1px solid #DDE9F2; border-left-width: 1px !important; border-radius: 14px; padding: 13px 13px 11px; box-shadow: 0 2px 6px rgba(12,42,67,.05); }
+.os-shell .os-deal-card:hover { box-shadow: 0 12px 26px -14px rgba(12,42,67,.35); transform: translateY(-1px); }
+.os-shell .os-deal-head { align-items: center; margin-bottom: 10px; }
+.os-shell .os-deal-avatar { border-radius: 50%; width: 36px; height: 36px; font-size: 12px; }
+.os-shell .os-deal-name { margin: 0; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.os-shell .os-deal-sub { font-size: 12px; color: var(--os-text-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.os-shell .os-deal-value { font-size: 13px; font-weight: 800; color: #0E71AC; background: #E4F4FD; padding: 3px 8px; border-radius: 8px; }
+.os-shell .os-deal-tags { margin: 0 0 10px; }
+.os-shell .os-chip { background: #F1F5F9; color: #5D6E7E; font-size: 10.5px; padding: 3px 9px; }
+.os-shell .os-chip-goal { background: #E4F4FD; color: #0E71AC; font-weight: 700; }
+.os-shell .os-deal-next { margin: 0 0 10px; background: #FFF7E8; color: #96590A; }
+.os-shell .os-deal-next.empty { background: #FDECEC; color: #C62828; }
+.os-shell .os-deal-actrow { gap: 6px; }
+.os-shell .os-deal-act { height: 36px; border-radius: 10px; }
+.os-shell .act-wa { flex: 1 1 auto; width: auto; padding: 0 12px; gap: 6px; background: #25D366; color: #fff; }
+.os-shell .act-disabled { flex: 1 1 auto; background: #F1F5F9; color: var(--os-text-faint); }
+.os-shell .act-call { flex: 0 0 36px; width: 36px; padding: 0; background: #0C2A43; color: #fff; box-shadow: none; }
+.os-shell .act-log { background: #E4F4FD; color: #0E71AC; }
+.os-shell .act-del { background: #F1F5F9; color: #8A9AA9; }
+.os-shell .os-deal-foot { margin-top: 10px; padding-top: 8px; border-top: 1px solid #EEF4F9; }
+.os-shell .os-pipeline-dropzone { border-color: #C5D9E8; background: rgba(255,255,255,.5); }
+.os-shell .os-pipeline-col.drop-active .os-pipeline-dropzone { border-color: #0E71AC; background: #E4F4FD; }
+@media (max-width: 768px) {
+  .os-shell .os-pipeline-col { width: 86vw; }
+  .os-shell .os-deal-act { height: 42px; }
+  .os-shell .act-call { flex-basis: 42px; width: 42px; }
+}
+
+/* Cobrar: the Revolut strip in "Cómo te pagan" */
+.os-shell .os-pay-rev {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  background: linear-gradient(135deg, #0B2E4A, #0E71AC); color: #fff;
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 8px;
+}
+.os-shell .os-pay-rev-btn { background: #fff !important; color: #0B2E4A !important; border: none !important; font-weight: 700; }
+
+@media (max-width: 640px) {
+  .os-shell .os-crm-toolbar-right { width: 100%; flex-wrap: wrap; }
+  .os-shell .os-crm-toolbar-right .os-search-box { flex: 1 1 160px; min-width: 0; }
+  .os-shell .os-crm-toolbar-right select { max-width: 100%; }
+}
+
+@media (max-width: 640px) {
+  .os-drawer-head { flex-wrap: wrap; justify-content: flex-end; }
+  .os-drawer-head > div:first-child { flex: 1 1 100% !important; order: 2; }
+}

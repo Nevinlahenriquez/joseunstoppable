@@ -71,3 +71,16 @@ export function googleCalendarBlockUrl(o: {
   if (o.timeZone) q.set('ctz', o.timeZone)
   return `https://calendar.google.com/calendar/render?${q.toString()}`
 }
+
+// "Add to Google Calendar" link for a fixed UTC start and end. One click saves
+// the event in whoever opens it, with no Google Cloud project needed.
+export function googleCalendarUtcUrl(o: { title: string; details?: string; startIso: string; endIso: string; location?: string }): string {
+  const fmt = (iso: string) => {
+    const x = new Date(iso)
+    return `${x.getUTCFullYear()}${pad(x.getUTCMonth() + 1)}${pad(x.getUTCDate())}T${pad(x.getUTCHours())}${pad(x.getUTCMinutes())}00Z`
+  }
+  const q = new URLSearchParams({ action: 'TEMPLATE', text: o.title.slice(0, 300), dates: `${fmt(o.startIso)}/${fmt(o.endIso)}` })
+  if (o.details) q.set('details', o.details.slice(0, 1500))
+  if (o.location) q.set('location', o.location)
+  return `https://calendar.google.com/calendar/render?${q.toString()}`
+}

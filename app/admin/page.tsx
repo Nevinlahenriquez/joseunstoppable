@@ -125,7 +125,7 @@ export default function OsDashboard() {
     .map((d, i) => {
       const avatarColors = [
         'linear-gradient(150deg,var(--os-bad),#2A98D6)',
-        'linear-gradient(150deg,var(--os-accent),#b06fd6)',
+        'linear-gradient(150deg,var(--os-accent),#5BBCEE)',
         'linear-gradient(150deg,var(--os-good),var(--os-accent))',
       ]
       const initials = d.clientName?.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase() ?? '?'
@@ -143,7 +143,7 @@ export default function OsDashboard() {
   const recentProposals = proposals.slice(0, 5)
 
   const leadAvatarColors = [
-    'linear-gradient(150deg,var(--os-accent),#b06fd6)',
+    'linear-gradient(150deg,var(--os-accent),#5BBCEE)',
     'linear-gradient(150deg,var(--os-bad),#2A98D6)',
     'linear-gradient(150deg,var(--os-good),var(--os-accent))',
     'linear-gradient(150deg,var(--os-warn),var(--os-bad))',

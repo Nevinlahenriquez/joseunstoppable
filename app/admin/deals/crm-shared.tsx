@@ -3,17 +3,25 @@
 import { useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import type { Deal, DealStage, ActivityType, ActivityEntry } from '@/lib/crm-types'
+import { GOAL_LABELS } from '@/lib/goals'
 
 export type Stage = { key: string; label: string; color: string }
 
 export const DEFAULT_STAGES: Stage[] = [
-  { key: 'lead', label: 'New Lead', color: 'var(--os-bad)' },
-  { key: 'contacted', label: 'Contacted', color: '#f97316' },
-  { key: 'discovery', label: 'Discovery', color: 'var(--os-warn)' },
-  { key: 'proposal_sent', label: 'Proposal Sent', color: 'var(--os-accent)' },
-  { key: 'negotiation', label: 'Negotiation', color: '#6366f1' },
-  { key: 'signed', label: 'Signed ✓', color: '#14b8a6' },
+  { key: 'lead', label: 'Nuevo lead', color: 'var(--os-bad)' },
+  { key: 'contacted', label: 'Contactado', color: '#f97316' },
+  { key: 'discovery', label: 'Llamada hecha', color: 'var(--os-warn)' },
+  { key: 'proposal_sent', label: 'Propuesta enviada', color: 'var(--os-accent)' },
+  { key: 'negotiation', label: 'Decidiendo', color: '#5BBCEE' },
+  { key: 'signed', label: 'Firmado ✓', color: '#14b8a6' },
 ]
+
+// Stages saved before the dashboard was in Spanish keep their English names;
+// those untouched defaults are shown in Spanish, renamed ones stay as written.
+const OLD_LABELS: Record<string, string> = {
+  'New Lead': 'Nuevo lead', Contacted: 'Contactado', Discovery: 'Llamada hecha',
+  'Proposal Sent': 'Propuesta enviada', Negotiation: 'Decidiendo', 'Signed ✓': 'Firmado ✓',
+}
 
 const STAGES_KEY = 'ju_stages'
 
@@ -29,7 +37,7 @@ export function getStages(): Stage[] {
     if (parsed && typeof parsed === 'object' && !Array.isArray(parsed) && parsed.v === STAGES_VERSION
       && Array.isArray(parsed.stages) && parsed.stages.length
       && parsed.stages.every((s: Stage) => s.key && s.label && s.color)) {
-      return parsed.stages as Stage[]
+      return (parsed.stages as Stage[]).map(st => OLD_LABELS[st.label] ? { ...st, label: OLD_LABELS[st.label] } : st)
     }
   } catch {  }
   return DEFAULT_STAGES
@@ -45,7 +53,8 @@ export function stageSlug(label: string): string {
 
 export const STAGES: Stage[] = DEFAULT_STAGES
 
-export const PRESET_TAGS = ['Real Estate', 'AI Agent', 'E-commerce', 'Tour Company', 'Beauty', 'Restaurant', 'Coaching', 'Other']
+// The tags José picks from are his clients' goals (also set automatically from their answers).
+export const PRESET_TAGS = GOAL_LABELS
 
 export const PRIORITY_COLOR: Record<NonNullable<Deal['priority']>, string> = {
   low: '#cbd5e1', medium: 'var(--os-warn)', high: 'var(--os-bad)',
@@ -55,12 +64,16 @@ export const ACTIVITY_ICON: Record<ActivityType, string> = {
   note: 'ti-note', call: 'ti-phone', email: 'ti-mail', meeting: 'ti-calendar-event', stage: 'ti-arrow-right', whatsapp: 'ti-brand-whatsapp',
 }
 
+export const ACTIVITY_LABEL: Record<ActivityType, string> = {
+  note: 'Nota', call: 'Llamada', email: 'Email', meeting: 'Reunión', stage: 'Etapa', whatsapp: 'WhatsApp',
+}
+
 export function genId(prefix: string): string {
   return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
 }
 
 export function fmtTs(ts: string): string {
-  return new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return new Date(ts).toLocaleString('es-ES', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
 }
 
 const CLOSED_STAGES = new Set(['signed', 'active', 'completed', 'lost'])
@@ -123,11 +136,11 @@ export function ContactTimer({ deal, style }: { deal: Deal; style?: CSSPropertie
   const bg = stale ? 'var(--os-bad-soft)' : warn ? 'var(--os-warn-soft)' : 'var(--os-good-soft)'
   return (
     <span
-      title={contacted ? 'Time since the last action on this lead' : 'No action taken yet, time since the lead entered the pipeline'}
+      title={contacted ? 'Tiempo desde la última acción' : 'Sin acción todavía: tiempo desde que entró'}
       style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: bg, color, whiteSpace: 'nowrap', ...style }}
     >
       <i className={`ti ${stale ? 'ti-alarm-filled' : 'ti-clock'}`} style={{ fontSize: 12 }} />
-      {fmtElapsed(hrs)}{contacted ? '' : ' new'}
+      {fmtElapsed(hrs)}{contacted ? '' : ' nuevo'}
     </span>
   )
 }
@@ -138,7 +151,7 @@ export function LeadAge({ deal, style }: { deal: Deal; style?: CSSProperties }) 
   return (
     <span
       title={`In the pipeline since ${since}`}
-      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#f1edfb', color: '#6e5fa3', whiteSpace: 'nowrap', ...style }}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: '#EEF4F9', color: '#5D6E7E', whiteSpace: 'nowrap', ...style }}
     >
       <i className="ti ti-hourglass" style={{ fontSize: 12 }} />
       {fmtElapsed(hrs)}
@@ -152,12 +165,12 @@ export function LeadTimers({ deal, style }: { deal: Deal; style?: CSSProperties 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', ...style }}>
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-        <span style={label}>In pipeline</span>
+        <span style={label}>En el pipeline</span>
         <LeadAge deal={deal} />
       </span>
       {open && (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7 }}>
-          <span style={label}>Since last action</span>
+          <span style={label}>Desde la última acción</span>
           <ContactTimer deal={deal} />
         </span>
       )}
@@ -177,15 +190,15 @@ export function QuickActions({ deal, onLog }: { deal: Deal; onLog?: (type: Activ
   return (
     <div className="os-crm-actions">
       {wa && (
-        <a className="os-crm-action os-crm-action-wa" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" onClick={() => log('whatsapp', 'Messaged on WhatsApp')}>
+        <a className="os-crm-action os-crm-action-wa" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" onClick={() => log('whatsapp', 'Escrito por WhatsApp')}>
           <i className="ti ti-brand-whatsapp" /> WhatsApp
         </a>
       )}
       {deal.clientPhone && (
-        <a className="os-crm-action os-crm-action-dark" href={`tel:${deal.clientPhone}`} onClick={() => log('call', 'Called the lead')}><i className="ti ti-phone" /> Call</a>
+        <a className="os-crm-action os-crm-action-dark" href={`tel:${deal.clientPhone}`} onClick={() => log('call', 'Llamada')}><i className="ti ti-phone" /> Llamar</a>
       )}
       {deal.clientEmail && (
-        <a className="os-crm-action os-crm-action-dark" href={`mailto:${deal.clientEmail}`} onClick={() => log('email', 'Emailed the lead')}><i className="ti ti-mail" /> Email</a>
+        <a className="os-crm-action os-crm-action-dark" href={`mailto:${deal.clientEmail}`} onClick={() => log('email', 'Email enviado')}><i className="ti ti-mail" /> Email</a>
       )}
     </div>
   )
@@ -259,7 +272,7 @@ export function CrmDetail({ deal, layout, onPatch, onAddActivity }: DetailProps)
   const profile = (
     <>
       <div className="os-crm-section">
-        <div className="os-crm-section-title">Segments</div>
+        <div className="os-crm-section-title">Objetivos</div>
         <div className="os-crm-tags">
           {PRESET_TAGS.map(t => (
             <button key={t} className={`os-tag-chip${(deal.tags ?? []).includes(t) ? ' active' : ''}`} onClick={() => toggleTag(t)}>{t}</button>
@@ -268,82 +281,79 @@ export function CrmDetail({ deal, layout, onPatch, onAddActivity }: DetailProps)
       </div>
 
       <div className="os-crm-section">
-        <div className="os-crm-section-title">Contact</div>
-        {field('Email', 'clientEmail', { type: 'email', placeholder: 'name@company.com' })}
-        {field('Phone', 'clientPhone', { type: 'tel', placeholder: ' ...' })}
-        {field('Company', 'clientCompany', { placeholder: 'Company name' })}
-        {field('Role', 'clientRole', { placeholder: 'Owner, Marketing Lead...' })}
-        {field('Website', 'clientWebsite', { placeholder: 'https://...' })}
-        {field('Instagram', 'instagram', { placeholder: '@handle' })}
-        {field('Location', 'location', { placeholder: 'Madrid' })}
+        <div className="os-crm-section-title">Contacto</div>
+        {field('Email', 'clientEmail', { type: 'email', placeholder: 'nombre@email.com' })}
+        {field('WhatsApp', 'clientPhone', { type: 'tel', placeholder: '+34 600 000 000' })}
+        {field('Instagram', 'instagram', { placeholder: '@usuario' })}
+        {field('Ciudad', 'location', { placeholder: 'Madrid' })}
       </div>
 
       <div className="os-crm-section">
-        <div className="os-crm-section-title">Deal</div>
+        <div className="os-crm-section-title">Venta</div>
         <div className="os-crm-row">
-          <div style={{ flex: 1 }}>{field('Value (USD)', 'value', { type: 'number' })}</div>
+          <div style={{ flex: 1 }}>{field('Valor (€)', 'value', { type: 'number' })}</div>
           <div className="os-crm-field" style={{ flex: 1 }}>
-            <label>Revenue type</label>
+            <label>Tipo de pago</label>
             <select className="os-crm-input" value={draft.revenueType ?? 'one_time'}
               onChange={e => { set('revenueType', e.target.value as Deal['revenueType']); onPatch({ revenueType: e.target.value as Deal['revenueType'] }) }}>
-              <option value="one_time">One-time</option>
-              <option value="mrr">Monthly retainer</option>
+              <option value="one_time">Pago único</option>
+              <option value="mrr">Mensual</option>
             </select>
           </div>
         </div>
         <div className="os-crm-row">
-          <div style={{ flex: 2 }}>{field('Service', 'service', { placeholder: 'Website + Growth Program' })}</div>
-          {draft.revenueType === 'mrr' && <div style={{ flex: 1 }}>{field('Months', 'retainerMonths', { type: 'number' })}</div>}
+          <div style={{ flex: 2 }}>{field('Programa', 'service', { placeholder: 'Programa 12 semanas' })}</div>
+          {draft.revenueType === 'mrr' && <div style={{ flex: 1 }}>{field('Meses', 'retainerMonths', { type: 'number' })}</div>}
         </div>
         <div className="os-crm-row">
-          <div style={{ flex: 2 }}>{field('Next step', 'nextStep', { placeholder: 'Send proposal, follow up...' })}</div>
-          <div style={{ flex: 1 }}>{field('By', 'nextStepDate', { type: 'date' })}</div>
+          <div style={{ flex: 2 }}>{field('Siguiente paso', 'nextStep', { placeholder: 'Llamarle, mandar propuesta…' })}</div>
+          <div style={{ flex: 1 }}>{field('Para el', 'nextStepDate', { type: 'date' })}</div>
         </div>
         <div className="os-crm-row">
-          <div style={{ flex: 1 }}>{field('Expected close', 'closeDate', { type: 'date' })}</div>
-          <div style={{ flex: 1 }}>{field('Budget', 'budget', { placeholder: 'Approx budget' })}</div>
+          <div style={{ flex: 1 }}>{field('Cierre previsto', 'closeDate', { type: 'date' })}</div>
+          <div style={{ flex: 1 }}>{field('Presupuesto', 'budget', { placeholder: 'Aprox.' })}</div>
         </div>
       </div>
 
       <div className="os-crm-section">
-        <div className="os-crm-section-title">Transformation</div>
-        {field('Current state', 'currentState', { area: true, placeholder: 'Where are they now? Pain points, what is not working...' })}
-        {field('Desired outcome', 'desiredOutcome', { area: true, placeholder: 'What does success look like for them?' })}
-        {field('Goals', 'goals', { area: true, placeholder: 'Concrete goals / targets' })}
-        {field('Blockers', 'blockers', { area: true, placeholder: 'Risks, objections, what could stall this' })}
-        {field('General notes', 'notes', { area: true, placeholder: 'Anything else worth remembering' })}
+        <div className="os-crm-section-title">Transformación</div>
+        {field('Cómo está ahora', 'currentState', { area: true, placeholder: 'Peso, hábitos, qué no le funciona…' })}
+        {field('Qué quiere conseguir', 'desiredOutcome', { area: true, placeholder: 'Cómo se ve en 12 semanas' })}
+        {field('Objetivos concretos', 'goals', { area: true, placeholder: 'Kilos, medidas, fechas' })}
+        {field('Frenos y salud', 'blockers', { area: true, placeholder: 'Lesiones, objeciones, falta de tiempo…' })}
+        {field('Notas', 'notes', { area: true, placeholder: 'Cualquier otra cosa' })}
       </div>
     </>
   )
 
   const timeline = (
     <div>
-      <div className="os-crm-section-title">Activity timeline</div>
+      <div className="os-crm-section-title">Actividad</div>
       <div className="os-composer">
         <div className="os-composer-types">
           {(['note', 'call', 'whatsapp', 'email', 'meeting'] as ActivityType[]).map(t => (
             <button key={t} type="button" className={`os-composer-type${composerType === t ? ' active' : ''}`} onClick={() => setComposerType(t)}>
-              <i className={`ti ${ACTIVITY_ICON[t]}`} style={{ fontSize: 11, marginRight: 4 }} />{t}
+              <i className={`ti ${ACTIVITY_ICON[t]}`} style={{ fontSize: 11, marginRight: 4 }} />{ACTIVITY_LABEL[t]}
             </button>
           ))}
         </div>
-        <textarea className="os-crm-textarea" placeholder="Log a note, call, or meeting... (⌘+Enter)" value={composer}
+        <textarea className="os-crm-textarea" placeholder="Apunta una nota o llamada… (⌘+Enter)" value={composer}
           onChange={e => setComposer(e.target.value)}
           onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') { e.preventDefault(); submitActivity() } }} />
         <button className="os-btn os-btn-primary os-btn-sm" onClick={submitActivity} style={{ alignSelf: 'flex-start' }}>
-          <i className="ti ti-plus" /> Log {composerType}
+          <i className="ti ti-plus" /> Guardar
         </button>
       </div>
       <div className="os-timeline">
         {(deal.activity ?? []).length === 0 && (
-          <div style={{ color: 'var(--os-text-muted)', fontSize: 13, padding: '12px 0' }}>No activity yet. Log your first note above.</div>
+          <div style={{ color: 'var(--os-text-muted)', fontSize: 13, padding: '12px 0' }}>Sin actividad todavía. Apunta la primera nota arriba.</div>
         )}
         {(deal.activity ?? []).map(a => (
           <div key={a.id} className="os-timeline-item">
             <div className="os-timeline-dot"><i className={`ti ${ACTIVITY_ICON[a.type]}`} /></div>
             <div>
               <div className="os-timeline-text">{a.text}</div>
-              <div className="os-timeline-ts">{a.type} · {fmtTs(a.ts)}</div>
+              <div className="os-timeline-ts">{ACTIVITY_LABEL[a.type] ?? a.type} · {fmtTs(a.ts)}</div>
             </div>
           </div>
         ))}

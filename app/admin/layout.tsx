@@ -12,6 +12,7 @@ import ContactCard from '@/components/ContactCard'
 import SyncBanner from './SyncBanner'
 import ConfirmHost from './ConfirmHost'
 import { registerContactPanel, type ContactPanelPayload } from '@/lib/contact-panel'
+import '@tabler/icons-webfont/dist/tabler-icons-outline.min.css'
 import './os.css'
 import { OsIcon, type OsIconName } from './os-icons'
 
@@ -41,6 +42,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/bookings', icon: 'bookings', label: 'Llamadas' },
       { href: '/admin/events',   icon: 'events', label: 'Eventos' },
       { href: '/admin/onboarding', icon: 'forms', label: 'Onboarding' },
+      { href: '/admin/portal',   icon: 'clients', label: 'Portal clientes' },
       { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(14,113,172,.14)', badgeColor: 'var(--os-accent)' },
       { href: '/admin/links',    icon: 'funnels', label: 'Link en bio' },
       { href: '/admin/attribution', icon: 'insights', label: 'Anuncios vs directo' },
@@ -53,7 +55,14 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/admin/proposals', icon: 'proposals', label: 'Propuestas', badgeKey: 'proposals', badgeBg: 'rgba(232,165,22,.16)', badgeColor: 'var(--os-warn)' },
       { href: '/admin/invoices',  icon: 'invoices', label: 'Facturas', badgeKey: 'invoices', badgeBg: 'rgba(220,38,38,.12)', badgeColor: 'var(--os-bad)' },
-      { href: '/admin/payments',  icon: 'payments', label: 'Links de pago' },
+      { href: '/admin/payments',  icon: 'payments', label: 'Revolut y pagos' },
+    ],
+  },
+  {
+    id: 'settings',
+    title: 'Ajustes',
+    items: [
+      { href: '/admin/access', icon: 'access', label: 'Accesos al panel' },
     ],
   },
 ]
@@ -101,7 +110,7 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
           {!collapsed && (
             <>
               <div className="os-logo-icon">
-                <Image src="/icon.png" alt="José Unstoppable" width={26} height={26} priority style={{ objectFit: 'contain' }} />
+                <Image src="/images/jose-avatar.jpg" alt="José" width={40} height={40} priority style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
               </div>
               <div className="os-logo-text">
                 <div className="os-logo-name">José Unstoppable</div>
@@ -182,7 +191,7 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
         {!collapsed ? (
           <>
             <div className="os-agent">
-              <div className="os-agent-avatar" style={who?.staff ? { background: 'linear-gradient(150deg,#0891b2,var(--os-good))' } : undefined}>{who?.staff ? 'T' : 'J'}</div>
+              <div className="os-agent-avatar" style={who?.staff ? { background: 'linear-gradient(150deg,#0891b2,var(--os-good))' } : undefined}>{who?.staff ? 'T' : <Image src="/images/jose-avatar.jpg" alt="José" width={36} height={36} priority style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />}</div>
               <div style={{ minWidth: 0 }}>
                 <div className="os-agent-name">{who?.label ?? 'José Unstoppable'}</div>
                 <div className="os-agent-role">{who?.sub ?? 'José Unstoppable'}</div>
@@ -199,7 +208,7 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
           </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-            <div className="os-agent-avatar" style={{ width: 30, height: 30, fontSize: 12 }}>J</div>
+            <div className="os-agent-avatar" style={{ width: 30, height: 30, fontSize: 12 }}><Image src="/images/jose-avatar.jpg" alt="José" width={30} height={30} priority style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /></div>
             <ThemeToggle />
             <Link href="/" className="os-back-link" style={{ fontSize: 15, padding: 4 }} title="Back to website">←</Link>
           </div>
@@ -291,7 +300,7 @@ export default function OsLayout({ children }: { children: React.ReactNode }) {
       <div className="os-mobile-topbar">
         <div className="os-mobile-logo">
           <div className="os-logo-icon os-logo-icon-sm">
-            <Image src="/icon.png" alt="José Unstoppable" width={18} height={18} priority style={{ objectFit: 'contain' }} />
+            <Image src="/images/jose-avatar.jpg" alt="José" width={32} height={32} priority style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
           </div>
           <span className="os-logo-name" style={{ fontSize: 14 }}>José Unstoppable</span>
         </div>

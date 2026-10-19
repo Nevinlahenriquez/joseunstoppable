@@ -93,6 +93,38 @@ export async function dealForEmail(db: SupabaseClient, email: string) {
   return rows.find(d => d.stage !== 'lost') ?? rows[0] ?? null
 }
 
+// A client who came in through the main /onboarding link: tie their row to
+// their lead by email, or open one for them (tagged Onboarding), so they show
+// up in the contact list with their answers. While they are still filling it
+// in, the lead we opened sits in "lead"; once they finish it becomes a client.
+export async function linkToProfile(db: SupabaseClient, row: { id: string; deal_id?: string | null; name?: string | null; email?: string | null; phone?: string | null }, complete = false): Promise<string | null> {
+  const email = (row.email ?? '').trim().toLowerCase()
+  let dealId = row.deal_id ?? null
+  if (!dealId && email) dealId = (await dealForEmail(db, email).catch(() => null))?.id ?? null
+  if (dealId) {
+    if (complete) {
+      const { data: d } = await db.from('deals').select('stage, tags').eq('id', dealId).maybeSingle()
+      if (d?.stage === 'lead' && Array.isArray(d.tags) && d.tags.includes('Onboarding')) {
+        await db.from('deals').update({ stage: 'active', next_step: 'Revisar su onboarding y preparar el plan', updated_at: new Date().toISOString() }).eq('id', dealId)
+      }
+    }
+  } else {
+    if (!email) return null
+    const now = new Date().toISOString()
+    dealId = 'lead-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
+    const { error } = await db.from('deals').insert({
+      id: dealId, client_name: (row.name ?? '').trim() || email, client_email: email, client_phone: row.phone || null,
+      stage: complete ? 'active' : 'lead', value: 0, currency: 'EUR', service: 'Coaching 1:1', tags: ['Onboarding'],
+      next_step: complete ? 'Revisar su onboarding y preparar el plan' : 'Terminar su onboarding', next_step_date: now.slice(0, 10),
+      activity: [{ id: 'a' + Math.random().toString(36).slice(2, 10), ts: now, type: 'note', text: 'Entró por el enlace de onboarding.' }],
+      created_at: now, updated_at: now,
+    })
+    if (error) return null
+  }
+  if (dealId !== row.deal_id) await db.from('onboardings').update({ deal_id: dealId }).eq('id', row.id)
+  return dealId
+}
+
 // Payment confirmed on an invoice: start the client's onboarding.
 export async function startFromPayment(db: SupabaseClient, inv: Record<string, unknown>) {
   const email = String(inv.client_email ?? '')
