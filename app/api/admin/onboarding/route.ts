@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminRequest } from '@/lib/auth'
 import { serviceDb, NO_DB, isMissingTable } from '@/lib/os-supabase'
-import { newToken } from '@/lib/onboarding'
+import { newToken, DEFAULT_WELCOME, WELCOME_SETTING, youtubeId, type WelcomeSettings } from '@/lib/onboarding'
+import { readSetting, writeSetting } from '@/lib/app-settings'
 import { ensureOnboarding } from '@/lib/onboarding-server'
 
 export const dynamic = 'force-dynamic'
@@ -19,7 +20,8 @@ export async function GET(req: NextRequest) {
   if (email) q = q.eq('email', email)
   const { data, error } = await q
   if (isMissingTable(error)) return NextResponse.json({ ok: false, error: MISSING, onboardings: [] })
-  return NextResponse.json({ ok: !error, error: error?.message, onboardings: data ?? [] })
+  const welcome = email ? undefined : await readSetting<WelcomeSettings>(WELCOME_SETTING, DEFAULT_WELCOME)
+  return NextResponse.json({ ok: !error, error: error?.message, onboardings: data ?? [], welcome })
 }
 
 // POST { name, email?, phone?, dealId? }: activate onboarding for a client.
@@ -69,4 +71,13 @@ export async function DELETE(req: NextRequest) {
   if (!id) return NextResponse.json({ ok: false, error: 'bad input' }, { status: 400 })
   const { error } = await db.from('onboardings').delete().eq('id', id)
   return NextResponse.json({ ok: !error, error: error?.message })
+}
+
+// PUT { videoUrl, message }: the welcome page every new client sees.
+export async function PUT(req: NextRequest) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 })
+  const b = await req.json().catch(() => ({})) as Record<string, unknown>
+  const videoUrl = cap(b.videoUrl, 300)
+  if (videoUrl && !youtubeId(videoUrl)) return NextResponse.json({ ok: false, error: 'Ese enlace no es de YouTube.' }, { status: 400 })
+  return NextResponse.json(await writeSetting(WELCOME_SETTING, { videoUrl, message: cap(b.message, 600) }))
 }
