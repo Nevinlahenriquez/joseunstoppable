@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SESSION_COOKIE, sessionCookieDomain } from '@/lib/auth'
 
-const ALLOWED = new Set(['/login', '/admin/login', '/'])
+const ALLOWED = new Set(['/login', '/admin/login', '/portal', '/'])
 
 function clear(req: NextRequest) {
   const wanted = req.nextUrl.searchParams.get('next')

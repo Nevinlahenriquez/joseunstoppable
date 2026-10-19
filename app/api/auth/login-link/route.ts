@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminLinkToken, verifyAdminLinkToken, isAdminEmail, createSessionToken, SESSION_COOKIE, sessionCookieDomain } from '@/lib/auth'
+import { createAdminLinkToken, readToken, isAdminEmail, createSessionToken, SESSION_COOKIE, sessionCookieDomain } from '@/lib/auth'
+import { isKnownAdmin } from '@/lib/admin-users'
+import { serviceDb } from '@/lib/os-supabase'
 import { callerKey, checkThrottle, recordFailure, THROTTLED_MESSAGE } from '@/lib/login-throttle'
 import { sendEmail, SITE_URL, LOGO_URL } from '@/lib/email'
 
@@ -43,7 +45,8 @@ export async function POST(req: NextRequest) {
   recordFailure(key)
 
   const clean = email.trim().toLowerCase()
-  if (isAdminEmail(clean)) {
+  // Owner emails from Vercel and anyone added in /admin/access.
+  if (await isKnownAdmin(await serviceDb(), clean)) {
     const token = await createAdminLinkToken(clean)
     const url = `${siteOrigin()}/api/auth/login-link?token=${encodeURIComponent(token)}`
     const sent = await sendEmail(clean, 'Your sign-in link · José Unstoppable', linkEmail(url))
@@ -55,11 +58,12 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const email = await verifyAdminLinkToken(req.nextUrl.searchParams.get('token') ?? undefined)
-  if (!email) {
+  const p = await readToken(req.nextUrl.searchParams.get('token') ?? undefined, 'admin-link')
+  const email = typeof p?.email === 'string' ? p.email : ''
+  if (!email || !(await isKnownAdmin(await serviceDb(), email))) {
     return NextResponse.redirect(new URL('/admin/login?link=expired', req.url))
   }
-  const session = await createSessionToken(email, 'admin')
+  const session = await createSessionToken(email, 'admin', false, !isAdminEmail(email))
   const res = NextResponse.redirect(new URL('/admin', req.url))
   res.cookies.set(SESSION_COOKIE, session, {
     httpOnly: true,

@@ -2,6 +2,7 @@
 
 import { Suspense, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 
 declare global {
   interface Window {
@@ -58,7 +59,7 @@ function LoginGate() {
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email: email.trim(), password }),
       })
       if (res.ok) {
         const data = await res.json().catch(() => ({}))
@@ -125,7 +126,7 @@ function LoginGate() {
         <div className="jl-tabs" role="tablist">
           <span className="jl-tab-glow" style={{ transform: mode === 'link' ? 'translateX(0)' : 'translateX(100%)' }} />
           <button type="button" role="tab" aria-selected={mode === 'link'} className={mode === 'link' ? 'on' : ''} onClick={() => switchMode('link')}>Email link</button>
-          <button type="button" role="tab" aria-selected={mode === 'passcode'} className={mode === 'passcode' ? 'on' : ''} onClick={() => switchMode('passcode')}>Passcode</button>
+          <button type="button" role="tab" aria-selected={mode === 'passcode'} className={mode === 'passcode' ? 'on' : ''} onClick={() => switchMode('passcode')}>Password</button>
         </div>
 
         {mode === 'link' ? (
@@ -150,10 +151,15 @@ function LoginGate() {
           )
         ) : (
           <form onSubmit={loginWithPassword} className="jl-form">
-            <label className="jl-label" htmlFor="jl-pass">Passcode</label>
+            <label className="jl-label" htmlFor="jl-user">Email</label>
+            <input
+              id="jl-user" type="email" value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="you@email.com" autoComplete="username" inputMode="email" className="jl-input"
+            />
+            <label className="jl-label" htmlFor="jl-pass">Password</label>
             <input
               id="jl-pass" type="password" value={password} onChange={e => setPassword(e.target.value)}
-              placeholder="Your admin passcode" autoComplete="current-password" className="jl-input" autoFocus
+              placeholder="Your password or owner passcode" autoComplete="current-password" className="jl-input" autoFocus
             />
             <button type="submit" disabled={!password || busy} className="jl-cta">
               {busy ? 'Signing in…' : 'Sign in'}
@@ -168,14 +174,14 @@ function LoginGate() {
           </>
         )}
 
-        {status === 'denied' && <p className="jl-msg bad">That passcode isn&apos;t right.</p>}
+        {status === 'denied' && <p className="jl-msg bad">That email and password don&apos;t match. Try the email link instead.</p>}
         {status === 'throttled' && <p className="jl-msg bad">Too many tries. Wait 15 minutes and try again.</p>}
         {status === 'expired' && <p className="jl-msg bad">That sign-in link has expired. Send yourself a new one.</p>}
         {status === 'error' && <p className="jl-msg bad">Something went wrong. Please try again.</p>}
 
         <div className="jl-foot">
-          <span>Looking for the member portal?</span>
-          <a href="/login">Ir al panel →</a>
+          <span>Are you a client?</span>
+          <Link href="/portal">Go to my portal →</Link>
         </div>
       </section>
     </main>
