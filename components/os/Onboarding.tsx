@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { copyText } from '@/lib/clipboard'
 import { answerRows, STATUS_LABEL, type OnboardingRow, type OnboardingStatus } from '@/lib/onboarding'
 
@@ -8,7 +8,7 @@ import { answerRows, STATUS_LABEL, type OnboardingRow, type OnboardingStatus } f
 // on WhatsApp, and read the answers once the client has filled it in.
 
 export type ActivateInput = { name: string; email?: string; phone?: string; dealId?: string }
-export type ActivateResult = { ok: true; onboarding: OnboardingRow; existing?: boolean } | { ok: false; error: string }
+export type ActivateResult = { ok: true; onboarding: OnboardingRow; existing?: boolean; emailed?: boolean } | { ok: false; error: string }
 
 export async function activateOnboarding(input: ActivateInput): Promise<ActivateResult> {
   try {
@@ -17,7 +17,7 @@ export async function activateOnboarding(input: ActivateInput): Promise<Activate
     })
     const d = await r.json().catch(() => ({}))
     if (!r.ok || !d.ok) return { ok: false, error: d.error || `No se pudo activar (${r.status}).` }
-    return { ok: true, onboarding: d.onboarding, existing: d.existing }
+    return { ok: true, onboarding: d.onboarding, existing: d.existing, emailed: d.emailed }
   } catch {
     return { ok: false, error: 'No hay conexión con el servidor.' }
   }
@@ -93,21 +93,28 @@ export const fmtDate = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
 
 // The card on a contact's page: activate, share, or read their answers.
-export function OnboardingCard({ name, email, phone, dealId }: ActivateInput) {
+export function OnboardingCard({ name, email, phone, dealId, refresh }: ActivateInput & { refresh?: string }) {
   const [row, setRow] = useState<OnboardingRow | null>(null)
   const [loaded, setLoaded] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [open, setOpen] = useState(false)
 
+  const firstLoad = useRef(true)
   useEffect(() => {
-    const q = email ? fetch(`/api/admin/onboarding?email=${encodeURIComponent(email)}`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
-    void q.then(d => {
-      setRow(d?.onboardings?.[0] ?? null)
-      if (d && !d.ok && d.error) setError(d.error)
-      setLoaded(true)
-    })
-  }, [email])
+    // After a stage change, give the server a moment to start the onboarding before reading it.
+    const wait = firstLoad.current ? 0 : 1500
+    firstLoad.current = false
+    const t = setTimeout(() => {
+      const q = email ? fetch(`/api/admin/onboarding?email=${encodeURIComponent(email)}`).then(r => r.json()).catch(() => null) : Promise.resolve(null)
+      void q.then(d => {
+        setRow(d?.onboardings?.[0] ?? null)
+        if (d && !d.ok && d.error) setError(d.error)
+        setLoaded(true)
+      })
+    }, wait)
+    return () => clearTimeout(t)
+  }, [email, refresh])
 
   async function activate() {
     setBusy(true); setError('')

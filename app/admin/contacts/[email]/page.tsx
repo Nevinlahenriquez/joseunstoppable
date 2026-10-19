@@ -191,7 +191,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
             )}
           </div>
 
-          <OnboardingCard name={name} email={email} phone={phone} dealId={primaryDeal?.id} />
+          <OnboardingCard name={name} email={email} phone={phone} dealId={primaryDeal?.id} refresh={primaryDeal?.stage} />
 
           <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
             <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Invoices</div>
