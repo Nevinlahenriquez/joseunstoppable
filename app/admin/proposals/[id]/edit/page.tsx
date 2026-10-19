@@ -315,13 +315,13 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
             {SERVICES_PRESETS.map(s => (
               <button key={s} type="button" onClick={() => toggleService(s)}
-                style={{ padding: '7px 14px', borderRadius: 20, border: '1.5px solid', fontSize: 12.5, fontWeight: 500, cursor: 'pointer', transition: 'all .15s', borderColor: services.includes(s) ? 'var(--accent)' : 'var(--os-line)', background: services.includes(s) ? 'rgba(123,47,255,0.1)' : 'var(--os-card)', color: services.includes(s) ? 'var(--accent)' : 'var(--os-text-muted)' }}>
+                style={{ padding: '7px 14px', borderRadius: 20, border: '1.5px solid', fontSize: 12.5, fontWeight: 500, cursor: 'pointer', transition: 'all .15s', borderColor: services.includes(s) ? 'var(--accent)' : 'var(--os-line)', background: services.includes(s) ? 'rgba(14,113,172,0.1)' : 'var(--os-card)', color: services.includes(s) ? 'var(--accent)' : 'var(--os-text-muted)' }}>
                 {s}
               </button>
             ))}
             {services.filter(s => !SERVICES_PRESETS.includes(s)).map(s => (
               <button key={s} type="button" onClick={() => toggleService(s)}
-                style={{ padding: '7px 14px', borderRadius: 20, border: '1.5px solid', fontSize: 12.5, fontWeight: 500, cursor: 'pointer', borderColor: 'var(--accent)', background: 'rgba(123,47,255,0.1)', color: 'var(--accent)' }}>
+                style={{ padding: '7px 14px', borderRadius: 20, border: '1.5px solid', fontSize: 12.5, fontWeight: 500, cursor: 'pointer', borderColor: 'var(--accent)', background: 'rgba(14,113,172,0.1)', color: 'var(--accent)' }}>
                 {s}
               </button>
             ))}

@@ -276,7 +276,7 @@ export function InvoiceEditor({ invoice, prefill, preset }: { invoice?: Invoice;
       <div className="os-inv-doc" style={{ background: '#fff', border: '1px solid #ddd', borderRadius: 4, boxShadow: '0 1px 8px rgba(0,0,0,0.06)', padding: '40px 48px', fontFamily: 'Arial, Helvetica, sans-serif', fontSize: 13 }}>
         {}
         <div className="os-inv-head" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28 }}>
-          <div className="os-inv-logo" style={{ width: 80, height: 80, background: '#12002a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
+          <div className="os-inv-logo" style={{ width: 80, height: 80, background: '#0B2E4A', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flexShrink: 0 }}>
             <Image src="/icon.png" alt="José Unstoppable" width={64} height={64} style={{ objectFit: 'contain' }} />
           </div>
           <div className="os-inv-meta" style={{ textAlign: 'right' }}>

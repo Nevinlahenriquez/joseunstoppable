@@ -54,7 +54,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/admin/proposals', icon: 'proposals', label: 'Propuestas', badgeKey: 'proposals', badgeBg: 'rgba(232,165,22,.16)', badgeColor: 'var(--os-warn)' },
       { href: '/admin/invoices',  icon: 'invoices', label: 'Facturas', badgeKey: 'invoices', badgeBg: 'rgba(220,38,38,.12)', badgeColor: 'var(--os-bad)' },
-      { href: '/admin/payments',  icon: 'payments', label: 'Links de pago' },
+      { href: '/admin/payments',  icon: 'payments', label: 'Revolut y pagos' },
     ],
   },
 ]
