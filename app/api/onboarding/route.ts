@@ -5,6 +5,9 @@ import { sendEmail, wrapEmail, detailRows, OWNER_EMAIL, SITE_URL } from '@/lib/e
 import { escapeHtml } from '@/lib/escape-html'
 import { answerRows, cleanAnswers, newToken, EMAIL_RE, SECTIONS, sectionDone, str } from '@/lib/onboarding'
 import { linkToProfile, writeAnswersToDeal } from '@/lib/onboarding-server'
+import { sessionCookieDomain } from '@/lib/auth'
+import { createPortalSession, grantPortalAfterOnboarding } from '@/lib/portal-server'
+import { PORTAL_COOKIE, PORTAL_SESSION_DAYS } from '@/lib/portal'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -46,6 +49,9 @@ export async function POST(req: NextRequest) {
   const token = typeof b.token === 'string' ? b.token : ''
   let row: { id: string; name: string | null; email: string | null; phone: string | null } | null = null
   let firstTime = true
+  let dealIdForPortal: string | null = null
+  // Only a personal link sent to a known email signs the client straight into their portal.
+  let trustedEmail = false
 
   if (token) {
     if (!TOKEN_RE.test(token)) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
@@ -60,6 +66,8 @@ export async function POST(req: NextRequest) {
     const dealId = await linkToProfile(db, { ...data, email, phone: data.phone || str(answers, 'whatsapp') }, true).catch(() => null)
     if (dealId) await writeAnswersToDeal(db, dealId, answers).catch(() => {})
     row = { ...data, email }
+    dealIdForPortal = dealId || data.deal_id || null
+    trustedEmail = !!data.email && data.email.toLowerCase() === email
   } else {
     const id = 'ob-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
     const insert = {
@@ -72,6 +80,7 @@ export async function POST(req: NextRequest) {
     const dealId = await linkToProfile(db, insert, true).catch(() => null)
     if (dealId) await writeAnswersToDeal(db, dealId, answers).catch(() => {})
     row = { id, name: insert.name, email: insert.email, phone: insert.phone }
+    dealIdForPortal = dealId
   }
 
   const name = row.name || str(answers, 'nombre')
@@ -82,7 +91,20 @@ export async function POST(req: NextRequest) {
     { label: 'Abrir onboarding', href: `${SITE_URL}/admin/onboarding` },
   )
   await sendEmail(OWNER_EMAIL, `${firstTime ? 'Onboarding' : 'Onboarding actualizado'}: ${name}`, html).catch(() => false)
-  return NextResponse.json({ ok: true })
+
+  // Finishing the onboarding opens their client portal: access, an email with
+  // how to sign in and, from their personal link, signed in on this device.
+  const portal = firstTime && row.email
+    ? await grantPortalAfterOnboarding(db, { email: row.email, name, dealId: dealIdForPortal }).catch(() => null)
+    : null
+  const res = NextResponse.json({ ok: true, portal: portal ? (trustedEmail ? '/portal' : `/portal/${portal.token}`) : null })
+  if (portal && trustedEmail) {
+    res.cookies.set(PORTAL_COOKIE, await createPortalSession(portal.email), {
+      httpOnly: true, secure: true, sameSite: 'lax', path: '/',
+      domain: sessionCookieDomain(req.headers.get('host')), maxAge: 60 * 60 * 24 * PORTAL_SESSION_DAYS,
+    })
+  }
+  return res
 }
 
 // Autosave while they type. With a token it updates that row; without one

@@ -93,25 +93,27 @@ function Home({ data, settings }: { data: PortalData; settings: PortalSettings }
       </section>
 
       <main className="pt-wrap pt-main">
-        <AppCard settings={settings} appUrl={appUrl} ready={!!access.app_ready} />
+        <div className="pt-two">
+          <AppCard settings={settings} appUrl={appUrl} ready={!!access.app_ready} />
 
-        <div className="pt-box">
-          <h2><span className="ic"><Icon d={I.steps} /></span>Tus siguientes pasos</h2>
-          <p className="lead">Lo que toca ahora para arrancar con buen pie.</p>
-          <div className="pt-steps">
-            <div className={`pt-step${obDone ? ' done' : ''}`}>
-              <span className="n">{obDone ? '✓' : '1'}</span>
-              <div><b>Rellena tu onboarding</b>
-                <span>{obDone ? 'Hecho. José ya tiene tus respuestas.' : onboarding ? <>5 minutos. <a href={`/bienvenida/${onboarding.token}`}>Abrir mi onboarding →</a></> : 'José te mandará el enlace en cuanto confirme tu pago.'}</span>
+          <div className="pt-box">
+            <h2><span className="ic"><Icon d={I.steps} /></span>Tus siguientes pasos</h2>
+            <p className="lead">Lo que toca ahora para arrancar con buen pie.</p>
+            <div className="pt-steps">
+              <div className={`pt-step${obDone ? ' done' : ''}`}>
+                <span className="n">{obDone ? '✓' : '1'}</span>
+                <div><b>Rellena tu onboarding</b>
+                  <span>{obDone ? 'Hecho. José ya tiene tus respuestas.' : onboarding ? <>5 minutos. <a href={`/bienvenida/${onboarding.token}`}>Abrir mi onboarding →</a></> : 'José te mandará el enlace en cuanto confirme tu pago.'}</span>
+                </div>
               </div>
-            </div>
-            <div className="pt-step">
-              <span className="n">2</span>
-              <div><b>{access.app_ready ? `Abre ${settings.appName}` : `Crea tu cuenta en ${settings.appName}`}</b><span>Ahí recibirás tu plan de entrenamiento y nutrición.</span></div>
-            </div>
-            <div className="pt-step">
-              <span className="n">3</span>
-              <div><b>Mándale a José 3 fotos por WhatsApp</b><span>Frontal, perfil y espalda, con buena luz. <a href={waLink('Hola José, te mando mis fotos de inicio')} target="_blank" rel="noopener">Abrir WhatsApp →</a></span></div>
+              <div className="pt-step">
+                <span className="n">2</span>
+                <div><b>{access.app_ready ? `Abre ${settings.appName}` : `Crea tu cuenta en ${settings.appName}`}</b><span>Ahí recibirás tu plan de entrenamiento y nutrición.</span></div>
+              </div>
+              <div className="pt-step">
+                <span className="n">3</span>
+                <div><b>Mándale a José 3 fotos por WhatsApp</b><span>Frontal, perfil y espalda, con buena luz. <a href={waLink('Hola José, te mando mis fotos de inicio')} target="_blank" rel="noopener">Abrir WhatsApp →</a></span></div>
+              </div>
             </div>
           </div>
         </div>

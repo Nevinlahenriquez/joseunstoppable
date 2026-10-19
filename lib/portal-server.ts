@@ -170,3 +170,26 @@ export async function loadPortal(db: SupabaseClient, access: PortalAccess): Prom
     messages: (messages.data ?? []) as PortalMessage[],
   }
 }
+
+// A client just finished their onboarding: make sure they have a portal (a
+// revoked one stays revoked) and email them their link and how to sign in.
+export async function grantPortalAfterOnboarding(db: SupabaseClient, c: { email: string; name?: string | null; dealId?: string | null }): Promise<PortalAccess | null> {
+  const e = normEmail(c.email)
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)) return null
+  await db.from('portal_access').upsert(newAccess(e, c.name ?? null, c.dealId ?? null), { onConflict: 'id', ignoreDuplicates: true })
+  const { data } = await db.from('portal_access').select('*').eq('id', e).maybeSingle()
+  const access = data as PortalAccess | null
+  if (!access?.active) return null
+  const html = wrapEmail(
+    'Tu portal de cliente ya está listo',
+    `<p>Hola ${escapeHtml(firstNameOf(access.name, ''))},</p>` +
+      '<p>Gracias por rellenar tu onboarding. Ya tienes tu portal de cliente: tus respuestas, tu contrato, tus pagos, el acceso a Harbiz para tu plan de entrenamiento y nutrición, y un sitio para mandarme tus preguntas.</p>' +
+      '<p><strong>Cómo entrar:</strong> abre tu portal con el botón, escribe este email y te llega un enlace de acceso. Pulsa el enlace y listo: seguirás dentro en ese dispositivo durante 60 días, sin contraseñas.</p>' +
+      '<p>Guarda este email para volver cuando quieras.</p>',
+    { label: 'Abrir mi portal', href: portalUrl(access.token) },
+    'Tu portal de cliente ya está listo',
+  )
+  const ok = await sendEmail(access.email, 'Tu portal de cliente ya está listo', html).catch(() => false)
+  if (ok) await db.from('portal_access').update({ invited_at: new Date().toISOString() }).eq('id', access.id)
+  return access
+}

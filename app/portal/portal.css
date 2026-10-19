@@ -138,3 +138,38 @@ a.pt-item:hover{border-color:var(--sky);transform:translateY(-1px)}
 .pt-meter{height:8px;border-radius:99px;background:var(--tint-2);overflow:hidden;margin:0 0 16px}
 .pt-meter span{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--sky-h));border-radius:99px}
 @media (max-width:420px){.pt-answers div{grid-template-columns:minmax(0,1fr);gap:2px}}
+/* Desktop: bigger type and wider layout, so nothing feels small or empty. */
+@media (min-width:1024px){
+  .pt{font-size:17px}
+  .pt-wrap,.pt-bar .in{max-width:1120px;padding:0 32px}
+  .pt-bar .in{height:66px}
+  .pt-bar .brand{font-size:14px}
+  .pt-hero{padding:52px 0 96px}
+  .pt-hero h1{font-size:60px}
+  .pt-hero p{font-size:19px;max-width:60ch}
+  .pt-stats{gap:14px;margin-top:28px}
+  .pt-stat{padding:16px 20px}
+  .pt-stat b{font-size:18px}
+  .pt-stat span{font-size:12.5px}
+  .pt-main{margin-top:-64px;gap:22px}
+  .pt-two{gap:22px}
+  .pt-box{padding:30px 32px;border-radius:26px}
+  .pt-box h2{font-size:23px}
+  .pt-box h2 .ic{width:38px;height:38px;border-radius:12px}
+  .pt-box .lead{font-size:16.5px;margin-bottom:20px}
+  .pt-btn{font-size:16.5px;padding:15px 22px}
+  .pt-item{padding:18px}
+  .pt-item .t b,.pt-item .amt{font-size:17px}
+  .pt-item .t span{font-size:14.5px}
+  .pt-pill{font-size:12.5px;padding:5px 11px}
+  .pt-step{padding:16px 18px}
+  .pt-step b{font-size:17px}
+  .pt-step span{font-size:15px}
+  .pt-answers{grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:36px}
+  .pt-answers div{font-size:16px}
+  .pt-bubble{font-size:16.5px}
+  .pt-ask textarea{font-size:17px}
+  .pt-foot{font-size:14px}
+  .pt-app{display:flex;flex-direction:column}
+  .pt-app .row{margin-top:auto}
+}
