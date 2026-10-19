@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import DOMPurify from 'isomorphic-dompurify'
+import { safeHtml } from '@/lib/safe-html'
 import { T, Tick } from '@/components/site/bits'
 import MobileBar from '@/components/site/MobileBar'
 import { serviceDb } from '@/lib/os-supabase'
@@ -64,7 +64,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const online = ev.format === 'online'
   const where = online ? (ev.locationName || 'Online') : (ev.locationName || ev.location)
   const price = priceLabel(ev)
-  const description = ev.description ? DOMPurify.sanitize(ev.description) : ''
+  const description = ev.description ? safeHtml(ev.description) : ''
   const speakers = ev.speakers ?? []
   const agenda = ev.agenda ?? []
   const faq = ev.faq ?? []

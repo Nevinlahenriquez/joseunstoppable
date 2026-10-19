@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { buildMessage, list, missingIn, sectionDone, str, waLink, SECTIONS, type Answers } from '@/lib/onboarding'
+import { buildMessage, list, missingIn, sectionDone, str, waLink, EMAIL_RE, SECTIONS, type Answers } from '@/lib/onboarding'
 import './onboarding.css'
 
 const DRAFT_KEY = 'ju-onboarding-v1'
@@ -30,6 +30,10 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
   const startedAt = useRef(0)
   const formRef = useRef<HTMLElement>(null)
   const draftKey = token ? `${DRAFT_KEY}:${token}` : DRAFT_KEY
+  // The row these answers save to: the link's token, or one created as soon as
+  // a visitor of the generic link has typed their name and email.
+  const [liveToken, setLiveToken] = useState(token ?? '')
+  const lastSaved = useRef('')
 
   // Draft from this device first, then what the dashboard already has.
   useEffect(() => {
@@ -38,14 +42,19 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
     try { draft = JSON.parse(localStorage.getItem(draftKey) || 'null') } catch { /* private mode */ }
     if (draft) setA(draft)
     else if (presetName) setA({ nombre: presetName })
-    if (!token) return
+    if (!token) {
+      try { const t = localStorage.getItem(`${DRAFT_KEY}:token`); if (t) setLiveToken(t) } catch { /* private mode */ }
+      return
+    }
     fetch(`/api/onboarding?token=${encodeURIComponent(token)}`)
       .then(r => r.json().then(d => ({ status: r.status, d })))
       .then(({ status, d }) => {
         if (status === 404) { setLinkGone(true); return }
         if (!d.ok) return
         if (d.name) setName(d.name)
-        if (!draft) setA(d.answers ?? (d.name ? { nombre: d.name } : {}))
+        const known: Answers = { ...(d.name ? { nombre: d.name } : {}), ...(d.email ? { email: d.email } : {}), ...(d.phone ? { whatsapp: d.phone } : {}) }
+        if (!draft) setA({ ...known, ...(d.answers ?? {}) })
+        else setA(prev => ({ ...known, ...prev }))
       })
       .catch(() => {})
   }, [token, presetName, draftKey])
@@ -71,6 +80,28 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
     const cur = list(a, k)
     set(k, cur.includes(v) ? cur.filter(x => x !== v) : [...cur, v])
   }
+
+  // Save as they go, so José keeps what they typed even if they never finish.
+  useEffect(() => {
+    if (done || linkGone) return
+    const canStart = !liveToken && str(a, 'nombre') && EMAIL_RE.test(str(a, 'email'))
+    if (!liveToken && !canStart) return
+    const body = JSON.stringify(a)
+    if (body === lastSaved.current) return
+    const t = setTimeout(() => {
+      lastSaved.current = body
+      fetch('/api/onboarding', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token: liveToken || undefined, answers: a, partial: true, hp: hp.current }),
+      }).then(r => r.json()).then(d => {
+        if (d?.ok && d.token && !liveToken) {
+          setLiveToken(d.token)
+          try { localStorage.setItem(`${DRAFT_KEY}:token`, d.token) } catch { /* private mode */ }
+        }
+      }).catch(() => { lastSaved.current = '' })
+    }, 1500)
+    return () => clearTimeout(t)
+  }, [a, liveToken, done, linkGone])
 
   const doneCount = SECTIONS.filter((_, i) => sectionDone(a, i + 1)).length
   const firstName = (name || '').trim().split(/\s+/)[0]
@@ -99,7 +130,7 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
       const r = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ token: linkGone ? undefined : token, answers: a, hp: hp.current, elapsedMs: Date.now() - startedAt.current }),
+        body: JSON.stringify({ token: linkGone ? undefined : liveToken || undefined, answers: a, hp: hp.current, elapsedMs: Date.now() - startedAt.current }),
       })
       setSaved(r.ok ? 'saved' : 'failed')
     } catch {
@@ -144,7 +175,7 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
     <div className="ob">
       <header className="bar">
         <div className="wrap">
-          <a className="brand" href="#top"><i>J</i>JOSÉ UNSTOPPABLE</a>
+          <a className="brand" href="#top"><img src="/icon.png" alt="" width={30} height={30} style={{ borderRadius: 9 }} />JOSÉ UNSTOPPABLE</a>
           <div className="prog" aria-live="polite">
             <span>{doneCount}/{SECTIONS.length}</span>
             <div className="prog-track"><div className="prog-fill" style={{ width: `${(doneCount / SECTIONS.length) * 100}%` }} /></div>
@@ -161,7 +192,7 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
               <p className="lead">Enhorabuena por dar el paso. A partir de ahora vamos a trabajar juntos para que dejes de apartarte en las fotos y recuperes el control de tu cuerpo, con un plan hecho a tu medida, no una plantilla genérica.</p>
               <p className="lead">Aquí tienes tu hoja de ruta: qué vas a hacer, en qué orden y qué vas a recibir de mí en cada paso. Sin sorpresas, sin líos: solo sigue el proceso.</p>
               <a className="btn btn-sky" href="#form" onClick={e => { e.preventDefault(); formRef.current?.scrollIntoView({ behavior: 'smooth' }) }}>Rellenar mi formulario →</a>
-              <div className="meta"><span><b>10–15 min</b> de formulario</span><span>Plan listo en <b>48–72 h</b></span></div>
+              <div className="meta"><span><b>5 min</b> de formulario</span><span>Plan listo en <b>48–72 h</b></span></div>
             </div>
             <div className="hero-img"><img src="/images/onboarding-jose.jpg" alt="José, tu coach" width={696} height={900} fetchPriority="high" /></div>
           </div>
@@ -189,40 +220,41 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
                 <form noValidate onSubmit={submit}>
                   <input type="text" name="hp" tabIndex={-1} autoComplete="off" aria-hidden="true" onChange={e => { hp.current = e.target.value }} style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} />
 
-                  {section(1, 'Tus datos', null, (
-                    <div className="row2">
-                      <label className="f">Nombre y apellidos{input('nombre', { type: 'text', autoComplete: 'name', placeholder: 'Tu nombre' })}</label>
-                      <label className="f">Edad{input('edad', { type: 'number', inputMode: 'numeric', min: 14, max: 99, placeholder: 'Ej. 34' })}</label>
-                    </div>
-                  ))}
-
-                  {section(2, 'Medidas corporales', 'Con una cinta métrica, por la mañana y en ayunas. Si no tienes cinta ahora, pon peso y altura y el resto me lo mandas luego.', (
+                  {section(1, 'Tus datos', 'Con tu nombre y email ya se guarda todo lo que escribas, aunque lo termines luego.', (
                     <>
                       <div className="row2">
+                        <label className="f">Nombre y apellidos{input('nombre', { type: 'text', autoComplete: 'name', placeholder: 'Tu nombre' })}</label>
+                        <label className="f">Email{input('email', { type: 'email', autoComplete: 'email', inputMode: 'email', placeholder: 'tu@email.com' })}</label>
+                      </div>
+                      <div className="row3">
+                        <label className="f">Edad{input('edad', { type: 'number', inputMode: 'numeric', min: 14, max: 99, placeholder: '34' })}</label>
                         <label className="f">Peso{unit('peso', 'kg')}</label>
                         <label className="f">Altura{unit('altura', 'cm', { inputMode: 'numeric', step: '1' })}</label>
                       </div>
-                      <div className="row3">
-                        <label className="f">Cintura{unit('cintura', 'cm')}</label>
-                        <label className="f">Cadera{unit('cadera', 'cm')}</label>
-                        <label className="f">Pecho{unit('pecho', 'cm')}</label>
-                        <label className="f">Brazo{unit('brazo', 'cm')}</label>
-                        <label className="f">Pierna{unit('pierna', 'cm')}</label>
-                      </div>
+                      <details className="more">
+                        <summary>Añadir perímetros (opcional)</summary>
+                        <div className="row3" style={{ marginTop: 10 }}>
+                          <label className="f">Cintura{unit('cintura', 'cm')}</label>
+                          <label className="f">Cadera{unit('cadera', 'cm')}</label>
+                          <label className="f">Pecho{unit('pecho', 'cm')}</label>
+                          <label className="f">Brazo{unit('brazo', 'cm')}</label>
+                          <label className="f">Pierna{unit('pierna', 'cm')}</label>
+                        </div>
+                      </details>
                     </>
                   ))}
 
-                  {section(3, 'Objetivos y expectativas', '¿Qué quieres conseguir y en qué plazo? Marca lo que aplique.', (
+                  {section(2, 'Tu objetivo', 'Marca lo que aplique y en qué plazo.', (
                     <>
                       <div className="chips">
-                        {['Perder grasa', 'Ganar músculo', 'Recomposición', 'Más energía', 'Salud y hábitos', 'Verme bien en fotos'].map(v => chip('objetivo', v))}
+                        {['Perder grasa', 'Ganar músculo', 'Recomposición', 'Más energía', 'Ganar confianza', 'Salud y hábitos', 'Verme bien en fotos'].map(v => chip('objetivo', v))}
                       </div>
                       <label className="f">Plazo{select('plazo', 'Elige un plazo', ['1 mes', '3 meses', '6 meses', '1 año o más'])}</label>
-                      <label className="f">Cuéntamelo con tus palabras{area('objetivo_detalle', 'Ej. Bajar 8 kg y quitarme la barriga antes del verano')}</label>
+                      <label className="f">En tus palabras <small>(opcional)</small>{area('objetivo_detalle', 'Ej. Bajar 8 kg y quitarme la barriga antes del verano')}</label>
                     </>
                   ))}
 
-                  {section(4, 'Historial de salud', 'Lesiones, patologías o medicación. Si no hay nada, pulsa “Nada que destacar”.', (
+                  {section(3, 'Salud', 'Lesiones, patologías o medicación.', (
                     <>
                       <div className="chips">
                         <label className="chip">
@@ -230,40 +262,39 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
                           <span>Nada que destacar</span>
                         </label>
                       </div>
-                      <label className="f">Detalles{area('salud', 'Ej. Hernia L5 hace 2 años, tomo eutirox 50 mg…')}</label>
+                      <label className="f">O cuéntame{area('salud', 'Ej. Hernia L5 hace 2 años, tomo eutirox 50 mg…')}</label>
                     </>
                   ))}
 
-                  {section(5, 'Tu rutina diaria', 'Para que el plan encaje en tu vida, no al revés.', (
+                  {section(4, 'Rutina y alimentación', 'Para que el plan encaje en tu vida, no al revés.', (
                     <>
-                      <label className="f">Horario de trabajo{input('trabajo', { type: 'text', placeholder: 'Ej. L–V de 9 a 18, teletrabajo' })}</label>
-                      <div className="row2">
-                        <label className="f">Comidas al día{select('comidas', 'Elige', ['2', '3', '4', '5 o más', 'Muy irregular'])}</label>
-                        <label className="f">Horas de sueño{select('sueno', 'Elige', ['Menos de 6 h', '6–7 h', '7–8 h', 'Más de 8 h'])}</label>
-                      </div>
                       <div className="row2">
                         <label className="f">Días que puedes entrenar{select('dias', 'Elige', ['2 días', '3 días', '4 días', '5 días o más'])}</label>
                         <label className="f">Dónde entrenas{select('lugar', 'Elige', ['Gimnasio', 'Casa', 'Casa y gimnasio', 'Aún no lo sé'])}</label>
                       </div>
+                      <div className="row2">
+                        <label className="f">Comidas al día <small>(opcional)</small>{select('comidas', 'Elige', ['2', '3', '4', '5 o más', 'Muy irregular'])}</label>
+                        <label className="f">Horas de sueño <small>(opcional)</small>{select('sueno', 'Elige', ['Menos de 6 h', '6–7 h', '7–8 h', 'Más de 8 h'])}</label>
+                      </div>
+                      <label className="f">Alergias o comida que no tomas <small>(opcional)</small>{area('no_gusta', 'Ej. lactosa, pescado…')}</label>
+                      <details className="more">
+                        <summary>Más detalles (opcional)</summary>
+                        <div style={{ display: 'grid', gap: 12, marginTop: 10 }}>
+                          <label className="f">Horario de trabajo{input('trabajo', { type: 'text', placeholder: 'Ej. L–V de 9 a 18, teletrabajo' })}</label>
+                          <label className="f">Comida que te encanta{area('gusta', 'Ej. arroz, pollo, huevos, fruta…')}</label>
+                        </div>
+                      </details>
                     </>
                   ))}
 
-                  {section(6, 'Alimentación', 'Lo que te encanta y lo que no puedes ni ver. Alergias o intolerancias también.', (
-                    <div className="row2">
-                      <label className="f">Me gusta{area('gusta', 'Ej. arroz, pollo, huevos, fruta…')}</label>
-                      <label className="f">No me gusta / no puedo tomar{area('no_gusta', 'Ej. pescado, lactosa…')}</label>
-                    </div>
-                  ))}
-
-                  {section(7, 'Compromiso y motivación', null, (
+                  {section(5, 'Compromiso', null, (
                     <>
                       <div>
                         <span className="f" style={{ display: 'block', fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>Del 1 al 10, ¿cuánto compromiso tienes ahora mismo?</span>
                         <div className="scale">{Array.from({ length: 10 }, (_, i) => chip('compromiso', String(i + 1), 'radio'))}</div>
                         <div className="scale-l"><span>Poco</span><span>A tope</span></div>
                       </div>
-                      <label className="f">¿Qué estás dispuesto/a a cambiar?{area('cambiar', 'Ej. Dejar el picoteo por la noche, entrenar 4 días…')}</label>
-                      <label className="f">Una frase: ¿por qué ahora? <small>¿Qué te ha hecho decidirte?</small>{area('porque', 'Ej. Me vi en las fotos de la boda y dije basta.')}</label>
+                      <label className="f">Una frase: ¿por qué ahora?{area('porque', 'Ej. Me vi en las fotos de la boda y dije basta.')}</label>
                     </>
                   ))}
 

@@ -17,6 +17,9 @@ import { EmailText } from '@/components/os/CopyEmail'
 import { activateOnboarding, OnboardingAnswers, OnboardingShare, StatusPill } from '@/components/os/Onboarding'
 import type { OnboardingRow } from '@/lib/onboarding'
 
+// Won / kept as client: the payment is in, so onboarding starts (Signed is only the contract).
+const CLIENT_STAGES = ['active', 'completed']
+
 type ViewMode = 'pipeline' | 'table' | 'insights'
 
 function money(v: number, deal: Deal): string {
@@ -166,6 +169,11 @@ export default function DealsPage() {
     if (stage === 'signed' || stage === 'completed') provisionActiveClient(deal)
     updateDeal(deal.id, { stage, activity: [entry, ...(deal.activity ?? [])] })
     reload()
+    // Becoming a client starts their onboarding on the server; show José the link to send on WhatsApp.
+    if (CLIENT_STAGES.includes(stage) && !CLIENT_STAGES.includes(deal.stage)) {
+      setOnboarding({ deal, state: 'loading' })
+      setTimeout(() => { void openOnboarding(deal) }, 1500)
+    }
   }
 
   function handleDrop(stage: DealStage) {
@@ -245,7 +253,7 @@ export default function DealsPage() {
     const r = await activateOnboarding({ name: deal.clientName, email: deal.clientEmail, phone: deal.clientPhone, dealId: deal.id })
     if (!r.ok) { setOnboarding({ deal, state: 'error', error: r.error }); return }
     if (!r.existing) logActivity(deal, 'note', 'Onboarding activado')
-    setOnboarding({ deal, state: 'ready', row: r.onboarding })
+    setOnboarding({ deal, state: 'ready', row: r.onboarding, emailed: r.emailed })
   }
 
   const headerSub =
@@ -537,7 +545,7 @@ export default function DealsPage() {
 type OnboardingLink =
   | { deal: Deal; state: 'loading' }
   | { deal: Deal; state: 'error'; error: string }
-  | { deal: Deal; state: 'ready'; row: OnboardingRow }
+  | { deal: Deal; state: 'ready'; row: OnboardingRow; emailed?: boolean }
 
 function OnboardingLinkModal({ link, onClose }: {
   link: OnboardingLink
@@ -574,7 +582,8 @@ function OnboardingLinkModal({ link, onClose }: {
         ) : (
           <>
             <p style={{ fontSize:13.5, color:'var(--os-text-muted)', lineHeight:1.6, margin:'0 0 12px' }}>
-              Su enlace personal está activo. Mándaselo y sus respuestas aparecerán en Onboarding y en su ficha.
+              Su onboarding está activo. Mándale el enlace por WhatsApp; sus respuestas aparecerán en Onboarding, en su ficha y en este lead.
+              {link.emailed && link.row.email ? ` También se lo hemos enviado a ${link.row.email}.` : ''}
             </p>
             <OnboardingShare row={link.row} />
           </>

@@ -3,7 +3,8 @@ import { serviceDb } from '@/lib/os-supabase'
 import { detectSpam, SPAM_REJECTION } from '@/lib/anti-spam'
 import { sendEmail, wrapEmail, detailRows, OWNER_EMAIL, SITE_URL } from '@/lib/email'
 import { escapeHtml } from '@/lib/escape-html'
-import { answerRows, cleanAnswers, newToken, SECTIONS, sectionDone, str } from '@/lib/onboarding'
+import { answerRows, cleanAnswers, newToken, EMAIL_RE, SECTIONS, sectionDone, str } from '@/lib/onboarding'
+import { writeAnswersToDeal } from '@/lib/onboarding-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -18,14 +19,14 @@ export async function GET(req: NextRequest) {
   if (!TOKEN_RE.test(token)) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404, headers: noStore })
   const db = await serviceDb()
   if (!db) return NextResponse.json({ ok: false, error: 'offline' }, { status: 503, headers: noStore })
-  const { data } = await db.from('onboardings').select('id, name, status, answers, opened_at').eq('token', token).maybeSingle()
+  const { data } = await db.from('onboardings').select('id, name, email, phone, status, answers, opened_at').eq('token', token).maybeSingle()
   if (!data) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404, headers: noStore })
   if (!data.opened_at) {
     await db.from('onboardings')
       .update({ opened_at: new Date().toISOString(), ...(data.status === 'sent' ? { status: 'opened' } : {}) })
       .eq('id', data.id)
   }
-  return NextResponse.json({ ok: true, name: data.name ?? '', status: data.status, answers: data.answers ?? null }, { headers: noStore })
+  return NextResponse.json({ ok: true, name: data.name ?? '', email: data.email ?? '', phone: data.phone ?? '', status: data.status, answers: data.answers ?? null }, { headers: noStore })
 }
 
 // POST { token?, answers }: save the form. Without a token (the generic
@@ -34,6 +35,7 @@ export async function POST(req: NextRequest) {
   const b = await req.json().catch(() => ({})) as Record<string, unknown>
   if (detectSpam(b).spam) return NextResponse.json(SPAM_REJECTION.body, { status: SPAM_REJECTION.status })
   const answers = cleanAnswers(b.answers)
+  if (b.partial === true) return savePartial(typeof b.token === 'string' ? b.token : '', answers)
   if (!SECTIONS.every((_, i) => sectionDone(answers, i + 1))) {
     return NextResponse.json({ ok: false, error: 'Te falta algún dato.' }, { status: 400 })
   }
@@ -47,13 +49,14 @@ export async function POST(req: NextRequest) {
 
   if (token) {
     if (!TOKEN_RE.test(token)) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
-    const { data } = await db.from('onboardings').select('id, name, email, phone, completed_at').eq('token', token).maybeSingle()
+    const { data } = await db.from('onboardings').select('id, name, email, phone, deal_id, completed_at').eq('token', token).maybeSingle()
     if (!data) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
     firstTime = !data.completed_at
     const { error } = await db.from('onboardings')
       .update({ answers, status: 'completed', completed_at: now, opened_at: now, ...(data.name ? {} : { name: str(answers, 'nombre') }) })
       .eq('id', data.id)
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
+    if (data.deal_id) await writeAnswersToDeal(db, data.deal_id, answers).catch(() => {})
     row = data
   } else {
     const id = 'ob-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
@@ -75,4 +78,37 @@ export async function POST(req: NextRequest) {
   )
   await sendEmail(OWNER_EMAIL, `${firstTime ? 'Onboarding' : 'Onboarding actualizado'}: ${name}`, html).catch(() => false)
   return NextResponse.json({ ok: true })
+}
+
+// Autosave while they type. With a token it updates that row; without one
+// (the generic link) a row is created once name and email are in, and its
+// token goes back to the page. A finished onboarding stays finished.
+async function savePartial(token: string, answers: ReturnType<typeof cleanAnswers>) {
+  const db = await serviceDb()
+  if (!db) return NextResponse.json({ ok: false, error: 'offline' }, { status: 503 })
+  const now = new Date().toISOString()
+  if (token) {
+    if (!TOKEN_RE.test(token)) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
+    const { data } = await db.from('onboardings').select('id, status, name, email').eq('token', token).maybeSingle()
+    if (!data) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
+    if (data.status === 'completed') return NextResponse.json({ ok: true, token })
+    const email = str(answers, 'email').toLowerCase()
+    const { error } = await db.from('onboardings').update({
+      answers, status: 'opened', opened_at: now,
+      ...(data.name ? {} : { name: str(answers, 'nombre').slice(0, 120) || null }),
+      ...(!data.email && EMAIL_RE.test(email) ? { email } : {}),
+    }).eq('id', data.id)
+    return NextResponse.json({ ok: !error, token })
+  }
+  const name = str(answers, 'nombre').slice(0, 120)
+  const email = str(answers, 'email').toLowerCase().slice(0, 160)
+  if (!name || !EMAIL_RE.test(email)) return NextResponse.json({ ok: false, error: 'Faltan nombre y email.' }, { status: 400 })
+  const row = {
+    id: 'ob-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), token: newToken(),
+    name, email, phone: str(answers, 'whatsapp').slice(0, 40) || null, status: 'opened', answers, source: 'link',
+    created_at: now, opened_at: now,
+  }
+  const { error } = await db.from('onboardings').insert(row)
+  if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
+  return NextResponse.json({ ok: true, token: row.token })
 }

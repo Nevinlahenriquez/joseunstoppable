@@ -14,9 +14,12 @@ export default function OnboardingAdminPage() {
   const [busy, setBusy] = useState(false)
   const [fresh, setFresh] = useState<OnboardingRow | null>(null)
   const [openId, setOpenId] = useState<string | null>(null)
+  const [welcome, setWelcome] = useState({ videoUrl: '', message: '' })
+  const [welcomeMsg, setWelcomeMsg] = useState('')
 
   const load = useCallback(() => fetch('/api/admin/onboarding').then(r => r.json()).catch(() => null).then(d => {
     setRows(d?.onboardings ?? [])
+    if (d?.welcome) setWelcome(d.welcome)
     setError(d && !d.ok ? d.error || '' : d ? '' : 'No hay conexión con el servidor.')
     setLoaded(true)
   }), [])
@@ -31,6 +34,14 @@ export default function OnboardingAdminPage() {
     setFresh(r.onboarding)
     setForm({ name: '', email: '', phone: '' })
     void load()
+  }
+
+  async function saveWelcome(e: React.FormEvent) {
+    e.preventDefault()
+    setWelcomeMsg('Guardando…')
+    const d = await fetch('/api/admin/onboarding', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify(welcome) })
+      .then(r => r.json()).catch(() => null)
+    setWelcomeMsg(d?.ok ? 'Guardado. Todos los clientes nuevos lo verán en su bienvenida.' : d?.error || 'No se pudo guardar.')
   }
 
   async function remove(row: OnboardingRow) {
@@ -48,7 +59,7 @@ export default function OnboardingAdminPage() {
       <div className="os-page-header">
         <div>
           <h1 className="os-page-title">Onboarding</h1>
-          <p className="os-page-sub">Activa el onboarding de un cliente nuevo, mándale su enlace y lee sus respuestas aquí.</p>
+          <p className="os-page-sub">Sale solo al confirmar el pago de un cliente. También puedes activarlo a mano y mandar el enlace por WhatsApp. Sus respuestas aparecen aquí, en su ficha y en su lead.</p>
         </div>
       </div>
 
@@ -79,6 +90,25 @@ export default function OnboardingAdminPage() {
         {error && <div style={{ marginTop: 12, fontSize: 13, color: 'var(--os-bad)' }}>{error}</div>}
       </div>
 
+      <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
+        <div className="os-card-title" style={{ marginBottom: 6 }}>Página de bienvenida</div>
+        <p className="os-page-sub" style={{ margin: '0 0 12px' }}>
+          Cuando confirmas un pago (factura pagada) o marcas un lead como ganado, el cliente recibe por email su página de bienvenida con este vídeo y el botón a su onboarding.
+        </p>
+        <form onSubmit={saveWelcome} style={{ display: 'grid', gap: 10 }}>
+          <label className="os-label" style={{ display: 'block' }}>Vídeo de YouTube
+            <input className="os-crm-input" value={welcome.videoUrl} onChange={e => setWelcome({ ...welcome, videoUrl: e.target.value })} placeholder="https://youtu.be/…" style={{ marginTop: 4 }} />
+          </label>
+          <label className="os-label" style={{ display: 'block' }}>Mensaje de bienvenida (opcional)
+            <textarea className="os-crm-textarea" rows={3} value={welcome.message} onChange={e => setWelcome({ ...welcome, message: e.target.value })} placeholder="Gracias por confiar en mí. A partir de hoy trabajamos juntos…" style={{ marginTop: 4 }} />
+          </label>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+            <button className="os-btn os-btn-primary os-btn-sm">Guardar</button>
+            {welcomeMsg && <span style={{ fontSize: 13, color: 'var(--os-text-muted)' }}>{welcomeMsg}</span>}
+          </div>
+        </form>
+      </div>
+
       <div className="os-card" style={{ padding: '20px 24px' }}>
         <div className="os-card-title" style={{ marginBottom: 12 }}>
           Clientes {pending > 0 && <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--os-text-faint)' }}>· {pending} sin terminar</span>}
@@ -105,7 +135,12 @@ export default function OnboardingAdminPage() {
                 </button>
                 {openId === r.id && (
                   <div style={{ padding: '4px 2px 18px' }}>
-                    {r.status === 'completed' ? <OnboardingAnswers row={r} /> : <OnboardingShare row={r} />}
+                    {r.status === 'completed' ? <OnboardingAnswers row={r} /> : (
+                      <>
+                        {r.answers && <div style={{ marginBottom: 14 }}><div style={{ fontSize: 12, fontWeight: 700, color: 'var(--os-warn)', marginBottom: 4 }}>Sin terminar: esto es lo que ha rellenado</div><OnboardingAnswers row={r} /></div>}
+                        <OnboardingShare row={r} />
+                      </>
+                    )}
                     <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
                       {r.email && (
                         <Link href={`/admin/contacts/${encodeURIComponent(r.email)}`} className="os-btn os-btn-ghost os-btn-sm"><i className="ti ti-user" /> Ficha del contacto</Link>
