@@ -24,6 +24,8 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
   const [bad, setBad] = useState<Set<string>>(new Set())
   const [showErr, setShowErr] = useState(false)
   const [done, setDone] = useState(false)
+  // Where their client portal opens once the onboarding is sent.
+  const [portal, setPortal] = useState('')
   const [saved, setSaved] = useState<Saved>('idle')
   const [linkGone, setLinkGone] = useState(false)
   const hp = useRef('')
@@ -133,6 +135,8 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
         body: JSON.stringify({ token: linkGone ? undefined : liveToken || undefined, answers: a, hp: hp.current, elapsedMs: Date.now() - startedAt.current }),
       })
       setSaved(r.ok ? 'saved' : 'failed')
+      const d = await r.json().catch(() => null)
+      if (typeof d?.portal === 'string') setPortal(d.portal)
     } catch {
       setSaved('failed')
     }
@@ -327,13 +331,15 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
                     {saved === 'saved' ? 'Tus respuestas ya me han llegado. ' : ''}
                     Si se ha abierto WhatsApp, solo te queda pulsar <b>enviar</b>. Después, en ese mismo chat:
                   </p>
+                  {portal && <p><b>Tu portal de cliente ya está listo.</b> Te he mandado un email con cómo entrar.</p>}
                   <ul className="checklist">
                     <li><em>1</em>Envía el mensaje con tus respuestas</li>
                     <li><em>2</em>Mándame 3 fotos: frontal, perfil y espalda</li>
                     <li><em>3</em>Te escribo para agendar la llamada de bienvenida</li>
                   </ul>
                   <div className="btns">
-                    <a className="btn btn-sky" href={waLink(buildMessage(a))} target="_blank" rel="noopener">Abrir WhatsApp de nuevo</a>
+                    {portal && <a className="btn btn-sky" href={portal}>Entrar a mi portal de cliente →</a>}
+                    <a className={`btn ${portal ? 'btn-ghost' : 'btn-sky'}`} href={waLink(buildMessage(a))} target="_blank" rel="noopener">Abrir WhatsApp de nuevo</a>
                     <button type="button" className="btn btn-ghost" onClick={() => { setDone(false); setSaved('idle') }}>Editar respuestas</button>
                   </div>
                 </div>

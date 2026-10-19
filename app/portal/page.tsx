@@ -7,6 +7,7 @@ import { money } from '@/lib/email'
 import { accessFor, loadPortal, readPortalSession, type PortalData } from '@/lib/portal-server'
 import { DEFAULT_PORTAL, PORTAL_COOKIE, PORTAL_SETTING, type PortalSettings } from '@/lib/portal'
 import { waLink } from '@/lib/site'
+import { answerRows, progressOf } from '@/lib/onboarding'
 import PortalLogin from './PortalLogin'
 import Questions from './Questions'
 import AppCard from './AppCard'
@@ -40,6 +41,7 @@ const Icon = ({ d }: { d: string }) => (
 const I = {
   steps: 'M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11',
   doc: 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h5',
+  form: 'M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2M9 14l2 2 4-4',
   card: 'M2 7a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zM2 10h20',
   chat: 'M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z',
 }
@@ -91,28 +93,53 @@ function Home({ data, settings }: { data: PortalData; settings: PortalSettings }
       </section>
 
       <main className="pt-wrap pt-main">
-        <AppCard settings={settings} appUrl={appUrl} ready={!!access.app_ready} />
+        <div className="pt-two">
+          <AppCard settings={settings} appUrl={appUrl} ready={!!access.app_ready} />
 
-        <div className="pt-box">
-          <h2><span className="ic"><Icon d={I.steps} /></span>Tus siguientes pasos</h2>
-          <p className="lead">Lo que toca ahora para arrancar con buen pie.</p>
-          <div className="pt-steps">
-            <div className={`pt-step${obDone ? ' done' : ''}`}>
-              <span className="n">{obDone ? '✓' : '1'}</span>
-              <div><b>Rellena tu onboarding</b>
-                <span>{obDone ? 'Hecho. José ya tiene tus respuestas.' : onboarding ? <>5 minutos. <a href={`/bienvenida/${onboarding.token}`}>Abrir mi onboarding →</a></> : 'José te mandará el enlace en cuanto confirme tu pago.'}</span>
+          <div className="pt-box">
+            <h2><span className="ic"><Icon d={I.steps} /></span>Tus siguientes pasos</h2>
+            <p className="lead">Lo que toca ahora para arrancar con buen pie.</p>
+            <div className="pt-steps">
+              <div className={`pt-step${obDone ? ' done' : ''}`}>
+                <span className="n">{obDone ? '✓' : '1'}</span>
+                <div><b>Rellena tu onboarding</b>
+                  <span>{obDone ? 'Hecho. José ya tiene tus respuestas.' : onboarding ? <>5 minutos. <a href={`/bienvenida/${onboarding.token}`}>Abrir mi onboarding →</a></> : 'José te mandará el enlace en cuanto confirme tu pago.'}</span>
+                </div>
               </div>
-            </div>
-            <div className="pt-step">
-              <span className="n">2</span>
-              <div><b>{access.app_ready ? `Abre ${settings.appName}` : `Crea tu cuenta en ${settings.appName}`}</b><span>Ahí recibirás tu plan de entrenamiento y nutrición.</span></div>
-            </div>
-            <div className="pt-step">
-              <span className="n">3</span>
-              <div><b>Mándale a José 3 fotos por WhatsApp</b><span>Frontal, perfil y espalda, con buena luz. <a href={waLink('Hola José, te mando mis fotos de inicio')} target="_blank" rel="noopener">Abrir WhatsApp →</a></span></div>
+              <div className="pt-step">
+                <span className="n">2</span>
+                <div><b>{access.app_ready ? `Abre ${settings.appName}` : `Crea tu cuenta en ${settings.appName}`}</b><span>Ahí recibirás tu plan de entrenamiento y nutrición.</span></div>
+              </div>
+              <div className="pt-step">
+                <span className="n">3</span>
+                <div><b>Mándale a José 3 fotos por WhatsApp</b><span>Frontal, perfil y espalda, con buena luz. <a href={waLink('Hola José, te mando mis fotos de inicio')} target="_blank" rel="noopener">Abrir WhatsApp →</a></span></div>
+              </div>
             </div>
           </div>
         </div>
+
+        {onboarding && (
+          <div className="pt-box">
+            <h2><span className="ic"><Icon d={I.form} /></span>Tu onboarding</h2>
+            {obDone ? (
+              <>
+                <p className="lead">Completado{onboarding.completed_at ? ` el ${day(onboarding.completed_at)}` : ''}. Esto es lo que le contaste a José para preparar tu plan.</p>
+                <dl className="pt-answers">
+                  {answerRows(onboarding.answers ?? {}).map(([k, v]) => (
+                    <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+                  ))}
+                </dl>
+                <a className="pt-btn ghost" href={`/onboarding/${onboarding.token}`} style={{ marginTop: 14 }}>Ver o cambiar mis respuestas</a>
+              </>
+            ) : (
+              <>
+                <p className="lead">{progressOf(onboarding) ? `Llevas un ${progressOf(onboarding)} %. Termínalo para que José pueda preparar tu plan.` : '5 minutos: tus datos, tu objetivo, tu salud y tu rutina. Con esto José prepara tu plan.'}</p>
+                <div className="pt-meter"><span style={{ width: `${progressOf(onboarding)}%` }} /></div>
+                <a className="pt-btn sky" href={`/onboarding/${onboarding.token}`}>{progressOf(onboarding) ? 'Seguir con mi onboarding →' : 'Empezar mi onboarding →'}</a>
+              </>
+            )}
+          </div>
+        )}
 
         <div className="pt-two">
           <div className="pt-box">

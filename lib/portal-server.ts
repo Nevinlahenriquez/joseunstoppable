@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import { readToken, signToken } from '@/lib/auth'
 import { sendEmail, wrapEmail, firstNameOf, SITE_URL, OWNER_EMAIL } from '@/lib/email'
 import { escapeHtml } from '@/lib/escape-html'
-import { newToken } from '@/lib/onboarding'
+import { newToken, type Answers, type OnboardingStatus } from '@/lib/onboarding'
 import { PORTAL_SESSION_DAYS, portalPath, type PortalAccess, type PortalMessage } from '@/lib/portal'
 
 // Server side of the client portal: who counts as a client, their personal
@@ -139,7 +139,7 @@ export type PortalData = {
   deal: { client_name: string | null; service: string | null; stage: string | null; value: number | null; currency: string | null; close_date: string | null; goals: string | null } | null
   contracts: Array<{ id: string; token: string; title: string | null; ref: string | null; status: string; total: number | null; currency: string | null; signed_at: string | null; sent_at: string | null }>
   invoices: Array<{ id: string; number: string | null; status: string | null; issue_date: string | null; due_date: string | null; currency: string | null; total: number }>
-  onboarding: { token: string; status: string } | null
+  onboarding: { token: string; status: OnboardingStatus; answers: Answers | null; completed_at: string | null } | null
   messages: PortalMessage[]
 }
 
@@ -153,7 +153,7 @@ export async function loadPortal(db: SupabaseClient, access: PortalAccess): Prom
       .ilike('client_email', e).is('deleted_at', null).in('status', ['sent', 'signed']).order('created_at', { ascending: false }).limit(20),
     db.from('invoices').select('id, number, status, issue_date, due_date, currency, line_items, taxes')
       .ilike('client_email', e).is('deleted_at', null).neq('status', 'draft').neq('status', 'void').order('created_at', { ascending: false }).limit(30),
-    db.from('onboardings').select('token, status').eq('email', e).order('created_at', { ascending: false }).limit(1),
+    db.from('onboardings').select('token, status, answers, completed_at').eq('email', e).order('created_at', { ascending: false }).limit(1),
     db.from('portal_messages').select('*').eq('email', e).order('created_at', { ascending: true }).limit(200),
   ])
   const deal = (access.deal_id && deals.data?.find(d => d.id === access.deal_id)) || deals.data?.[0] || null
@@ -169,4 +169,27 @@ export async function loadPortal(db: SupabaseClient, access: PortalAccess): Prom
     onboarding: (onboardings.data?.[0] as PortalData['onboarding']) ?? null,
     messages: (messages.data ?? []) as PortalMessage[],
   }
+}
+
+// A client just finished their onboarding: make sure they have a portal (a
+// revoked one stays revoked) and email them their link and how to sign in.
+export async function grantPortalAfterOnboarding(db: SupabaseClient, c: { email: string; name?: string | null; dealId?: string | null }): Promise<PortalAccess | null> {
+  const e = normEmail(c.email)
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)) return null
+  await db.from('portal_access').upsert(newAccess(e, c.name ?? null, c.dealId ?? null), { onConflict: 'id', ignoreDuplicates: true })
+  const { data } = await db.from('portal_access').select('*').eq('id', e).maybeSingle()
+  const access = data as PortalAccess | null
+  if (!access?.active) return null
+  const html = wrapEmail(
+    'Tu portal de cliente ya está listo',
+    `<p>Hola ${escapeHtml(firstNameOf(access.name, ''))},</p>` +
+      '<p>Gracias por rellenar tu onboarding. Ya tienes tu portal de cliente: tus respuestas, tu contrato, tus pagos, el acceso a Harbiz para tu plan de entrenamiento y nutrición, y un sitio para mandarme tus preguntas.</p>' +
+      '<p><strong>Cómo entrar:</strong> abre tu portal con el botón, escribe este email y te llega un enlace de acceso. Pulsa el enlace y listo: seguirás dentro en ese dispositivo durante 60 días, sin contraseñas.</p>' +
+      '<p>Guarda este email para volver cuando quieras.</p>',
+    { label: 'Abrir mi portal', href: portalUrl(access.token) },
+    'Tu portal de cliente ya está listo',
+  )
+  const ok = await sendEmail(access.email, 'Tu portal de cliente ya está listo', html).catch(() => false)
+  if (ok) await db.from('portal_access').update({ invited_at: new Date().toISOString() }).eq('id', access.id)
+  return access
 }
