@@ -192,7 +192,7 @@ export function buildContacts(src: { deals: Rows; leads: Rows; bookings: Rows; o
   }
   for (const o of byTime(src.onboardings, 'created_at')) {
     const answers = (o.answers && typeof o.answers === 'object' ? o.answers : {}) as Answers
-    const c = touch(s(o, 'email'), s(o, 'phone'), s(o, 'name') || str(answers, 'nombre'), s(o, 'completed_at') || s(o, 'created_at'))
+    const c = touch(s(o, 'email') || str(answers, 'email'), s(o, 'phone') || str(answers, 'whatsapp'), s(o, 'name') || str(answers, 'nombre'), s(o, 'completed_at') || s(o, 'created_at'))
     if (!c) continue
     // José only sends onboarding to people who signed up.
     c.status = 'client'

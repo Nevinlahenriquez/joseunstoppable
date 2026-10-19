@@ -10,10 +10,11 @@ export const LINKS = {
   webinar: '/masterclass',
   privacy: '/privacidad',
   legal: '/aviso-legal',
+  terms: '/terminos',
 } as const
 
-// Set to his profile URL to show Instagram in the footer.
-export const INSTAGRAM_URL = ''
+// Shown in the footer, on /links and in the search-engine profile.
+export const INSTAGRAM_URL = 'https://www.instagram.com/joseunstoppable/'
 
 // Owner details for the legal pages. Spanish law (LSSI) asks for the tax ID
 // and a contact address; lines stay hidden until they are filled in.
@@ -41,3 +42,7 @@ export const WA_HELLO = {
 // without a flash: ?lang= wins, then the saved choice, then Spanish.
 export const LANG_BOOT_SCRIPT =
   "(function(){var l='es';try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('unstoppable_lang')||'es';}catch(e){}if(l!=='en')l='es';document.documentElement.setAttribute('data-lang',l);document.documentElement.lang=l;})();"
+
+// What a lead wants, from the booking form's goal question. Saved as CRM tags
+// in this order, matching the form's options.
+export const GOAL_TAGS = ['Perder grasa', 'Ganar músculo', 'Ganar confianza', 'Más energía'] as const

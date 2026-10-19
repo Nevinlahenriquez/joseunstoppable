@@ -5,6 +5,16 @@ import { funnelIdFromPath, recordFunnelLead } from '@/lib/funnel-log'
 import { CHANNEL_TAGS } from '@/lib/lead-attribution'
 import { goalsFromText } from '@/lib/goals'
 
+// The booking form saves as the visitor goes, so its answers live in one
+// block of the notes that each save replaces instead of appending.
+const FORM_START = '— Formulario de llamada —'
+const FORM_END = '— Fin del formulario —'
+function withForm(notes: string | null, form: string): string {
+  const re = new RegExp(FORM_START + '[\\s\\S]*?' + FORM_END, 'g')
+  const rest = (notes || '').replace(re, '').trim()
+  return [rest, `${FORM_START}\n${form.trim()}\n${FORM_END}`].filter(Boolean).join('\n\n')
+}
+
 function uid(): string {
   return Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
 }
@@ -17,6 +27,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { name, email, whatsapp, company, website, social, role, companySize, goal, score, source, tags, notes: extraNotes, location, currentState, desiredOutcome, budget, visitorId, pageUrl, referrer, countedByCaller } = b
+  const formAnswers = typeof b.formAnswers === 'string' ? b.formAnswers.slice(0, 4000) : ''
   if (!name && !email && !whatsapp) return NextResponse.json({ error: 'missing contact' }, { status: 400 })
 
   const verdict = leadVerdict({ name, business: company, email }, b)
@@ -102,15 +113,22 @@ export async function POST(req: NextRequest) {
       const incoming = row.tags.filter(t => !(hadChannel && (CHANNEL_TAGS as readonly string[]).includes(t)))
       return Array.from(new Set([...existingTags, ...incoming]))
     })()
-    const mergedNotes = [existingNotes, row.notes].filter(Boolean).join('\n\n') || null
+    const appended = [existingNotes, row.notes].filter(Boolean).join('\n\n') || null
+    const mergedNotes = formAnswers ? withForm(appended, formAnswers) : appended
+    if (formAnswers) row.notes = withForm(row.notes, formAnswers)
 
     if (existingId) {
-      const { error } = await sb.from('deals').update({
-        client_name: row.client_name, client_company: row.client_company, client_phone: row.client_phone,
+      // Only fields this request carries: a later, shorter save never blanks
+      // what an earlier one stored.
+      const patch = Object.fromEntries(Object.entries({
+        client_name: name ? row.client_name : null, client_company: row.client_company, client_phone: row.client_phone,
         client_website: row.client_website, client_role: row.client_role, instagram: row.instagram,
-        service: row.service, notes: mergedNotes, desired_outcome: row.desired_outcome,
+        service: row.service, desired_outcome: row.desired_outcome,
         current_state: row.current_state, location: row.location, budget: row.budget,
-        organization: row.organization, tags: mergedTags, next_step: row.next_step,
+        organization: row.organization,
+      }).filter(([, v]) => v !== null && v !== ''))
+      const { error } = await sb.from('deals').update({
+        ...patch, notes: mergedNotes, tags: mergedTags, next_step: row.next_step,
         next_step_date: row.next_step_date, updated_at: now,
       }).eq('id', existingId)
       if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 200 })

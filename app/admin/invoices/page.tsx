@@ -307,7 +307,7 @@ export default function InvoicesPage() {
 
     if (settled) {
 
-      flash('Recorded. Sending the receipt…')
+      flash('Pago confirmado. Enviando el recibo; el onboarding del cliente sale ahora.')
       await sendReceipt(inv.id, methodLabel, paidAtIso)
     } else {
       flash(`Recorded ${inv.currency} ${amount.toFixed(2)} by ${methodLabel}. ${inv.currency} ${(total - paidNow).toFixed(2)} still outstanding, so no receipt yet.`)

@@ -1,6 +1,7 @@
 import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { activeLinks, logBioEvent } from '@/lib/bio-links'
+import { INSTAGRAM_URL, WA_HELLO, waLink } from '@/lib/site'
 import './links.css'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +37,10 @@ export default async function LinksPage() {
             {l.label}<span className="arr" aria-hidden="true">→</span>
           </a>
         ))}
+        <nav className="lt-social">
+          <a href={waLink(WA_HELLO.es)} target="_blank" rel="noopener">WhatsApp</a>
+          {INSTAGRAM_URL && <a href={INSTAGRAM_URL} target="_blank" rel="noopener">Instagram</a>}
+        </nav>
         <p className="lt-foot">© José Unstoppable</p>
       </div>
     </main>

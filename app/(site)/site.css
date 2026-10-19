@@ -282,7 +282,7 @@ h3{margin:0;font-family:var(--f);font-weight:700;font-size:21px;line-height:1.3;
 
 /* ---- shared frame additions (Next.js site) ---- */
 .site-main{display:block;min-height:60vh}
-.page-in{animation:page-in .28s ease-out both}
+.page-in{animation:page-in .28s ease-out backwards}
 @keyframes page-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.page-in{animation:none}}
 
@@ -292,7 +292,11 @@ html:not([data-lang="en"]) .lang [data-l="es"],html[data-lang="en"] .lang [data-
 .lang button:focus-visible,.btn:focus-visible,.hdr-cta:focus-visible,.nav a:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
 
 @media (max-width:900px){.nav{display:none}}
-@media (max-width:420px){.hdr-cta{display:none}}
+@media (max-width:420px){
+  .hdr:has(.hdr-cta) .logo b{display:none}
+  .hdr-cta{min-height:40px;padding:0 14px;font-size:14px}
+  .lang button{min-width:36px;height:32px}
+}
 
 /* hero photo */
 .hero-img{object-fit:cover;object-position:center top;border-radius:28px}
@@ -462,3 +466,13 @@ html:not([data-lang="en"]) .lang [data-l="es"],html[data-lang="en"] .lang [data-
 }
 /* the sticky phone CTA needs room above the footer */
 @media (max-width:900px){.ftr{padding-bottom:calc(100px + env(safe-area-inset-bottom))}}
+
+/* floating WhatsApp button: on every page, lifts above the sticky phone bar */
+.wa-fab a{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));z-index:55;display:grid;place-items:center;width:58px;height:58px;border-radius:50%;background:#25D366;color:#fff;box-shadow:0 10px 28px rgba(16,44,68,.22);transition:transform .2s ease,bottom .25s ease}
+.wa-fab a:hover{transform:scale(1.06)}
+.wa-fab a:focus-visible{outline:3px solid var(--sky);outline-offset:3px}
+body:has(.m-bar.show) .wa-fab a{bottom:calc(96px + env(safe-area-inset-bottom))}
+@media (max-width:900px){.wa-fab.on-booking{display:none}}
+@media (max-width:640px){.wa-fab a{right:16px;width:54px;height:54px}}
+@media (min-width:901px){.ftr{padding-bottom:96px}}
+.bk-nav .bk-tap{margin:0}
