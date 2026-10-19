@@ -453,6 +453,11 @@ export function rowToEvent(r: any): CrmEvent {
     location: str(r.location, str(e.location)),
     locationName: str(r.location_name, str(e.locationName)),
 
+    // Lists default to empty so a row saved without them still opens.
+    agenda: Array.isArray(e.agenda) ? e.agenda : [],
+    faq: Array.isArray(e.faq) ? e.faq : [],
+    speakers: Array.isArray(e.speakers) ? e.speakers : [],
+    tags: Array.isArray(r.tags) ? r.tags : Array.isArray(e.tags) ? e.tags : [],
     ...(Array.isArray(r.agenda) && r.agenda.length ? { agenda: r.agenda } : {}),
     ...(Array.isArray(r.faq) && r.faq.length ? { faq: r.faq } : {}),
     ...(Array.isArray(r.speakers) && r.speakers.length ? { speakers: r.speakers } : {}),
