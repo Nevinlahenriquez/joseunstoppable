@@ -10,6 +10,7 @@ export const LINKS = {
   webinar: '/masterclass',
   privacy: '/privacidad',
   legal: '/aviso-legal',
+  terms: '/terminos',
 } as const
 
 // Set to his profile URL to show Instagram in the footer.

@@ -10,10 +10,13 @@ export default function Footer() {
         <nav>
           <a data-es href={waLink(WA_HELLO.es)} target="_blank" rel="noopener">WhatsApp</a>
           <a data-en href={waLink(WA_HELLO.en)} target="_blank" rel="noopener">WhatsApp</a>
+          <a href={`mailto:${OWNER.email}`}>Email</a>
+          <Link href={LINKS.book}><span data-es>Reservar llamada</span><span data-en>Book a call</span></Link>
           {INSTAGRAM_URL && <a href={INSTAGRAM_URL} target="_blank" rel="noopener">Instagram</a>}
           <Link href={LINKS.webinar}>Masterclass</Link>
           <Link href={LINKS.legal}><span data-es>Aviso legal</span><span data-en>Legal</span></Link>
           <Link href={LINKS.privacy}><span data-es>Privacidad</span><span data-en>Privacy</span></Link>
+          <Link href={LINKS.terms}><span data-es>Términos</span><span data-en>Terms</span></Link>
         </nav>
       </div>
     </footer>
