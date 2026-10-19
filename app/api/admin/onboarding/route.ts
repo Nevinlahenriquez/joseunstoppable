@@ -3,7 +3,7 @@ import { isAdminRequest } from '@/lib/auth'
 import { serviceDb, NO_DB, isMissingTable } from '@/lib/os-supabase'
 import { newToken, DEFAULT_WELCOME, WELCOME_SETTING, youtubeId, type WelcomeSettings } from '@/lib/onboarding'
 import { readSetting, writeSetting } from '@/lib/app-settings'
-import { ensureOnboarding } from '@/lib/onboarding-server'
+import { ensureOnboarding, sendOnboardingEmail } from '@/lib/onboarding-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -80,4 +80,19 @@ export async function PUT(req: NextRequest) {
   const videoUrl = cap(b.videoUrl, 300)
   if (videoUrl && !youtubeId(videoUrl)) return NextResponse.json({ ok: false, error: 'Ese enlace no es de YouTube.' }, { status: 400 })
   return NextResponse.json(await writeSetting(WELCOME_SETTING, { videoUrl, message: cap(b.message, 600) }))
+}
+
+// PATCH { id, action: 'email' }: send the client their link by email (again).
+export async function PATCH(req: NextRequest) {
+  if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 })
+  const db = await serviceDb()
+  if (!db) return NextResponse.json(NO_DB, { status: 503 })
+  const b = await req.json().catch(() => ({})) as Record<string, unknown>
+  const id = cap(b.id, 80)
+  if (!id || b.action !== 'email') return NextResponse.json({ ok: false, error: 'bad input' }, { status: 400 })
+  const { data } = await db.from('onboardings').select('token, name, email').eq('id', id).maybeSingle()
+  if (!data) return NextResponse.json({ ok: false, error: 'No existe.' }, { status: 404 })
+  if (!data.email) return NextResponse.json({ ok: false, error: 'No tiene email. Mándalo por WhatsApp.' }, { status: 400 })
+  const sent = await sendOnboardingEmail(data)
+  return NextResponse.json({ ok: sent, error: sent ? undefined : 'El email no salió. Revisa la configuración de email.' })
 }

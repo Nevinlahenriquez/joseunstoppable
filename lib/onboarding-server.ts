@@ -56,8 +56,16 @@ export async function ensureOnboarding(db: SupabaseClient, c: NewClient): Promis
   const { error } = await db.from('onboardings').insert(row)
   if (error) return null
 
-  let emailed = false
-  if (email) {
+  const emailed = email ? await sendOnboardingEmail(row) : false
+  if (c.trigger !== 'manual') await notifyClientClosed(c).catch(() => {})
+  return { row, created: true, emailed }
+}
+
+// The welcome email with the client's link; also José's "send it again" button.
+export async function sendOnboardingEmail(row: Pick<OnboardingRow, 'token' | 'name' | 'email'>): Promise<boolean> {
+  const email = (row.email ?? '').trim()
+  if (!email) return false
+  {
     const url = welcomeLink(row.token)
     const html = wrapEmail(
       'Tu onboarding',
@@ -67,10 +75,8 @@ export async function ensureOnboarding(db: SupabaseClient, c: NewClient): Promis
       { label: 'Abrir mi bienvenida', href: url },
       'Empezamos: rellena tu onboarding',
     )
-    emailed = await sendEmail(email, 'Empezamos: tu onboarding con José', html).catch(() => false)
+    return sendEmail(email, 'Empezamos: tu onboarding con José', html).catch(() => false)
   }
-  if (c.trigger !== 'manual') await notifyClientClosed(c).catch(() => {})
-  return { row, created: true, emailed }
 }
 
 // The deal that belongs to a payment: the newest one with the same email.

@@ -9,7 +9,7 @@ import { getStages, saveStages, stageSlug, type Stage, PRESET_TAGS, PRIORITY_COL
 import { TableView, InsightsView } from './views'
 import ContactCard, { type ContactCardContact } from '@/components/ContactCard'
 import { hasUnsyncedWrites } from '@/lib/sync-status'
-import LeadsSwitch from '@/components/os/LeadsSwitch'
+import { isGoal } from '@/lib/goals'
 import { getPeople } from '@/lib/people'
 import { isLikelySpam } from '@/lib/apply-guard'
 import { confirmAction } from '@/app/admin/ConfirmHost'
@@ -22,8 +22,10 @@ const CLIENT_STAGES = ['active', 'completed']
 
 type ViewMode = 'pipeline' | 'table' | 'insights'
 
+const SYM: Record<string, string> = { EUR: '€', USD: '$', GBP: '£' }
 function money(v: number, deal: Deal): string {
-  return deal.revenueType === 'mrr' ? `$${v.toLocaleString()}/mo` : `$${v.toLocaleString()}`
+  const n = `${SYM[deal.currency ?? 'EUR'] ?? '€'}${v.toLocaleString('es-ES')}`
+  return deal.revenueType === 'mrr' ? `${n}/mes` : n
 }
 
 function initials(name: string): string {
@@ -261,21 +263,20 @@ export default function DealsPage() {
 
   const headerSub =
     view === 'insights' ? 'Pipeline analytics across all contacts'
-    : `$${totalPipeline.toLocaleString()} in active pipeline · ${visible.length} contacts`
+    : `${visible.length} ${visible.length === 1 ? 'lead' : 'leads'}${totalPipeline > 0 ? ` · €${totalPipeline.toLocaleString('es-ES')} en juego` : ''}`
 
   return (
     <>
-      <LeadsSwitch active="inbound" />
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">Inbound leads</div>
+          <div className="os-page-title">Leads</div>
           <div className="os-page-sub">{headerSub}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="os-btn os-btn-ghost" onClick={() => setShowStages(true)}><i className="ti ti-columns" /> Stages</button>
+          <button className="os-btn os-btn-ghost" onClick={() => setShowStages(true)}><i className="ti ti-columns" /> Etapas</button>
           {}
-          <button className="os-btn os-btn-ghost" onClick={() => exportCsv(visible)}><i className="ti ti-download" /> Export{visible.length !== deals.length ? ` (${visible.length})` : ''}</button>
-          <button className="os-btn os-btn-primary" onClick={addDeal}><i className="ti ti-plus" /> Add Contact</button>
+          <button className="os-btn os-btn-ghost" onClick={() => exportCsv(visible)}><i className="ti ti-download" /> Exportar{visible.length !== deals.length ? ` (${visible.length})` : ''}</button>
+          <button className="os-btn os-btn-primary" onClick={addDeal}><i className="ti ti-plus" /> Nuevo lead</button>
         </div>
       </div>
 
@@ -284,7 +285,7 @@ export default function DealsPage() {
         <div className="os-view-tabs">
           {(['pipeline', 'table', 'insights'] as ViewMode[]).map(v => (
             <button key={v} className={`os-view-tab${view === v ? ' active' : ''}`} onClick={() => setView(v)}>
-              <i className={`ti ${v === 'pipeline' ? 'ti-layout-kanban' : v === 'table' ? 'ti-table' : 'ti-chart-bar'}`} /> {v.charAt(0).toUpperCase() + v.slice(1)}
+              <i className={`ti ${v === 'pipeline' ? 'ti-layout-kanban' : v === 'table' ? 'ti-table' : 'ti-chart-bar'}`} /> {v === 'pipeline' ? 'Pipeline' : v === 'table' ? 'Tabla' : 'Resumen'}
             </button>
           ))}
         </div>
@@ -292,10 +293,10 @@ export default function DealsPage() {
           <div className="os-crm-toolbar-right">
             <div className="os-search-box">
               <i className="ti ti-search" />
-              <input placeholder="Search contacts…" value={search} onChange={e => setSearch(e.target.value)} />
+              <input placeholder="Buscar…" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <select className="os-crm-input" value={prioFilter} onChange={e => setPrioFilter(e.target.value)} style={{ width: 'auto', padding: '7px 10px', fontSize: 12.5 }}>
-              <option value="">All priorities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+              <option value="">Toda prioridad</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Baja</option>
             </select>
           </div>
         )}
@@ -306,13 +307,13 @@ export default function DealsPage() {
         <>
           <div className="os-tag-filter os-tag-filter-chips">
             {['All', ...PRESET_TAGS].map(t => (
-              <button key={t} className={`os-tag-chip${tagFilter === t ? ' active' : ''}`} onClick={() => setTagFilter(t)}>{t}</button>
+              <button key={t} className={`os-tag-chip${tagFilter === t ? ' active' : ''}`} onClick={() => setTagFilter(t)}>{t === 'All' ? 'Todos' : t}</button>
             ))}
           </div>
           <label className="os-tag-filter-select">
-            <span className="os-visually-hidden">Filter by industry</span>
+            <span className="os-visually-hidden">Filtrar por objetivo</span>
             <select value={tagFilter} onChange={e => setTagFilter(e.target.value)}>
-              <option value="All">All industries</option>
+              <option value="All">Todos los objetivos</option>
               {PRESET_TAGS.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </label>
@@ -370,7 +371,7 @@ export default function DealsPage() {
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: stage.color, display: 'inline-block' }} />
                   {stage.label}
                   <span className="os-pipeline-col-count">{stageDeals.length}</span>
-                  {stageValue > 0 && <span style={{ marginLeft: 'auto', color: 'var(--os-text-muted)', fontSize: 11 }}>${stageValue.toLocaleString()}</span>}
+                  {stageValue > 0 && <span style={{ marginLeft: 'auto', color: 'var(--os-text-muted)', fontSize: 11 }}>€{stageValue.toLocaleString('es-ES')}</span>}
                 </div>
                 {stageDeals.map(deal => (
                   <div key={deal.id} className={`os-deal-card${dragId === deal.id ? ' dragging' : ''}`} draggable
@@ -381,65 +382,48 @@ export default function DealsPage() {
                     <div className="os-deal-head">
                       <span className="os-deal-avatar" style={{ background: avatarColor(deal.id) }}>{initials(deal.clientName)}</span>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <span className="os-deal-name" style={{ marginBottom: 0, flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{deal.clientName}</span>
-                          {deal.priority && <span className={`os-prio-badge prio-${deal.priority}`}>{deal.priority}</span>}
-                        </div>
-                        {(deal.clientCompany || deal.clientRole) && <div className="os-deal-company" style={{ marginBottom: 0 }}>{deal.clientCompany}{deal.clientRole ? ` · ${deal.clientRole}` : ''}</div>}
+                        <div className="os-deal-name">{deal.clientName}</div>
+                        <div className="os-deal-sub">{deal.clientPhone || deal.clientEmail || deal.service || 'Sin contacto'}</div>
                       </div>
-                      <i className="ti ti-grip-vertical os-deal-grip" />
-                    </div>
-
-                    {deal.service && <div className="os-deal-line"><i className="ti ti-briefcase" /> {deal.service}</div>}
-                    {deal.clientPhone && <div className="os-deal-line"><i className="ti ti-phone" /> {deal.clientPhone}</div>}
-                    {deal.clientEmail && <div className="os-deal-line"><i className="ti ti-mail" /> <EmailText email={deal.clientEmail} /></div>}
-                    {deal.location && <div className="os-deal-line"><i className="ti ti-map-pin" /> {deal.location}</div>}
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                      <div className="os-deal-value">{deal.value > 0 ? money(deal.value, deal) : 'No value set'}</div>
-                      {(deal.activity?.length ?? 0) > 0 && (
-                        <span style={{ fontSize: 11, color: 'var(--os-text-faint)', display: 'flex', alignItems: 'center', gap: 3 }}>
-                          <i className="ti ti-message-dots" style={{ fontSize: 12 }} /> {deal.activity!.length}
-                        </span>
-                      )}
+                      {deal.priority && <span className={`os-prio-badge prio-${deal.priority}`}>{deal.priority}</span>}
+                      {deal.value > 0 && <span className="os-deal-value">{money(deal.value, deal)}</span>}
                     </div>
 
                     {(deal.tags?.length ?? 0) > 0 && (
-                      <div className="os-deal-tags">{deal.tags!.slice(0, 3).map(t => <span key={t} className="os-chip">{t}</span>)}</div>
+                      <div className="os-deal-tags">
+                        {[...deal.tags!].sort((a, b) => Number(isGoal(b)) - Number(isGoal(a))).slice(0, 4).map(t => (
+                          <span key={t} className={`os-chip${isGoal(t) ? ' os-chip-goal' : ''}`}>{t}</span>
+                        ))}
+                      </div>
                     )}
 
                     <div className={`os-deal-next${deal.nextStep ? '' : ' empty'}`}>
                       <i className={`ti ${deal.nextStep ? 'ti-flag-3' : 'ti-alert-triangle'}`} />
-                      <span>{deal.nextStep || 'No next activity'}</span>
-                      {deal.nextStepDate && <span className="os-deal-next-date">{new Date(deal.nextStepDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                      <span>{deal.nextStep || 'Sin siguiente paso'}</span>
+                      {deal.nextStepDate && <span className="os-deal-next-date">{new Date(deal.nextStepDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}</span>}
                     </div>
 
-                    {}
-                    <div className="os-deal-actions" onClick={e => e.stopPropagation()}>
-                      <div className="os-deal-actrow">
+                    {/* One row: WhatsApp first (how José talks to leads), then call, then the small tools. */}
+                    <div className="os-deal-actrow" onClick={e => e.stopPropagation()}>
                       {deal.clientPhone ? (
-                        <a className="os-deal-act act-call" href={`tel:${deal.clientPhone}`} onClick={() => logTouch(deal, 'call', 'Called the lead')}><i className="ti ti-phone" /> Call</a>
+                        <a className="os-deal-act act-wa" href={`https://wa.me/${deal.clientPhone.replace(/[^\d]/g, '')}`} target="_blank" rel="noopener noreferrer" onClick={() => logTouch(deal, 'whatsapp', 'Messaged on WhatsApp')}><i className="ti ti-brand-whatsapp" /> WhatsApp</a>
                       ) : (
-                        <button className="os-deal-act act-disabled" onClick={() => setSelectedId(deal.id)} title="Add a phone number"><i className="ti ti-phone" /> Call</button>
+                        <button className="os-deal-act act-disabled" onClick={() => setSelectedId(deal.id)} title="Añade un teléfono"><i className="ti ti-brand-whatsapp" /> WhatsApp</button>
                       )}
                       {deal.clientPhone && (
-                        <a className="os-deal-act act-wa" href={`https://wa.me/${deal.clientPhone.replace(/[^\d]/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" aria-label="Message on WhatsApp" onClick={() => logTouch(deal, 'whatsapp', 'Messaged on WhatsApp')}><i className="ti ti-brand-whatsapp" /></a>
+                        <a className="os-deal-act act-call" href={`tel:${deal.clientPhone}`} title="Llamar" aria-label="Llamar" onClick={() => logTouch(deal, 'call', 'Called the lead')}><i className="ti ti-phone" /></a>
                       )}
-                      </div>
-                      <div className="os-deal-actrow">
-                      <button className="os-deal-act act-follow" onClick={() => quickFollowUp(deal)} title="Log a follow-up and schedule the next in 3 days"><i className="ti ti-corner-down-right" /> Follow up</button>
-                      <button className="os-deal-act act-log" onClick={() => setLogDeal(deal)} title="Log a call or a quick update" aria-label="Log a call or update"><i className="ti ti-notes" /></button>
-                      {}
+                      <button className="os-deal-act act-log" onClick={() => quickFollowUp(deal)} title="Seguimiento hecho: próximo en 3 días" aria-label="Registrar seguimiento"><i className="ti ti-corner-down-right" /></button>
+                      <button className="os-deal-act act-log" onClick={() => setLogDeal(deal)} title="Apuntar una llamada o nota" aria-label="Apuntar una nota"><i className="ti ti-notes" /></button>
                       <button
                         className={`os-deal-act act-del${armedDelete === deal.id ? ' armed' : ''}`}
                         onClick={() => removeDeal(deal.id)}
-                        title={armedDelete === deal.id ? 'Press again to delete' : 'Delete this lead'}
-                        aria-label={armedDelete === deal.id ? 'Press again to delete this lead' : 'Delete this lead'}
+                        title={armedDelete === deal.id ? 'Pulsa otra vez para borrar' : 'Borrar este lead'}
+                        aria-label={armedDelete === deal.id ? 'Pulsa otra vez para borrar' : 'Borrar este lead'}
                       >
                         <i className={`ti ${armedDelete === deal.id ? 'ti-alert-triangle' : 'ti-trash'}`} />
-                        {armedDelete === deal.id ? 'Sure? Delete' : ''}
+                        {armedDelete === deal.id ? '¿Seguro?' : ''}
                       </button>
-                      </div>
                     </div>
                     <div className="os-deal-foot" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
                       <ContactTimer deal={deal} />
@@ -447,7 +431,7 @@ export default function DealsPage() {
                     </div>
                   </div>
                 ))}
-                <div className="os-pipeline-dropzone">{stageDeals.length === 0 ? 'Drop here' : '+'}</div>
+                <div className="os-pipeline-dropzone">{stageDeals.length === 0 ? 'Suelta aquí' : '+'}</div>
               </div>
             )
           })}
@@ -464,21 +448,21 @@ export default function DealsPage() {
                   onChange={e => setDeals(ds => ds.map(d => d.id === selected.id ? { ...d, clientName: e.target.value } : d))}
                   onBlur={e => patch(selected.id, { clientName: e.target.value })}
                   style={{ fontSize: 18, fontWeight: 800, background: 'transparent', padding: '2px 4px' }} />
-                <div style={{ display: 'flex', gap: 8, marginTop: 4, paddingLeft: 4 }}>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 4, paddingLeft: 4 }}>
                   <select className="os-crm-input" value={selected.stage} onChange={e => setStage(selected, e.target.value as DealStage)} style={{ width: 'auto', padding: '3px 8px', fontSize: 12, fontWeight: 600 }}>
                     {stages.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                   </select>
                   <select className="os-crm-input" value={selected.priority ?? ''} onChange={e => patch(selected.id, { priority: (e.target.value || undefined) as Deal['priority'] })} style={{ width: 'auto', padding: '3px 8px', fontSize: 12, fontWeight: 600 }}>
-                    <option value="">No priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
+                    <option value="">Sin prioridad</option><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option>
                   </select>
                 </div>
                 <LeadTimers deal={selected} style={{ marginTop: 10, paddingLeft: 4 }} />
               </div>
-              <button className="os-icon-btn" title="View contact profile" onClick={() => setCardContact({ id: selected.id, name: selected.clientName, email: selected.clientEmail, phone: selected.clientPhone, company: selected.clientCompany, tags: selected.tags, notes: selected.notes, createdAt: selected.createdAt, _deal: selected })}><i className="ti ti-user-circle" /></button>
-              <button className="os-icon-btn" title="Open full contact page" onClick={() => router.push(`/admin/contacts/${encodeURIComponent(selected.clientEmail)}`)}><i className="ti ti-arrows-diagonal" /></button>
+              <button className="os-icon-btn" title="Ver ficha rápida" onClick={() => setCardContact({ id: selected.id, name: selected.clientName, email: selected.clientEmail, phone: selected.clientPhone, company: selected.clientCompany, tags: selected.tags, notes: selected.notes, createdAt: selected.createdAt, _deal: selected })}><i className="ti ti-user-circle" /></button>
+              <button className="os-icon-btn" title="Abrir ficha completa" onClick={() => router.push(`/admin/contacts/${encodeURIComponent(selected.clientEmail)}`)}><i className="ti ti-arrows-diagonal" /></button>
               <button
                 className="os-icon-btn"
-                title={armedDelete === selected.id ? 'Press again to delete' : 'Delete'}
+                title={armedDelete === selected.id ? 'Pulsa otra vez para borrar' : 'Borrar'}
                 onClick={() => removeDeal(selected.id)}
                 style={{
                   color: 'var(--os-bad)',
@@ -490,24 +474,30 @@ export default function DealsPage() {
                 }}
               >
                 <i className={`ti ${armedDelete === selected.id ? 'ti-alert-triangle' : 'ti-trash'}`} />
-                {armedDelete === selected.id ? ' Sure?' : ''}
+                {armedDelete === selected.id ? ' ¿Seguro?' : ''}
               </button>
-              <button className="os-icon-btn" title="Close" onClick={() => setSelectedId(null)}><i className="ti ti-x" /></button>
+              <button className="os-icon-btn" title="Cerrar" onClick={() => setSelectedId(null)}><i className="ti ti-x" /></button>
             </div>
             <div className="os-drawer-body">
+              {selected.clientEmail && (
+                <button className="os-btn os-btn-ghost os-btn-sm" style={{ width: '100%', justifyContent: 'center', marginBottom: 12 }}
+                  onClick={() => router.push(`/admin/contacts/${encodeURIComponent(selected.clientEmail)}`)}>
+                  <i className="ti ti-id" /> Abrir ficha completa
+                </button>
+              )}
               <QuickActions deal={selected} onLog={(t, txt) => logActivity(selected, t, txt)} />
               <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
                 <button className="os-btn os-btn-sm" onClick={() => convertToProposal(selected)} style={{ background: 'var(--os-deep)', color: 'var(--os-on-deep)', flex: 1, minWidth: 165 }}>
-                  <i className="ti ti-file-export" /> Convert to Proposal
+                  <i className="ti ti-file-export" /> Hacer propuesta
                 </button>
-                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Activa el onboarding de este cliente" style={{ background: '#2A98D6', color: '#3a2600', flex: 1, minWidth: 140 }}>
+                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Activa el onboarding de este cliente" style={{ background: '#2A98D6', color: '#fff', flex: 1, minWidth: 140 }}>
                   <i className="ti ti-clipboard-check" /> Onboarding
                 </button>
-                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => setStage(selected, 'completed')} style={{ color: 'var(--os-good)', borderColor: '#bbf7d0' }}><i className="ti ti-trophy" /> Won</button>
-                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => { const r = prompt('Reason lost? (optional)'); if (r) logActivity(selected, 'note', `Lost: ${r}`); setStage(selected, 'lost') }} style={{ color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }}>Lost</button>
+                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => setStage(selected, 'completed')} style={{ color: 'var(--os-good)', borderColor: '#bbf7d0' }}><i className="ti ti-trophy" /> Ganado</button>
+                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => { const r = prompt('¿Por qué se perdió? (opcional)'); if (r) logActivity(selected, 'note', `Perdido: ${r}`); setStage(selected, 'lost') }} style={{ color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }}>Perdido</button>
               </div>
               <div className="os-crm-section">
-                <div className="os-crm-section-title">Process</div>
+                <div className="os-crm-section-title">Proceso</div>
                 <ProcessStepper stage={selected.stage} onPick={s => setStage(selected, s)} stages={stages} />
               </div>
               <CrmDetail deal={selected} layout="drawer" onPatch={p => patch(selected.id, p)} onAddActivity={(t, txt) => logActivity(selected, t, txt)} />
@@ -615,7 +605,7 @@ function QuickLogModal({ deal, stages, onClose, onSave }: {
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--os-card)', borderRadius: 16, padding: 24, width: '100%', maxWidth: 460, boxShadow: '0 24px 70px rgba(26,14,0,0.22)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
           <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 17, fontWeight: 800, color: 'var(--os-text-primary)' }}>Log update</div>
-          <button className="os-icon-btn" onClick={onClose} title="Close"><i className="ti ti-x" /></button>
+          <button className="os-icon-btn" onClick={onClose} title="Cerrar"><i className="ti ti-x" /></button>
         </div>
         <div style={{ fontSize: 13, color: 'var(--os-text-muted)', marginBottom: 16 }}>{deal.clientName}{deal.clientCompany ? ` · ${deal.clientCompany}` : ''}</div>
 
@@ -681,7 +671,7 @@ function StagesManager({ initial, onClose, onSave }: { initial: Stage[]; onClose
       <div className="os-crm-drawer">
         <div className="os-drawer-head">
           <div style={{ flex: 1, fontSize: 18, fontWeight: 800 }}>Pipeline stages</div>
-          <button className="os-icon-btn" title="Close" onClick={onClose}><i className="ti ti-x" /></button>
+          <button className="os-icon-btn" title="Cerrar" onClick={onClose}><i className="ti ti-x" /></button>
         </div>
         <div className="os-drawer-body">
           <div style={{ fontSize: 13, color: '#998fb3', marginBottom: 16 }}>Rename, recolor, reorder, add or remove stages. Drag cards between them on the board.</div>

@@ -3,8 +3,32 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { confirmAction } from '@/app/admin/ConfirmHost'
-import { activateOnboarding, fmtDate, OnboardingAnswers, OnboardingShare, StatusPill } from '@/components/os/Onboarding'
-import type { OnboardingRow } from '@/lib/onboarding'
+import { activateOnboarding, fmtDate, OnboardingAnswers, OnboardingShare } from '@/components/os/Onboarding'
+import { progressOf, type OnboardingRow } from '@/lib/onboarding'
+import { SearchSelect } from '@/components/os/SearchSelect'
+import { usePeople } from '@/components/os/usePeople'
+
+// Where each client is: link sent, opened, part-filled (the form saves as
+// they type) or done.
+function stageOf(r: OnboardingRow) {
+  const p = progressOf(r)
+  if (r.status === 'completed') return { p, label: 'Completado', color: 'var(--os-good)' }
+  if (p > 0) return { p, label: `${p}% completado`, color: 'var(--os-warn)' }
+  if (r.status === 'opened') return { p, label: 'Abierto, sin empezar', color: 'var(--os-accent)' }
+  return { p, label: 'Enlace enviado', color: 'var(--os-text-faint)' }
+}
+
+function Progress({ r }: { r: OnboardingRow }) {
+  const st = stageOf(r)
+  return (
+    <span style={{ display: 'grid', gap: 4, width: 150, flexShrink: 0 }}>
+      <span style={{ fontSize: 11.5, fontWeight: 700, color: st.color, whiteSpace: 'nowrap' }}>{st.label}</span>
+      <span style={{ height: 6, borderRadius: 6, background: 'var(--os-line)', overflow: 'hidden' }}>
+        <span style={{ display: 'block', height: '100%', width: `${st.p}%`, background: st.p === 100 ? 'var(--os-good)' : 'var(--os-accent)', borderRadius: 6 }} />
+      </span>
+    </span>
+  )
+}
 
 export default function OnboardingAdminPage() {
   const [rows, setRows] = useState<OnboardingRow[]>([])
@@ -16,6 +40,33 @@ export default function OnboardingAdminPage() {
   const [openId, setOpenId] = useState<string | null>(null)
   const [welcome, setWelcome] = useState({ videoUrl: '', message: '' })
   const [welcomeMsg, setWelcomeMsg] = useState('')
+  const [picked, setPicked] = useState('')
+  const [mailMsg, setMailMsg] = useState<Record<string, string>>({})
+  const people = usePeople()
+  const items = people.filter(p => p.email || p.phone).map(p => ({
+    id: p.key, label: p.name || p.email || p.phone, sub: [p.email, p.phone].filter(Boolean).join(' · '),
+    badge: p.stage === 'client' ? 'Cliente' : p.stage === 'lead' ? 'Lead' : undefined,
+  }))
+
+  function pick(key: string) {
+    setPicked(key)
+    const p = people.find(x => x.key === key)
+    if (p) setForm({ name: p.name || p.email, email: p.email, phone: p.phone })
+  }
+
+  async function emailLink(row: OnboardingRow) {
+    setMailMsg(m => ({ ...m, [row.id]: 'Enviando…' }))
+    const d = await fetch('/api/admin/onboarding', { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ id: row.id, action: 'email' }) })
+      .then(x => x.json()).catch(() => null)
+    setMailMsg(m => ({ ...m, [row.id]: d?.ok ? `Enviado a ${row.email}` : d?.error || 'No se pudo enviar.' }))
+  }
+
+  const mailButton = (row: OnboardingRow) => row.email ? (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+      <button type="button" className="os-btn os-btn-ghost os-btn-sm" onClick={() => void emailLink(row)}><i className="ti ti-mail" /> Enviar por email</button>
+      {mailMsg[row.id] && <span style={{ fontSize: 12, color: 'var(--os-text-muted)' }}>{mailMsg[row.id]}</span>}
+    </span>
+  ) : null
 
   const load = useCallback(() => fetch('/api/admin/onboarding').then(r => r.json()).catch(() => null).then(d => {
     setRows(d?.onboardings ?? [])
@@ -33,6 +84,7 @@ export default function OnboardingAdminPage() {
     if (!r.ok) { setError(r.error); return }
     setFresh(r.onboarding)
     setForm({ name: '', email: '', phone: '' })
+    setPicked('')
     void load()
   }
 
@@ -53,18 +105,28 @@ export default function OnboardingAdminPage() {
   }
 
   const pending = rows.filter(r => r.status !== 'completed').length
+  const counts = [
+    { label: 'Enlace enviado', n: rows.filter(r => stageOf(r).label === 'Enlace enviado').length },
+    { label: 'Abierto', n: rows.filter(r => r.status === 'opened' && progressOf(r) === 0).length },
+    { label: 'A medias', n: rows.filter(r => r.status !== 'completed' && progressOf(r) > 0).length },
+    { label: 'Completado', n: rows.filter(r => r.status === 'completed').length },
+  ]
 
   return (
     <div style={{ maxWidth: 1000 }}>
       <div className="os-page-header">
         <div>
           <h1 className="os-page-title">Onboarding</h1>
-          <p className="os-page-sub">Sale solo al confirmar el pago de un cliente. También puedes activarlo a mano y mandar el enlace por WhatsApp. Sus respuestas aparecen aquí, en su ficha y en su lead.</p>
+          <p className="os-page-sub">Sale solo al confirmar el pago de un cliente. También puedes elegir un contacto y activarlo tú. El formulario se guarda mientras lo rellenan, así ves hasta dónde llegó cada uno.</p>
         </div>
       </div>
 
       <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
         <div className="os-card-title" style={{ marginBottom: 12 }}>Activar onboarding</div>
+        <div style={{ marginBottom: 12 }}>
+          <div className="os-label" style={{ marginBottom: 4 }}>Elige un contacto</div>
+          <SearchSelect value={picked} items={items} onChange={pick} placeholder="Busca por nombre, email o teléfono…" />
+        </div>
         <form onSubmit={activate} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10, alignItems: 'end' }}>
           <label className="os-label" style={{ display: 'block', minWidth: 0 }}>Nombre
             <input className="os-crm-input" required value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Ana García" style={{ marginTop: 4 }} />
@@ -76,7 +138,7 @@ export default function OnboardingAdminPage() {
             <input className="os-crm-input" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="ana@email.com" style={{ marginTop: 4 }} />
           </label>
           <button className="os-btn os-btn-primary" disabled={busy || !form.name.trim()}>
-            <i className="ti ti-clipboard-check" /> {busy ? 'Activando…' : 'Activar'}
+            <i className="ti ti-clipboard-check" /> {busy ? 'Activando…' : 'Activar onboarding'}
           </button>
         </form>
         {fresh && (
@@ -85,12 +147,69 @@ export default function OnboardingAdminPage() {
               Enlace de {fresh.name} listo. Mándaselo:
             </div>
             <OnboardingShare row={fresh} />
+            <div style={{ marginTop: 8 }}>{mailButton(fresh)}</div>
           </div>
         )}
         {error && <div style={{ marginTop: 12, fontSize: 13, color: 'var(--os-bad)' }}>{error}</div>}
       </div>
 
       <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
+        <div className="os-card-title" style={{ marginBottom: 12 }}>
+          Seguimiento {pending > 0 && <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--os-text-faint)' }}>· {pending} sin terminar</span>}
+        </div>
+        {rows.length > 0 && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 8, marginBottom: 14 }}>
+            {counts.map(c => (
+              <div key={c.label} style={{ background: 'var(--os-card-alt)', border: '1px solid var(--os-line)', borderRadius: 10, padding: '8px 12px' }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--os-text-primary)' }}>{c.n}</div>
+                <div style={{ fontSize: 11.5, color: 'var(--os-text-faint)', fontWeight: 700 }}>{c.label}</div>
+              </div>
+            ))}
+          </div>
+        )}
+        {!loaded ? (
+          <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Cargando…</div>
+        ) : rows.length === 0 ? (
+          <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Aún no hay ninguno. Activa el primero arriba o desde la ficha de un lead.</div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column' }}>
+            {rows.map(r => (
+              <div key={r.id} style={{ borderBottom: '1px solid var(--os-line)' }}>
+                <button onClick={() => setOpenId(openId === r.id ? null : r.id)}
+                  style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 12, width: '100%', padding: '11px 2px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
+                  <span style={{ flex: '1 1 180px', minWidth: 0 }}>
+                    <span style={{ display: 'block', fontWeight: 700, fontSize: 14, color: 'var(--os-text)' }}>{r.name || 'Sin nombre'}</span>
+                    <span style={{ display: 'block', fontSize: 12, color: 'var(--os-text-faint)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {[r.email, r.phone, r.source === 'link' ? 'Enlace general' : null].filter(Boolean).join(' · ') || ' '}
+                    </span>
+                  </span>
+                  <span style={{ fontSize: 12, color: 'var(--os-text-faint)', whiteSpace: 'nowrap' }}>{fmtDate(r.completed_at || r.created_at)}</span>
+                  <Progress r={r} />
+                  <i className={`ti ti-chevron-${openId === r.id ? 'up' : 'down'}`} style={{ color: 'var(--os-text-faint)' }} />
+                </button>
+                {openId === r.id && (
+                  <div style={{ padding: '4px 2px 18px' }}>
+                    {r.status === 'completed' ? <OnboardingAnswers row={r} /> : (
+                      <>
+                        {r.answers && <div style={{ marginBottom: 14 }}><div style={{ fontSize: 12, fontWeight: 700, color: 'var(--os-warn)', marginBottom: 4 }}>Sin terminar: esto es lo que ha rellenado</div><OnboardingAnswers row={r} /></div>}
+                        <OnboardingShare row={r} />
+                        <div style={{ marginTop: 8 }}>{mailButton(r)}</div>
+                      </>
+                    )}
+                    <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
+                      {r.email && (
+                        <Link href={`/admin/contacts/${encodeURIComponent(r.email)}`} className="os-btn os-btn-ghost os-btn-sm"><i className="ti ti-user" /> Ficha del contacto</Link>
+                      )}
+                      <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => void remove(r)} style={{ color: 'var(--os-bad)' }}><i className="ti ti-trash" /> Borrar</button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="os-card" style={{ padding: '20px 24px', marginBottom: 0 }}>
         <div className="os-card-title" style={{ marginBottom: 6 }}>Página de bienvenida</div>
         <p className="os-page-sub" style={{ margin: '0 0 12px' }}>
           Cuando confirmas un pago (factura pagada) o marcas un lead como ganado, el cliente recibe por email su página de bienvenida con este vídeo y el botón a su onboarding.
@@ -109,51 +228,6 @@ export default function OnboardingAdminPage() {
         </form>
       </div>
 
-      <div className="os-card" style={{ padding: '20px 24px' }}>
-        <div className="os-card-title" style={{ marginBottom: 12 }}>
-          Clientes {pending > 0 && <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--os-text-faint)' }}>· {pending} sin terminar</span>}
-        </div>
-        {!loaded ? (
-          <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Cargando…</div>
-        ) : rows.length === 0 ? (
-          <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Aún no hay ninguno. Activa el primero arriba o desde la ficha de un lead.</div>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            {rows.map(r => (
-              <div key={r.id} style={{ borderBottom: '1px solid var(--os-line)' }}>
-                <button onClick={() => setOpenId(openId === r.id ? null : r.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', padding: '11px 2px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit' }}>
-                  <span style={{ flex: 1, minWidth: 0 }}>
-                    <span style={{ display: 'block', fontWeight: 700, fontSize: 14, color: 'var(--os-text)' }}>{r.name || 'Sin nombre'}</span>
-                    <span style={{ display: 'block', fontSize: 12, color: 'var(--os-text-faint)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {[r.email, r.phone, r.source === 'link' ? 'Enlace general' : null].filter(Boolean).join(' · ') || ' '}
-                    </span>
-                  </span>
-                  <span style={{ fontSize: 12, color: 'var(--os-text-faint)', whiteSpace: 'nowrap' }}>{fmtDate(r.completed_at || r.created_at)}</span>
-                  <StatusPill status={r.status} />
-                  <i className={`ti ti-chevron-${openId === r.id ? 'up' : 'down'}`} style={{ color: 'var(--os-text-faint)' }} />
-                </button>
-                {openId === r.id && (
-                  <div style={{ padding: '4px 2px 18px' }}>
-                    {r.status === 'completed' ? <OnboardingAnswers row={r} /> : (
-                      <>
-                        {r.answers && <div style={{ marginBottom: 14 }}><div style={{ fontSize: 12, fontWeight: 700, color: 'var(--os-warn)', marginBottom: 4 }}>Sin terminar: esto es lo que ha rellenado</div><OnboardingAnswers row={r} /></div>}
-                        <OnboardingShare row={r} />
-                      </>
-                    )}
-                    <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-                      {r.email && (
-                        <Link href={`/admin/contacts/${encodeURIComponent(r.email)}`} className="os-btn os-btn-ghost os-btn-sm"><i className="ti ti-user" /> Ficha del contacto</Link>
-                      )}
-                      <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => void remove(r)} style={{ color: 'var(--os-bad)' }}><i className="ti ti-trash" /> Borrar</button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
     </div>
   )
 }

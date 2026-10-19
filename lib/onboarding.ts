@@ -60,6 +60,16 @@ export function missingIn(a: Answers, sec: number): string[] {
 
 export const sectionDone = (a: Answers, sec: number) => missingIn(a, sec).length === 0
 
+// How far a client got, 0-100, for the dashboard's progress bar. The form
+// saves as they type, so an unfinished row still shows real progress.
+export function progressOf(row: Pick<OnboardingRow, 'status' | 'answers'>): number {
+  if (row.status === 'completed') return 100
+  const a = row.answers ?? {}
+  if (!Object.keys(a).length) return 0
+  const done = SECTIONS.filter((_, i) => sectionDone(a, i + 1)).length
+  return Math.max(5, Math.min(95, Math.round((done / SECTIONS.length) * 100)))
+}
+
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 const ALLOWED = [

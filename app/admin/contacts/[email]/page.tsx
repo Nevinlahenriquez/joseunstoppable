@@ -160,7 +160,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
           {}
           <div className="os-card" style={{ padding: '22px 24px', marginBottom: 20 }}>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'flex-start' }}>
-              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(150deg,var(--os-accent),#b06fd6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
+              <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'linear-gradient(150deg,var(--os-accent),#5BBCEE)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, fontWeight: 800, color: '#fff', flexShrink: 0 }}>
                 {initials(name)}
               </div>
               <div style={{ flex: 1, minWidth: 220 }}>
