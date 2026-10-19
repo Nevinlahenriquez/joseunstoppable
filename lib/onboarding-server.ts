@@ -22,6 +22,7 @@ export type NewClient = {
 }
 
 export const onboardingLink = (token: string) => `${SITE_URL}/onboarding/${token}`
+export const welcomeLink = (token: string) => `${SITE_URL}/bienvenida/${token}`
 
 // The client's onboarding: the one already there (by deal or email), or a new
 // one whose link is emailed to the client. A new one also tells the coach a
@@ -57,13 +58,13 @@ export async function ensureOnboarding(db: SupabaseClient, c: NewClient): Promis
 
   let emailed = false
   if (email) {
-    const url = onboardingLink(row.token)
+    const url = welcomeLink(row.token)
     const html = wrapEmail(
       'Tu onboarding',
       `<p>Hola ${escapeHtml(firstNameOf(row.name, ''))},</p>` +
-        '<p>Pago confirmado: bienvenido/a al equipo. Antes de preparar tu plan de entrenamiento y nutrición necesito conocerte bien, así que rellena tu onboarding (10-15 minutos): medidas, objetivos, salud, rutina y alimentación.</p>' +
+        '<p>Pago confirmado: bienvenido/a al equipo. Antes de preparar tu plan de entrenamiento y nutrición necesito conocerte bien, así que rellena tu onboarding (5 minutos). En tu página de bienvenida tienes un vídeo mío y los siguientes pasos.</p>' +
         '<p>Cuando lo envíes, mándame por WhatsApp 3 fotos (frontal, perfil y espalda) y te escribo para agendar la llamada de bienvenida. Tu plan estará listo 48-72 h después de la llamada.</p>',
-      { label: 'Rellenar mi onboarding', href: url },
+      { label: 'Abrir mi bienvenida', href: url },
       'Empezamos: rellena tu onboarding',
     )
     emailed = await sendEmail(email, 'Empezamos: tu onboarding con José', html).catch(() => false)
@@ -99,7 +100,7 @@ export async function startFromPayment(db: SupabaseClient, inv: Record<string, u
 // pipeline card shows them. Fields José already wrote are left alone.
 export async function writeAnswersToDeal(db: SupabaseClient, dealId: string, a: Answers) {
   const { data: deal } = await db.from('deals')
-    .select('id, client_phone, goals, desired_outcome, current_state, blockers').eq('id', dealId).maybeSingle()
+    .select('id, client_phone, goals, desired_outcome, current_state, blockers, tags').eq('id', dealId).maybeSingle()
   if (!deal) return
   const v = (k: string) => str(a, k)
   const goals = [list(a, 'objetivo').join(', '), v('plazo') && `Plazo: ${v('plazo')}`].filter(Boolean).join(' · ')
@@ -110,7 +111,11 @@ export async function writeAnswersToDeal(db: SupabaseClient, dealId: string, a: 
     `Compromiso ${v('compromiso')}/10`,
   ].filter(Boolean).join('\n')
   const health = list(a, 'salud_ok').length ? '' : v('salud')
-  const patch: Record<string, string> = {}
+  const patch: Record<string, unknown> = {}
+  // Their goals become tags on the deal (Perder grasa, Ganar músculo, Ganar confianza…).
+  const tags = Array.isArray(deal.tags) ? (deal.tags as string[]) : []
+  const goalTags = list(a, 'objetivo').filter(t => !tags.includes(t))
+  if (goalTags.length) patch.tags = [...tags, ...goalTags]
   if (!deal.goals && goals) patch.goals = goals
   if (!deal.desired_outcome && desired) patch.desired_outcome = desired
   if (!deal.current_state && current) patch.current_state = current
