@@ -385,7 +385,7 @@ export default function EventsPage() {
   })
 
   const kpis = [
-    { label: 'Upcoming events', value: String(upcoming.length), icon: 'ti-calendar-event', tint: 'rgba(139,92,246,.14)', color: '#0E71AC' },
+    { label: 'Upcoming events', value: String(upcoming.length), icon: 'ti-calendar-event', tint: 'rgba(14,113,172,.14)', color: '#0E71AC' },
     { label: 'Seats taken, upcoming', value: String(upcomingSeats), icon: 'ti-ticket', tint: 'rgba(234,169,46,.16)', color: '#C27C0E' },
     { label: 'Ticket revenue, all time', value: money(revenue), icon: 'ti-cash', tint: 'var(--os-good-soft)', color: 'var(--os-good)' },
     showRate
@@ -398,7 +398,7 @@ export default function EventsPage() {
       <div className="evx-head">
         <div>
           <div className="evx-eyebrow">Events</div>
-          <h1 className="evx-title">Fill the room. Then fill the Circle.</h1>
+          <h1 className="evx-title">Fill the room. Then turn guests into clients.</h1>
           <div className="evx-sub">Plan the event, sell the seats, run the room, follow up.</div>
         </div>
         <div className="evx-actions">

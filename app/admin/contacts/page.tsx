@@ -2,11 +2,12 @@
 
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { getLeads, getDeals, saveLead, updateLead, deleteLead, deleteDeal, hydrateFromSupabase } from '@/lib/crm-store'
-import { getAttendees, updateAttendee, removeAttendee } from '@/lib/event-store'
+import { getAttendees, removeAttendee, hydrateEvents } from '@/lib/event-store'
+import { hydrateContactSources } from '@/lib/contact-sources'
 import type { Lead, Deal, LeadStatus } from '@/lib/crm-types'
 import type { EventAttendee } from '@/lib/event-types'
 import { CONTACT_STATUSES } from '@/lib/crm-types'
-import { PRESET_TAGS } from '../deals/crm-shared'
+import { GOAL_LABELS, isGoal } from '@/lib/goals'
 import { guessCountry } from '@/lib/country-codes'
 import ContactCard, { type ContactCardContact } from '@/components/ContactCard'
 import { confirmAction } from '@/app/admin/ConfirmHost'
@@ -32,7 +33,6 @@ interface Contact {
   _attendeeId?: string
 
   _country?: string
-  _companyType?: string
   _lastContacted: string
 }
 
@@ -52,9 +52,7 @@ function statusMeta(v: string) {
     ?? { value: v, label: v ? v.charAt(0).toUpperCase() + v.slice(1).replace(/_/g, ' ') : '—', color: 'var(--os-text-faint)', bg: 'var(--os-line)' }
 }
 
-function companyTypeOf(tags?: string[]): string | undefined {
-  return tags?.find(t => (PRESET_TAGS as readonly string[]).includes(t))
-}
+
 
 function timeAgo(iso: string) {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
@@ -148,19 +146,29 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
         source: r.source ? r.source.toLowerCase().replace(/\s+/g, '-') : undefined,
       }
     })
-    try {
-      const res = await fetch('/api/import-contacts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contacts, tags: batchTags, source: source.toLowerCase().replace(/\s+/g, '-') }),
-      })
-      const data = await res.json()
-      if (!data.ok) { setError(data.error || 'Import failed'); setImporting(false); return }
-      setDone(data.imported)
-      onImported(data.imported)
-    } catch {
-      setError('Network error, try again')
+    // Each row becomes a lead (saved locally and synced to Supabase); an
+    // e-mail already on a lead just picks up the new tags.
+    const batchSource = source.toLowerCase().replace(/\s+/g, '-') || 'csv-import'
+    const byEmail = new Map(getLeads().filter(l => l.email).map(l => [l.email.trim().toLowerCase(), l]))
+    let imported = 0
+    for (const c of contacts) {
+      const email = (c.email ?? '').trim().toLowerCase()
+      const tags = Array.from(new Set([...batchTags, ...c.tags]))
+      const existing = email ? byEmail.get(email) : undefined
+      if (existing) {
+        updateLead(existing.id, { tags: Array.from(new Set([...(existing.tags ?? []), ...tags])) })
+      } else {
+        const lead = saveLead({
+          name: c.name || c.email, email, phone: c.phone || undefined, company: c.company || undefined,
+          notes: c.notes || undefined, source: c.source || batchSource,
+          status: (c.status as LeadStatus | undefined) ?? 'new', tags,
+        })
+        if (email) byEmail.set(email, lead)
+      }
+      imported += 1
     }
+    if (!imported) setError('No rows with a name or e-mail.')
+    else { setDone(imported); onImported(imported) }
     setImporting(false)
   }
 
@@ -353,7 +361,7 @@ export default function ContactsPage() {
   const [stateFilter, setStateFilter] = useState<'all' | PersonState>('all')
   const [tagFilter, setTagFilter] = useState<string>('all')
   const [countryFilter, setCountryFilter] = useState<string>('all')
-  const [companyTypeFilter, setCompanyTypeFilter] = useState<string>('all')
+  const [goalFilter, setGoalFilter] = useState<string>('all')
   const [lastContactedFilter, setLastContactedFilter] = useState<string>('all')
   const [showImport, setShowImport] = useState(false)
   const [showAdd, setShowAdd] = useState(false)
@@ -366,7 +374,7 @@ export default function ContactsPage() {
   const readLocal = useCallback(() => setPeople(getPeople({ includeSpam: true })), [])
   const reload = useCallback(async () => {
     readLocal()
-    await hydrateFromSupabase()
+    await Promise.allSettled([hydrateFromSupabase(), hydrateEvents(), hydrateContactSources()])
     readLocal()
   }, [readLocal])
 
@@ -379,17 +387,16 @@ export default function ContactsPage() {
   const rows = useMemo(() => people.map(p => ({
     ...p,
     _country: guessCountry(p.phone)?.name,
-    _companyType: companyTypeOf(p.tags),
   })), [people])
   type Row = typeof rows[number]
 
   const visible = rows.filter(r => !r.spam)
   const spamCount = rows.length - visible.length
 
-  const allTags = Array.from(new Set(rows.flatMap(r => r.tags))).sort()
+  const allTags = Array.from(new Set(rows.flatMap(r => r.tags))).filter(t => !isGoal(t)).sort()
 
   const allCountries = Array.from(new Set(rows.map(r => r._country).filter((v): v is string => Boolean(v)))).sort()
-  const allCompanyTypes = Array.from(new Set(rows.map(r => r._companyType).filter((v): v is string => Boolean(v)))).sort()
+  const allGoals = GOAL_LABELS.filter(g => rows.some(r => r.tags.includes(g)))
   const selectStyle: React.CSSProperties = { padding: '9px 12px', border: '1.5px solid var(--os-line)', borderRadius: 10, fontSize: 13, fontWeight: 600, color: 'var(--os-text)', background: 'var(--os-card)', cursor: 'pointer', fontFamily: 'inherit' }
 
   const LAST_CONTACTED_BUCKETS: Record<string, (days: number) => boolean> = {
@@ -405,7 +412,7 @@ export default function ContactsPage() {
     else if (stateFilter !== 'all' && !r.states.includes(stateFilter)) return false
     if (tagFilter !== 'all' && !r.tags.includes(tagFilter)) return false
     if (countryFilter !== 'all' && r._country !== countryFilter) return false
-    if (companyTypeFilter !== 'all' && r._companyType !== companyTypeFilter) return false
+    if (goalFilter !== 'all' && !r.tags.includes(goalFilter)) return false
     if (lastContactedFilter !== 'all') {
       const days = Math.floor((Date.now() - new Date(r.lastSeen).getTime()) / 86400000)
       if (!LAST_CONTACTED_BUCKETS[lastContactedFilter]?.(days)) return false
@@ -568,10 +575,10 @@ export default function ContactsPage() {
             {allCountries.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         )}
-        {allCompanyTypes.length > 0 && (
-          <select value={companyTypeFilter} onChange={e => setCompanyTypeFilter(e.target.value)} style={selectStyle}>
-            <option value="all">All company types</option>
-            {allCompanyTypes.map(t => <option key={t} value={t}>{t}</option>)}
+        {allGoals.length > 0 && (
+          <select value={goalFilter} onChange={e => setGoalFilter(e.target.value)} style={selectStyle}>
+            <option value="all">Todos los objetivos</option>
+            {allGoals.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         )}
         <select value={lastContactedFilter} onChange={e => setLastContactedFilter(e.target.value)} style={selectStyle}>

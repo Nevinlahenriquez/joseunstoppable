@@ -3,11 +3,12 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useIsNarrow } from '@/components/os/PersonBits'
 import {
   getEvent, updateEvent, deleteEvent,
   getAttendees, addAttendee, updateAttendee, removeAttendee,
   updateAttendeeStatus, markPaid, markCheckedIn, exportAttendeesCSV,
-  generateTicketCode, hydrateEventsDetailed,
+  generateTicketCode, hydrateEventsDetailed, hydrateEvents,
 } from '@/lib/event-store'
 import { saveDeal, getDeals, getInvoices } from '@/lib/crm-store'
 import { defaultConfirmationBody, defaultReminderBody, defaultFollowUpBody } from '@/lib/event-email-defaults'
@@ -366,6 +367,7 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
 
   useEffect(() => { void hydrateEventsDetailed().then(r => { if (r.ok) reload() }) }, [reload])
   const [paying, setPaying] = useState('')
+  const narrow = useIsNarrow()
 
   function showToast(msg: string) { setToast(msg); setTimeout(() => setToast(''), 3000) }
 
@@ -417,15 +419,6 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
   }
 
   const pipelineEmails = new Set(getDeals().filter(isOpenDeal).map(d => d.clientEmail?.toLowerCase()).filter(Boolean))
-
-  const strategyInvoiced = new Set(getInvoices()
-    .filter(i => String(i.status) !== 'void' && /strategy session/i.test(`${i.projectTitle ?? ''} ${i.lineItems.map(l => l.name).join(' ')}`))
-    .map(i => (i.clientEmail ?? '').toLowerCase()).filter(Boolean))
-
-  const strategyInvoiceHref = (a: EventAttendee) => {
-    const q = new URLSearchParams({ preset: 'strategy-intro', name: a.name ?? '', email: a.email ?? '', company: a.company ?? '', phone: a.phone ?? '' })
-    return `/admin/invoices/new?${q.toString()}`
-  }
 
   function addToPipeline(a: EventAttendee) {
     if (!a.email) return
@@ -481,11 +474,11 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
     { key: 'notpipeline', label: 'Came, not in pipeline' },
   ]
   const filtered = attendees.filter(a => inView(a, view)).filter(a => !search || a.name.toLowerCase().includes(search.toLowerCase()) || a.email.toLowerCase().includes(search.toLowerCase()))
-  const stats = { registered: attendees.filter(a => a.status === 'registered').length, attended: attendees.filter(a => a.status === 'attended').length, paid: attendees.filter(a => a.paid).length, waitlisted: attendees.filter(a => a.status === 'waitlisted').length }
+  const stats = { registered: attendees.filter(a => a.status === 'registered').length, attended: attendees.filter(a => a.checkedIn || a.status === 'attended').length, paid: attendees.filter(a => a.paid).length, waitlisted: attendees.filter(a => a.status === 'waitlisted').length }
 
   return (
     <div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 12, marginBottom: 20 }}>
         {[{ label: 'Registered', value: stats.registered, color: 'var(--os-accent)' }, { label: 'Attended', value: stats.attended, color: 'var(--os-good)' }, { label: 'Paid', value: stats.paid, color: 'var(--os-accent)' }, { label: 'Waitlisted', value: stats.waitlisted, color: 'var(--os-warn)' }].map(s => (
           <div key={s.label} style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 10, padding: '12px 16px', textAlign: 'center' }}>
             <div style={{ fontSize: 22, fontWeight: 900, color: s.color }}>{s.value}</div>
@@ -507,7 +500,7 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email…" style={{ ...I, maxWidth: 260 }} />
+        <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or email…" style={{ ...I, maxWidth: narrow ? '100%' : 260 }} />
         <div style={{ flex: 1 }} />
         <button onClick={() => exportAttendeesCSV(event.id)} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-download" /> Export CSV</button>
         <button onClick={() => broadcast('reminder')} style={BtnGhost({ fontSize: 12 })}><i className="ti ti-bell" /> Send Reminder</button>
@@ -516,7 +509,7 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
       </div>
 
       {showAdd && (
-        <div style={{ background: 'var(--os-card-alt)', border: '1.5px solid var(--os-line)', borderRadius: 12, padding: '16px 18px', marginBottom: 16, display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr auto', gap: 10, alignItems: 'end' }}>
+        <div style={{ background: 'var(--os-card-alt)', border: '1.5px solid var(--os-line)', borderRadius: 12, padding: '16px 18px', marginBottom: 16, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 10, alignItems: 'end' }}>
           {(['name', 'email', 'phone', 'company'] as const).map(k => (
             <div key={k}><label style={L}>{k.charAt(0).toUpperCase() + k.slice(1)}{k === 'name' || k === 'email' ? ' *' : ''}</label>
               <input value={addForm[k]} onChange={e => setAddForm(f => ({ ...f, [k]: e.target.value }))} style={I} /></div>
@@ -533,12 +526,59 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
           <i className="ti ti-users" style={{ fontSize: 40, display: 'block', marginBottom: 12 }} />
           <div style={{ fontWeight: 700, color: 'var(--os-text-faint)' }}>{search || view !== 'all' ? 'Nobody matches this filter' : 'No attendees yet'}</div>
         </div>
+      ) : narrow ? (
+        // On a phone at the door: one card per person, check-in is one big tap.
+        <div style={{ display: 'grid', gap: 10 }}>
+          {filtered.map(a => {
+            const ss = ATTENDEE_STATUS_STYLES[a.status] ?? { color: 'var(--os-text-faint)', bg: 'var(--os-card-alt)' }
+            const wa = (a.phone ?? '').replace(/[^\d]/g, '')
+            const inPipe = !!a.email && pipelineEmails.has(a.email.toLowerCase())
+            return (
+              <div key={a.id} style={{ background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 14, padding: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                  <button onClick={() => openAttendee(a)} style={{ flex: 1, minWidth: 0, textAlign: 'left', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
+                    <div style={{ fontWeight: 800, fontSize: 15, color: 'var(--os-text-primary)' }}>{a.name || a.email}</div>
+                    <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', overflowWrap: 'anywhere' }}>{[a.email, a.phone].filter(Boolean).join(' · ')}</div>
+                  </button>
+                  <select value={a.status} onChange={e => { updateAttendeeStatus(a.id, e.target.value as AttendeeStatus); reload() }}
+                    style={{ fontSize: 12, fontWeight: 700, color: ss.color, background: ss.bg, border: 'none', borderRadius: 100, padding: '5px 10px', outline: 'none' }}>
+                    <option value="registered">Registered</option>
+                    <option value="attended">Attended</option>
+                    <option value="cancelled">Cancelled</option>
+                    <option value="no_show">No Show</option>
+                    <option value="waitlisted">Waitlisted</option>
+                  </select>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: event.price > 0 ? '1fr 1fr' : '1fr', gap: 8, marginTop: 12 }}>
+                  <button onClick={() => { if (!a.checkedIn) { markCheckedIn(a.id); reload() } }} disabled={a.checkedIn}
+                    style={a.checkedIn ? BtnGhost({ justifyContent: 'center', color: 'var(--os-good)', borderColor: 'var(--os-good)', padding: '11px 12px' }) : Btn({ justifyContent: 'center', padding: '11px 12px' })}>
+                    <i className={`ti ${a.checkedIn ? 'ti-circle-check' : 'ti-door-enter'}`} /> {a.checkedIn ? 'Checked in' : 'Check in'}
+                  </button>
+                  {event.price > 0 && (a.paid ? (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PaymentChip a={a} onOpenProof={() => { void openProof(a) }} /></div>
+                  ) : (
+                    <button onClick={() => { void markSeatPaid(a) }} disabled={paying === a.id} style={BtnGhost({ justifyContent: 'center', padding: '11px 12px' })}>
+                      <i className="ti ti-cash" /> {paying === a.id ? '…' : a.proofPath ? 'Check proof & mark paid' : 'Mark paid'}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+                  {wa && <a href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer" style={{ ...BtnGhost({ fontSize: 12, padding: '6px 10px' }), textDecoration: 'none' }}><i className="ti ti-brand-whatsapp" /> WhatsApp</a>}
+                  {a.email && (inPipe
+                    ? <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--os-good)' }}><i className="ti ti-circle-check" /> In pipeline</span>
+                    : <button onClick={() => addToPipeline(a)} style={BtnGhost({ fontSize: 12, padding: '6px 10px' })}><i className="ti ti-plus" /> Add to pipeline</button>)}
+                  {a.ticketCode && <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--os-accent)', fontWeight: 700, fontFamily: 'monospace' }}>{a.ticketCode}</span>}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       ) : (
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: 'var(--os-card-alt)' }}>
-                {['Name', 'Email', 'Status', 'Paid', 'Check-in', 'Ticket', 'Date', 'Pipeline', 'Strategy session', ''].map(h => (
+                {['Name', 'Email', 'Status', 'Paid', 'Check-in', 'Ticket', 'Date', 'Pipeline', ''].map(h => (
                   <th key={h} style={{ padding: '9px 12px', fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.8, color: 'var(--os-text-faint)', textAlign: 'left', borderBottom: '1px solid var(--os-line)', whiteSpace: 'nowrap' }}>{h}</th>
                 ))}
               </tr>
@@ -603,16 +643,6 @@ function AttendeesTab({ event }: { event: CrmEvent }) {
                         <button onClick={() => addToPipeline(a)} style={BtnGhost({ fontSize: 11, padding: '4px 10px' })}>
                           <i className="ti ti-plus" /> Add to pipeline
                         </button>
-                      )}
-                    </td>
-                    <td style={{ padding: '10px 12px', whiteSpace: 'nowrap' }}>
-                      {!a.email ? null : strategyInvoiced.has(a.email.toLowerCase()) ? (
-                        <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-good)' }}><i className="ti ti-circle-check" /> Invoiced</span>
-                      ) : (
-                        <Link href={strategyInvoiceHref(a)} style={{ ...BtnGhost({ fontSize: 11, padding: '4px 10px' }), textDecoration: 'none' }}
-                          title="Opens a new invoice for the Strategy Session at the $150 attendee price, already filled in">
-                          <i className="ti ti-file-invoice" /> Invoice strategy session
-                        </Link>
                       )}
                     </td>
                     <td style={{ padding: '10px 12px' }}>
@@ -868,18 +898,20 @@ const TABS: Tab[] = ['overview', 'details', 'speakers', 'schedule', 'attendees',
 
 export default function EventEditorPage() {
   const { id } = useParams<{ id: string }>()
-  const router = useRouter()
   const [event, setEvent] = useState<CrmEvent | null>(null)
+  const [missing, setMissing] = useState(false)
   const [tab, setTab] = useState<Tab>('overview')
 
   const reload = useCallback(() => {
     const e = getEvent(id)
-    if (!e) { router.replace('/admin/events'); return }
-    setEvent(e)
-  }, [id, router])
+    if (e) { setEvent(e); setMissing(false) }
+  }, [id])
 
   useEffect(() => {
+    // A link opened on a phone (or right after the event was made elsewhere)
+    // finds nothing locally yet: ask the server before calling it gone.
     reload()
+    void hydrateEvents().then(() => { reload(); if (!getEvent(id)) setMissing(true) })
 
     const raf = requestAnimationFrame(() => {
       const t = new URLSearchParams(window.location.search).get('tab') as Tab | null
@@ -887,9 +919,20 @@ export default function EventEditorPage() {
     })
     window.addEventListener('ju:events', reload)
     return () => { cancelAnimationFrame(raf); window.removeEventListener('ju:events', reload) }
-  }, [reload])
+  }, [reload, id])
 
-  if (!event) return null
+  if (!event) {
+    return (
+      <div className="os-card" style={{ padding: 40, textAlign: 'center', color: 'var(--os-text-faint)', maxWidth: 520, margin: '40px auto' }}>
+        {missing ? (
+          <>
+            <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--os-text)', marginBottom: 8 }}>Este evento ya no existe</div>
+            <Link href="/admin/events" className="os-btn os-btn-primary os-btn-sm" style={{ display: 'inline-flex' }}>Ver todos los eventos</Link>
+          </>
+        ) : 'Cargando evento…'}
+      </div>
+    )
+  }
 
   const attendeeCount = getAttendees(event.id).length
 

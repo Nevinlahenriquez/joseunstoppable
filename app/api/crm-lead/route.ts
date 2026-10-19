@@ -3,6 +3,7 @@ import { detectSpam, SPAM_REJECTION } from '@/lib/anti-spam'
 import { SPAM_TAG, leadVerdict } from '@/lib/apply-guard'
 import { funnelIdFromPath, recordFunnelLead } from '@/lib/funnel-log'
 import { CHANNEL_TAGS } from '@/lib/lead-attribution'
+import { goalsFromText } from '@/lib/goals'
 
 // The booking form saves as the visitor goes, so its answers live in one
 // block of the notes that each save replaces instead of appending.
@@ -76,6 +77,8 @@ export async function POST(req: NextRequest) {
     tags: (() => {
       const base = Array.isArray(tags) ? [...tags] : []
       if (isSpam && !base.includes(SPAM_TAG)) base.push(SPAM_TAG)
+      // Their goals, read from what they wrote, so José can filter by them.
+      for (const g of goalsFromText(goal, desiredOutcome, currentState, extraNotes)) if (!base.includes(g)) base.push(g)
       return base
     })(),
     revenue_type: null,

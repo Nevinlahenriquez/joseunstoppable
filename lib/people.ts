@@ -2,15 +2,21 @@
 import { getDeals, getLeads, getInvoices, getProposals } from './crm-store'
 import { getAttendees } from './event-store'
 import { isLikelySpam } from './apply-guard'
+import { getBookings, getOnboardings, getContactRows, type BookingRow } from './contact-sources'
+import type { ContactRow } from './contacts-db'
+import { cleanTags, goalsFromText } from './goals'
+import type { OnboardingRow } from './onboarding'
 
 export type PersonStage = 'client' | 'lead' | 'contact'
-export type PersonSource = 'deal' | 'lead' | 'attendee' | 'invoice' | 'proposal' | 'portal' | 'account'
+export type PersonSource = 'deal' | 'lead' | 'attendee' | 'invoice' | 'proposal' | 'portal' | 'account' | 'booking' | 'onboarding'
 
 export type PersonState =
   | 'client'
+  | 'onboarding'
   | 'circle'
   | 'retainer'
   | 'pipeline'
+  | 'booked'
   | 'enquiry'
   | 'attendee'
   | 'attended'
@@ -24,9 +30,11 @@ export type PersonState =
 
 export const PERSON_STATES: { value: PersonState; label: string; tone: 'good' | 'accent' | 'warn' | 'bad' | 'muted' }[] = [
   { value: 'client',     label: 'Live client',      tone: 'good' },
+  { value: 'onboarding', label: 'Onboarding',       tone: 'good' },
   { value: 'circle',     label: 'Miembro',    tone: 'accent' },
   { value: 'retainer',   label: 'On a retainer',    tone: 'good' },
   { value: 'pipeline',   label: 'In lead pipeline', tone: 'accent' },
+  { value: 'booked',     label: 'Call booked',      tone: 'accent' },
   { value: 'enquiry',    label: 'Enquiry',          tone: 'accent' },
   { value: 'attendee',   label: 'Event attendee',   tone: 'warn' },
   { value: 'attended',   label: 'Attended an event',tone: 'warn' },
@@ -61,7 +69,7 @@ export type Person = {
 
   events: string[]
 
-  counts: { deals: number; invoices: number; proposals: number; events: number }
+  counts: { deals: number; invoices: number; proposals: number; events: number; calls: number }
 
   dealId?: string
   leadId?: string
@@ -95,6 +103,7 @@ type Flags = {
   client: boolean; pipeline: boolean; enquiry: boolean; attendee: boolean
   attended: boolean; subscriber: boolean; proposal: boolean; invoiced: boolean
   portal: boolean; lost: boolean; circle: boolean; retainer: boolean
+  booked: boolean; onboarding: boolean
 
   completed: boolean
 
@@ -109,6 +118,9 @@ export interface PeopleSources {
   invoices: ReturnType<typeof getInvoices>
   leads: ReturnType<typeof getLeads>
   attendees: ReturnType<typeof getAttendees>
+  bookings?: BookingRow[]
+  onboardings?: OnboardingRow[]
+  contacts?: ContactRow[]
 }
 
 export function getPeople(opts: { includeSpam?: boolean } = {}): Person[] {
@@ -116,6 +128,7 @@ export function getPeople(opts: { includeSpam?: boolean } = {}): Person[] {
     deals: getDeals(), proposals: getProposals(), invoices: getInvoices(),
     leads: getLeads(),
     attendees: getAttendees(),
+    bookings: getBookings(), onboardings: getOnboardings(), contacts: getContactRows(),
   }, opts)
 }
 
@@ -132,11 +145,11 @@ export function buildPeople(src: PeopleSources, opts: { includeSpam?: boolean } 
     const cur = map.get(key) ?? {
       key, name: '', email: '', company: '', phone: '', address: '', website: '',
       sources: [], tags: [], events: [],
-      counts: { deals: 0, invoices: 0, proposals: 0, events: 0 },
+      counts: { deals: 0, invoices: 0, proposals: 0, events: 0, calls: 0 },
       client: false, pipeline: false, enquiry: false, attendee: false,
       attended: false, subscriber: false, proposal: false, invoiced: false,
       portal: false, lost: false, completed: false, live: false,
-      circle: false, retainer: false,
+      circle: false, retainer: false, booked: false, onboarding: false,
       spamVotes: 0, spamChecks: 0, lastSeen: '', firstSeen: '',
     }
     cur.name ||= (row.name ?? '').trim()
@@ -146,14 +159,14 @@ export function buildPeople(src: PeopleSources, opts: { includeSpam?: boolean } 
     cur.address ||= (row.address ?? '').trim()
     cur.website ||= (row.website ?? '').trim()
     if (!cur.sources.includes(src)) cur.sources.push(src)
-    for (const k of ['client', 'pipeline', 'enquiry', 'attendee', 'attended', 'subscriber', 'proposal', 'invoiced', 'portal', 'lost', 'completed', 'live', 'circle', 'retainer'] as const) {
+    for (const k of ['client', 'pipeline', 'enquiry', 'attendee', 'attended', 'subscriber', 'proposal', 'invoiced', 'portal', 'lost', 'completed', 'live', 'circle', 'retainer', 'booked', 'onboarding'] as const) {
       if (flags[k]) cur[k] = true
     }
     if (flags.dealId) cur.dealId ||= flags.dealId
     if (flags.leadId) cur.leadId ||= flags.leadId
     if (flags.accountId) cur.accountId ||= flags.accountId
     if (flags.attendeeId) cur.attendeeId ||= flags.attendeeId
-    for (const t of flags.tags ?? []) if (t && !cur.tags.includes(t)) cur.tags.push(t)
+    for (const t of cleanTags(flags.tags)) if (t && !cur.tags.includes(t)) cur.tags.push(t)
     if (flags.event && !cur.events.includes(flags.event)) cur.events.push(flags.event)
     if (flags.spam != null) { cur.spamChecks += 1; if (flags.spam) cur.spamVotes += 1 }
     const at = row.at ?? ''
@@ -214,13 +227,37 @@ export function buildPeople(src: PeopleSources, opts: { includeSpam?: boolean } 
     const r = map.get(keyOf(a.email, a.name)); if (r) r.counts.events += 1
   }
 
+  for (const b of src.bookings ?? []) {
+    const live = b.status !== 'cancelled' && b.status !== 'no_show'
+    fold('booking', { name: b.name, email: b.email, phone: b.phone, at: b.created_at }, {
+      booked: live && b.status !== 'won',
+      tags: goalsFromText(b.notes),
+      client: b.status === 'won',
+      spam: isLikelySpam({ name: b.name, email: b.email ?? '' }),
+    })
+    const r = map.get(keyOf(b.email, b.name)); if (r) r.counts.calls += 1
+  }
+  // José only activates onboarding for people who signed up, so it marks a client.
+  for (const o of src.onboardings ?? []) {
+    const nombre = typeof o.answers?.nombre === 'string' ? o.answers.nombre : ''
+    fold('onboarding', { name: o.name || nombre, email: o.email, phone: o.phone, at: o.completed_at ?? o.created_at }, {
+      client: true, onboarding: true,
+      tags: goalsFromText(Array.isArray(o.answers?.objetivo) ? o.answers.objetivo : [], typeof o.answers?.objetivo_detalle === 'string' ? o.answers.objetivo_detalle : ''),
+    })
+  }
+  // The server's contact table carries goals read from every answer.
+  for (const c of src.contacts ?? []) {
+    if (!map.has(keyOf(c.email, c.name))) continue
+    fold('account', { name: c.name, email: c.email, phone: c.phone }, { tags: [...(c.goals ?? []), ...(c.tags ?? [])] })
+  }
+
   const order = PERSON_STATES.map(s => s.value)
   const people: Person[] = [...map.values()].map(d => {
-    const { client, pipeline, enquiry, attendee, attended, subscriber, proposal, invoiced, portal, lost, completed, live, circle, retainer, spamVotes, spamChecks, ...rest } = d
+    const { client, pipeline, enquiry, attendee, attended, subscriber, proposal, invoiced, portal, lost, completed, live, circle, retainer, booked, onboarding, spamVotes, spamChecks, ...rest } = d
     const spam = !client && spamChecks > 0 && spamVotes === spamChecks
 
     const held: Record<PersonState, boolean> = {
-      client, pipeline, enquiry, attendee, attended, subscriber,
+      client, onboarding, pipeline, booked, enquiry, attendee, attended, subscriber,
       proposal, invoiced, portal,
 
       circle, retainer: retainer && !circle,
@@ -230,7 +267,7 @@ export function buildPeople(src: PeopleSources, opts: { includeSpam?: boolean } 
     const states = order.filter(s => held[s])
     return {
       ...rest,
-      stage: client ? 'client' : (pipeline || enquiry) ? 'lead' : 'contact',
+      stage: client ? 'client' : (pipeline || enquiry || booked) ? 'lead' : 'contact',
       states,
       spam,
     }

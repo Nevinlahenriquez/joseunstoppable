@@ -16,6 +16,10 @@ import type { Deal, Lead, ActivityType, ActivityEntry } from '@/lib/crm-types'
 import type { EventAttendee } from '@/lib/event-types'
 import { EmailText } from '@/components/os/CopyEmail'
 import { OnboardingCard } from '@/components/os/Onboarding'
+import { CallsList, ContactProfile } from '@/components/os/ContactExtras'
+import { bookingsFor, onboardingsFor, hydrateContactSources } from '@/lib/contact-sources'
+import { hydrateFromSupabase } from '@/lib/crm-store'
+import { hydrateEvents } from '@/lib/event-store'
 
 const money = (n?: number, cur?: string) => {
   if (n === undefined) return null
@@ -62,6 +66,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
   const [attendee, setAttendee] = useState<EventAttendee | null>(null)
   const [person, setPerson] = useState<PersonRecord | null>(null)
   const [name, setName] = useState('')
+  const [extra, setExtra] = useState<{ name: string; phone: string; any: boolean }>({ name: '', phone: '', any: false })
 
   const reload = useCallback(() => {
     const k = key(email)
@@ -74,19 +79,27 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
     setPerson(buildPersonHistory(email, {
       deals: getDeals(), leads: getLeads(), proposals: getProposals(), invoices: getInvoices(), attendees: getAttendees(),
     }))
-    setName(d.find(isOpenDeal)?.clientName ?? d[0]?.clientName ?? l?.name ?? a?.name ?? email)
+    const b = bookingsFor(email)
+    const o = onboardingsFor(email)
+    const xName = o[0]?.name || b[0]?.name || ''
+    setExtra({ name: xName, phone: o[0]?.phone || b[0]?.phone || '', any: b.length + o.length > 0 })
+    setName(d.find(isOpenDeal)?.clientName ?? d[0]?.clientName ?? l?.name ?? a?.name ?? (xName || email))
   }, [email])
 
-  useEffect(() => { reload() }, [reload])
+  // Show what this device has at once, then again once the server answers.
+  useEffect(() => {
+    reload()
+    void Promise.allSettled([hydrateFromSupabase(), hydrateEvents(), hydrateContactSources()]).then(reload)
+  }, [reload])
 
   if (!person) return <div style={{ padding: 60, color: 'var(--os-text-faint)' }}>Loading…</div>
 
   const primaryDeal = deals.find(isOpenDeal) ?? deals[0] ?? null
   const proposals = getProposals().filter(p => key(p.clientEmail) === key(email))
   const invoices = getInvoices().filter(i => key(i.clientEmail) === key(email))
-  const nothingAtAll = !lead && deals.length === 0 && !attendee
+  const nothingAtAll = !lead && deals.length === 0 && !attendee && !extra.any && proposals.length === 0 && invoices.length === 0
 
-  const phone = primaryDeal?.clientPhone || lead?.phone || attendee?.phone
+  const phone = primaryDeal?.clientPhone || lead?.phone || attendee?.phone || extra.phone || undefined
   const company = primaryDeal?.clientCompany || lead?.company || attendee?.company
 
   function patchDeal(p: Partial<Deal>) {
@@ -112,6 +125,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
     if (primaryDeal) updateDeal(primaryDeal.id, { clientName: value })
     else if (lead) updateLead(lead.id, { name: value })
     else if (attendee) updateAttendee(attendee.id, { name: value })
+    else setExtra(x => ({ ...x, name: value }))
   }
 
   function addToPipeline(note: string) {
@@ -177,7 +191,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
                     style={{ width: 'auto', padding: '8px 12px', fontWeight: 700 }}>
                     {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                   </select>
-                  <Link href={`/admin/deals/${primaryDeal.id}`} className="os-btn os-btn-ghost os-btn-sm">
+                  <Link href={`/admin/deals?deal=${encodeURIComponent(primaryDeal.id)}`} className="os-btn os-btn-ghost os-btn-sm">
                     <i className="ti ti-arrow-up-right" /> Open pipeline workspace
                   </Link>
                   {deals.length > 1 && (
@@ -189,6 +203,13 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
             ) : (
               <AddToPipeline onAdd={addToPipeline} />
             )}
+          </div>
+
+          <ContactProfile email={email} />
+
+          <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
+            <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Llamadas</div>
+            <CallsList email={email} />
           </div>
 
           <OnboardingCard name={name} email={email} phone={phone} dealId={primaryDeal?.id} refresh={primaryDeal?.stage} />

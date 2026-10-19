@@ -91,6 +91,19 @@ const TABLES: Record<string, Col[]> = {
     ['opened_at', 'timestamptz'], ['completed_at', 'timestamptz'],
   ],
   app_settings: [['value', 'jsonb'], ['updated_at', 'timestamptz default now()']],
+  // One row per person, rebuilt from the tables above (lib/contacts-db.ts).
+  contacts: [
+    ['name', 'text'], ['email', 'text'], ['phone', 'text'], ['status', 'text'], ['source', 'text'],
+    ['goals', 'jsonb'], ['tags', 'jsonb'], ['events', 'jsonb'], ['deal_id', 'text'],
+    ['booking_count', 'numeric'], ['last_booking_at', 'timestamptz'], ['onboarding_status', 'text'], ['onboarding_id', 'text'],
+    ['urgency', 'text'], ['blocker', 'text'], ['key_date', 'text'], ['budget', 'text'], ['call_answers', 'jsonb'],
+    ['age', 'numeric'], ['weight_kg', 'numeric'], ['height_cm', 'numeric'], ['measurements', 'jsonb'],
+    ['goal_detail', 'text'], ['timeframe', 'text'], ['health', 'text'], ['work', 'text'], ['meals', 'text'],
+    ['sleep', 'text'], ['training_days', 'text'], ['training_place', 'text'], ['food_likes', 'text'],
+    ['food_dislikes', 'text'], ['commitment', 'numeric'], ['ready_to_change', 'text'], ['why_now', 'text'],
+    ['notes', 'text'], ['invoiceshift_customer_id', 'text'], ['invoiceshift_synced_at', 'timestamptz'],
+    ['first_seen', 'timestamptz'], ['last_seen', 'timestamptz'], ['updated_at', 'timestamptz'],
+  ],
 }
 
 const INDEXES = [
@@ -98,6 +111,7 @@ const INDEXES = [
   'create index if not exists attendees_event_idx on event_attendees (event_id)',
   'create index if not exists bookings_start_idx on bookings (start_at)',
   'create unique index if not exists onboardings_token_uq on onboardings (token)',
+  'create index if not exists contacts_email_idx on contacts (email)',
   'create unique index if not exists bookings_slot_uq on bookings (start_at) where status <> \'cancelled\'',
 ]
 
