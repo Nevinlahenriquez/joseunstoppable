@@ -131,3 +131,10 @@ a.pt-item:hover{border-color:var(--sky);transform:translateY(-1px)}
   .pt-app .row .pt-btn{flex:1 1 100%}
 }
 .pt a.pt-go{color:#071726;text-decoration:none}
+.pt-answers{margin:0;display:grid;grid-template-columns:minmax(0,1fr);border-top:1px solid var(--line)}
+.pt-answers div{display:grid;grid-template-columns:minmax(110px,38%) minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.pt-answers dt{color:var(--muted)}
+.pt-answers dd{margin:0;color:var(--navy);font-weight:600;white-space:pre-wrap;word-wrap:break-word}
+.pt-meter{height:8px;border-radius:99px;background:var(--tint-2);overflow:hidden;margin:0 0 16px}
+.pt-meter span{display:block;height:100%;background:linear-gradient(90deg,var(--sky),var(--sky-h));border-radius:99px}
+@media (max-width:420px){.pt-answers div{grid-template-columns:minmax(0,1fr);gap:2px}}

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { copyText } from '@/lib/clipboard'
+import { OnboardingCard } from '@/components/os/Onboarding'
 import { DEFAULT_PORTAL, portalPath, type PortalAccess, type PortalMessage, type PortalSettings } from '@/lib/portal'
 
 const fmt = (iso: string | null) => iso ? new Date(iso).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Madrid' }) : ''
@@ -169,6 +170,7 @@ export default function PortalAdminPage() {
                         Su enlace: <code style={{ userSelect: 'all' }}>joseunstoppable.com{portalPath(c.token)}</code>
                         {c.invited_at && <> · Invitado {fmt(c.invited_at)}</>}
                       </div>
+                      <OnboardingCard name={c.name || c.email} email={c.email} dealId={c.deal_id ?? undefined} />
                       <AppOverride client={c} fallback={settings.appUrl} onSave={url => void patch(c, { app_url: url }, 'Enlace de la app guardado.')} />
                       <div>
                         <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--os-text-muted)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '.06em' }}>Preguntas</div>
