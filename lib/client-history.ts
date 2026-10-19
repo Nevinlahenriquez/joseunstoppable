@@ -69,46 +69,46 @@ export function buildPersonHistory(
 
   for (const l of leads) {
     push({ id: `lead-${l.id}`, at: l.createdAt, kind: 'lead',
-      title: 'Entered the system', detail: l.source ? `via ${l.source}` : undefined })
+      title: 'Entró en el sistema', detail: l.source ? `vía ${l.source}` : undefined })
   }
 
   for (const d of deals) {
     push({ id: `deal-${d.id}`, at: d.createdAt, kind: 'lead',
-      title: 'Added to the pipeline', detail: d.service || d.stage, href: `/admin/deals/${d.id}` })
+      title: 'Añadido al pipeline', detail: d.service || d.stage, href: `/admin/deals?deal=${encodeURIComponent(d.id)}` })
 
     if (!isOpenDeal(d)) {
       const won = d.stage !== 'lost'
       push({ id: `close-${d.id}`, at: d.updatedAt ?? d.createdAt, kind: won ? 'won' : 'lost',
-        title: won ? 'Deal won' : 'Deal closed without a sale',
-        detail: d.service, amount: won ? d.value : undefined, href: `/admin/deals/${d.id}` })
+        title: won ? 'Venta cerrada' : 'Cerrado sin venta',
+        detail: d.service, amount: won ? d.value : undefined, href: `/admin/deals?deal=${encodeURIComponent(d.id)}` })
     }
 
     for (const a of (d.activity ?? []) as ActivityEntry[]) {
       push({ id: `act-${d.id}-${a.id}`, at: a.ts ?? d.createdAt, kind: 'activity',
-        title: a.type ? String(a.type).charAt(0).toUpperCase() + String(a.type).slice(1) : 'Interaction',
-        detail: a.text, href: `/admin/deals/${d.id}` })
+        title: a.type ? String(a.type).charAt(0).toUpperCase() + String(a.type).slice(1) : 'Interacción',
+        detail: a.text, href: `/admin/deals?deal=${encodeURIComponent(d.id)}` })
     }
   }
 
   for (const p of proposals) {
     push({ id: `prop-${p.id}`, at: p.sentAt ?? p.createdAt, kind: 'proposal',
-      title: p.sentAt ? 'Offer sent' : 'Offer drafted', detail: p.title,
+      title: p.sentAt ? 'Propuesta enviada' : 'Propuesta en borrador', detail: p.title,
       amount: p.total, currency: p.currency, href: `/admin/proposals` })
     if (p.signedAt) {
       push({ id: `sign-${p.id}`, at: p.signedAt, kind: 'signed',
-        title: 'Offer signed', detail: p.title, amount: p.total, currency: p.currency, href: `/admin/proposals` })
+        title: 'Propuesta firmada', detail: p.title, amount: p.total, currency: p.currency, href: `/admin/proposals` })
     }
   }
 
   for (const inv of invoices) {
     if (inv.status !== 'draft') {
       push({ id: `inv-${inv.id}`, at: inv.sentAt ?? inv.issueDate ?? inv.createdAt, kind: 'invoice',
-        title: inv.recurring ? 'Recurring invoice raised' : 'Invoice sent',
+        title: inv.recurring ? 'Factura mensual emitida' : 'Factura enviada',
         detail: inv.projectTitle || inv.number, amount: invoiceTotal(inv), currency: inv.currency,
         href: `/admin/invoices` })
     }
     if (inv.paidAt) {
-      push({ id: `paid-${inv.id}`, at: inv.paidAt, kind: 'paid', title: 'Payment received',
+      push({ id: `paid-${inv.id}`, at: inv.paidAt, kind: 'paid', title: 'Pago recibido',
         detail: inv.projectTitle || inv.number, amount: invoiceTotal(inv), currency: inv.currency,
         href: `/admin/invoices` })
     }
@@ -116,11 +116,11 @@ export function buildPersonHistory(
 
   for (const a of attendees) {
     push({ id: `evt-${a.id}`, at: a.registeredAt, kind: 'event',
-      title: `Registered for ${a.eventTitle || 'an event'}`,
-      detail: a.paid ? 'Paid ticket' : undefined, href: `/admin/events/${a.eventId}` })
+      title: `Apuntado a ${a.eventTitle || 'un evento'}`,
+      detail: a.paid ? 'Entrada pagada' : undefined, href: `/admin/events/${a.eventId}` })
     if (a.checkedIn) {
       push({ id: `evt-in-${a.id}`, at: a.checkedInAt || a.registeredAt, kind: 'checkin',
-        title: `Attended ${a.eventTitle || 'the event'}`, href: `/admin/events/${a.eventId}` })
+        title: `Fue a ${a.eventTitle || 'el evento'}`, href: `/admin/events/${a.eventId}` })
     }
   }
 

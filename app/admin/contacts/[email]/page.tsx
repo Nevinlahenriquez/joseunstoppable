@@ -38,7 +38,7 @@ function AddToPipeline({ onAdd }: { onAdd: (note: string) => void }) {
   if (note === null) {
     return (
       <div>
-        <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginBottom: 10 }}>Not in the pipeline yet.</div>
+        <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginBottom: 10 }}>Aún no está en el pipeline.</div>
         <button className="os-btn os-btn-primary os-btn-sm" onClick={() => setNote('')}>
           <i className="ti ti-plus" /> Add to lead pipeline
         </button>
@@ -47,7 +47,7 @@ function AddToPipeline({ onAdd }: { onAdd: (note: string) => void }) {
   }
   return (
     <div style={{ display: 'flex', gap: 6 }}>
-      <input className="os-crm-input" placeholder="What's this about? (optional)" value={note}
+      <input className="os-crm-input" placeholder="¿De qué va? (opcional)" value={note}
         onChange={e => setNote(e.target.value)} style={{ flex: 1, maxWidth: 320 }}
         onKeyDown={e => { if (e.key === 'Enter') { onAdd(note); setNote(null) } }} />
       <button className="os-btn os-btn-primary os-btn-sm" onClick={() => { onAdd(note); setNote(null) }}>Add</button>
@@ -137,7 +137,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
       stage: 'lead',
       value: 0,
       currency: 'USD',
-      service: note.trim() || 'Follow up',
+      service: note.trim() || 'Seguimiento',
     })
     window.dispatchEvent(new CustomEvent('ju:hydrated'))
     reload()
@@ -148,7 +148,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
   return (
     <>
       <button className="os-back-link" onClick={() => router.back()} style={{ background: 'none', border: 'none', cursor: 'pointer', marginBottom: 16 }}>
-        <i className="ti ti-arrow-left" /> Back
+        <i className="ti ti-arrow-left" /> Volver
       </button>
 
       {nothingAtAll ? (
@@ -174,7 +174,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
               </div>
               <div className="os-crm-actions" style={{ marginBottom: 0, maxWidth: 320 }}>
                 {wa && <a className="os-crm-action os-crm-action-wa" href={`https://wa.me/${wa}`} target="_blank" rel="noopener noreferrer"><i className="ti ti-brand-whatsapp" /> WhatsApp</a>}
-                {phone && <a className="os-crm-action os-crm-action-dark" href={`tel:${phone}`}><i className="ti ti-phone" /> Call</a>}
+                {phone && <a className="os-crm-action os-crm-action-dark" href={`tel:${phone}`}><i className="ti ti-phone" /> Llamar</a>}
                 <a className="os-crm-action os-crm-action-dark" href={`mailto:${email}`}><i className="ti ti-mail" /> Email</a>
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
                     {STAGES.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                   </select>
                   <Link href={`/admin/deals?deal=${encodeURIComponent(primaryDeal.id)}`} className="os-btn os-btn-ghost os-btn-sm">
-                    <i className="ti ti-arrow-up-right" /> Open pipeline workspace
+                    <i className="ti ti-arrow-up-right" /> Abrir en Leads
                   </Link>
                   {deals.length > 1 && (
                     <span style={{ fontSize: 12, color: 'var(--os-text-faint)' }}>+{deals.length - 1} other deal{deals.length > 2 ? 's' : ''} in the timeline below</span>
@@ -215,9 +215,9 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
           <OnboardingCard name={name} email={email} phone={phone} dealId={primaryDeal?.id} refresh={primaryDeal?.stage} />
 
           <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
-            <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Invoices</div>
+            <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Facturas</div>
             {invoices.length === 0 ? (
-              <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>No invoices yet.</div>
+              <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Sin facturas todavía.</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {invoices.map(inv => (
@@ -239,9 +239,9 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
 
           {}
           <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
-            <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Proposals</div>
+            <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Propuestas</div>
             {proposals.length === 0 ? (
-              <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>No proposals yet.</div>
+              <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Sin propuestas todavía.</div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                 {proposals.map(p => (

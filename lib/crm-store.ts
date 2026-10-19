@@ -225,7 +225,7 @@ export function saveLead(lead: Omit<Lead, 'id' | 'createdAt'>): Lead {
 
   const arrival: ActivityEntry = {
     id: uid(), ts: createdAt, type: 'note',
-    text: `Entered the system${lead.source ? ` via ${lead.source}` : ''}.`,
+    text: `Entró en el sistema${lead.source ? ` vía ${lead.source}` : ''}.`,
   }
   const item: Lead = { ...lead, id: uid(), createdAt, activity: [arrival, ...(lead.activity ?? [])] }
   save(LEADS_KEY, [item, ...getLeads()])

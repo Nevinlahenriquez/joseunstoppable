@@ -192,8 +192,8 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
       clientCompany: form?.company,
       stage: 'lead',
       value: 0,
-      currency: 'USD',
-      service: note.trim() || 'Follow up',
+      currency: 'EUR',
+      service: note.trim() || 'Seguimiento',
     })
 
     window.dispatchEvent(new CustomEvent('ju:hydrated'))
@@ -207,9 +207,9 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
   const contactEmail = deal?.clientEmail ?? form.email
 
   const kind = deal
-    ? 'Pipeline deal'
+    ? 'Lead en el pipeline'
     : contact.kindLabel
-      ?? (resolved.lead ? 'Contact' : resolved.attendee ? `Attendee · ${resolved.attendee.eventTitle}` : 'On record')
+      ?? (resolved.lead ? 'Contacto' : resolved.attendee ? `Evento · ${resolved.attendee.eventTitle}` : 'Contacto')
 
   const actionTarget = deal ?? ({ clientPhone: form.phone, clientEmail: form.email, activity: [] } as unknown as Deal)
 
@@ -249,7 +249,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
             <div className="os-crm-notice" data-tone="warn">
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 6 }}>
                 <i className="ti ti-refresh" style={{ color: 'var(--os-warn)', fontSize: 14 }} />
-                <strong style={{ fontSize: 12.5, color: 'var(--os-text)' }}>They updated their own details</strong>
+                <strong style={{ fontSize: 12.5, color: 'var(--os-text)' }}>Ha actualizado sus datos</strong>
                 <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--os-text-faint)' }}>{fmtTs(recentUpdate.ts)}</span>
               </div>
               {}
@@ -264,7 +264,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
                   try { localStorage.setItem(DISMISS_KEY, JSON.stringify(next)) } catch {  }
                 }}
                 style={{ marginTop: 8, background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--os-accent)', fontSize: 12, fontWeight: 700, fontFamily: 'inherit' }}
-              >Got it</button>
+              >Entendido</button>
             </div>
           )}
 
@@ -285,14 +285,13 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
                 </div>
               )}
               <div className="os-crm-section">
-                <div className="os-crm-section-title">Contact</div>
-                {field('Email', 'email', 'email', 'name@company.com')}
-                {field('Phone', 'phone', 'tel', ' ...')}
-                {field('Company', 'company', 'text', 'Company name')}
+                <div className="os-crm-section-title">Contacto</div>
+                {field('Email', 'email', 'email', 'nombre@email.com')}
+                {field('WhatsApp', 'phone', 'tel', '+34 600 000 000')}
                 {}
                 {(resolved.lead || (onSaveField && form.status)) && (
                   <div className="os-crm-field">
-                    <label>Status</label>
+                    <label>Estado</label>
                     <select
                       className="os-crm-input"
                       value={(form.status as string) ?? 'new'}
@@ -314,13 +313,13 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
               {}
               {resolved.lead && (
                 <div className="os-crm-section">
-                  <div className="os-crm-section-title">Log a touch</div>
+                  <div className="os-crm-section-title">Apuntar contacto</div>
                   <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
                     {([
-                      { t: 'call' as const, label: 'Called', icon: 'ti-phone' },
-                      { t: 'email' as const, label: 'Emailed', icon: 'ti-mail' },
+                      { t: 'call' as const, label: 'Llamada', icon: 'ti-phone' },
+                      { t: 'email' as const, label: 'Email', icon: 'ti-mail' },
                       { t: 'whatsapp' as const, label: 'WhatsApp', icon: 'ti-brand-whatsapp' },
-                      { t: 'meeting' as const, label: 'Met', icon: 'ti-users' },
+                      { t: 'meeting' as const, label: 'Reunión', icon: 'ti-users' },
                     ]).map(o => (
                       <button key={o.t} type="button" className="os-btn os-btn-ghost os-btn-sm"
                         onClick={() => { logLeadActivity(resolved.lead!.id, o.t, o.label); notify(); setVersion(v => v + 1) }}>
@@ -337,8 +336,8 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
                     el.value = ''
                     notify(); setVersion(v => v + 1)
                   }} style={{ display: 'flex', gap: 6 }}>
-                    <input name="note" className="os-crm-input" placeholder="Add a note…" style={{ flex: 1 }} />
-                    <button type="submit" className="os-btn os-btn-sm">Add</button>
+                    <input name="note" className="os-crm-input" placeholder="Añadir nota…" style={{ flex: 1 }} />
+                    <button type="submit" className="os-btn os-btn-sm">Añadir</button>
                   </form>
 
                   {(resolved.lead.activity?.length ?? 0) > 0 && (
@@ -361,7 +360,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
 
               {(contact.tags?.length ?? 0) > 0 && (
                 <div className="os-crm-section">
-                  <div className="os-crm-section-title">Segments</div>
+                  <div className="os-crm-section-title">Objetivos</div>
                   <div className="os-crm-tags">
                     {contact.tags!.map(t => <span key={t} className="os-tag-chip active" title={t}>{t}</span>)}
                   </div>
@@ -369,7 +368,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
               )}
 
               <div className="os-crm-section">
-                <div className="os-crm-section-title">Notes</div>
+                <div className="os-crm-section-title">Notas</div>
                 <div className="os-crm-field">
                   <textarea className="os-crm-textarea" placeholder="Anything worth remembering about this contact" disabled={!writer}
                     value={form.notes ?? ''}

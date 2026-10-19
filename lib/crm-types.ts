@@ -1,14 +1,14 @@
 export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'unqualified' | 'pending' | 'opportunity' | 'pipeline' | 'client' | 'upsell' | 'dormant' | 'lost'
 
 export const CONTACT_STATUSES: { value: LeadStatus; label: string; color: string; bg: string }[] = [
-  { value: 'new',         label: 'New',         color: '#6b7280', bg: '#f3f4f6' },
-  { value: 'pending',     label: 'Pending',     color: '#b45309', bg: '#fffbeb' },
-  { value: 'opportunity', label: 'Opportunity', color: '#2563eb', bg: '#eff6ff' },
+  { value: 'new',         label: 'Nuevo',         color: '#6b7280', bg: '#f3f4f6' },
+  { value: 'pending',     label: 'Pendiente',     color: '#b45309', bg: '#fffbeb' },
+  { value: 'opportunity', label: 'Oportunidad', color: '#2563eb', bg: '#eff6ff' },
   { value: 'pipeline',    label: 'Pipeline',    color: '#0E71AC', bg: '#f5f3ff' },
-  { value: 'client',      label: 'Client',      color: '#059669', bg: '#ecfdf5' },
-  { value: 'upsell',      label: 'Upsell',      color: '#0891b2', bg: '#ecfeff' },
-  { value: 'dormant',     label: 'Dormant',     color: '#9ca3af', bg: '#f9fafb' },
-  { value: 'lost',        label: 'Lost',        color: '#dc2626', bg: '#fef2f2' },
+  { value: 'client',      label: 'Cliente',      color: '#059669', bg: '#ecfdf5' },
+  { value: 'upsell',      label: 'Ampliar plan',      color: '#0891b2', bg: '#ecfeff' },
+  { value: 'dormant',     label: 'Inactivo',     color: '#9ca3af', bg: '#f9fafb' },
+  { value: 'lost',        label: 'Perdido',        color: '#dc2626', bg: '#fef2f2' },
 ]
 
 export type InvoiceStatus = 'draft' | 'sent' | 'paid' | 'overdue' | 'void'
