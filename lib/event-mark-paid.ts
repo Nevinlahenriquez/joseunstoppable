@@ -12,11 +12,11 @@ export type MarkPaidResult =
   | { ok: false; error: string }
 
 const VIA_LABEL: Record<PaidVia, string> = {
-  'card': 'paid by card',
-  'bank-auto': 'paid by bank transfer (proof matched)',
-  'bank-manual': 'marked paid by hand (bank transfer)',
-  'referral': 'earned a free seat by inviting friends',
-  'circle': 'has the seat included at no charge',
+  'card': 'pagó con tarjeta',
+  'bank-auto': 'pagó por transferencia (el justificante coincide)',
+  'bank-manual': 'marcado como pagado a mano (transferencia)',
+  'referral': 'consiguió una plaza gratis invitando a amigos',
+  'circle': 'tiene la plaza incluida sin coste',
 }
 
 export async function markSeatPaid(
@@ -24,7 +24,7 @@ export async function markSeatPaid(
   opts: { ticketCode: string; amount: number; via: PaidVia; ref?: Record<string, unknown> },
 ): Promise<MarkPaidResult> {
   const ticketCode = opts.ticketCode.trim()
-  if (!ticketCode) return { ok: false, error: 'No ticket code.' }
+  if (!ticketCode) return { ok: false, error: 'Sin código de entrada.' }
 
   const patch: Record<string, unknown> = {
     paid: true,
@@ -67,12 +67,12 @@ export async function markSeatPaid(
 
   if (!emailSent && opts.via !== 'bank-manual') {
     try {
-      await sendEmail(OWNER_EMAIL, `Paid seat: ${String(seat.name || seat.email)}`, emailShell({
-        title: 'A workshop seat was paid',
-        preview: 'A paid seat came in',
+      await sendEmail(OWNER_EMAIL, `Plaza pagada: ${String(seat.name || seat.email)}`, emailShell({
+        title: 'Se ha pagado una plaza',
+        preview: 'Ha entrado una plaza pagada',
         showFooterLinks: false,
-        body: `<p style="margin:0 0 12px;">${escapeHtml(String(seat.name || ''))} (${escapeHtml(String(seat.email || ''))}) ${VIA_LABEL[opts.via]} for <strong>${escapeHtml(title)}</strong>. Ticket ${escapeHtml(ticketCode)}.${emailSent ? ' Their confirmation with the joining link has been sent.' : ' <strong>Their confirmation email did NOT send</strong>: send them the joining link by hand.'}</p>`
-          + (opts.via === 'bank-auto' ? `<p style="margin:0;">Check the transfer actually landed in your bank before the event. The proof is on their row in <a href="${SITE_URL}/admin/events/${encodeURIComponent(String(seat.event_id))}">/admin/events</a>.</p>` : ''),
+        body: `<p style="margin:0 0 12px;">${escapeHtml(String(seat.name || ''))} (${escapeHtml(String(seat.email || ''))}) ${VIA_LABEL[opts.via]} para <strong>${escapeHtml(title)}</strong>. Entrada ${escapeHtml(ticketCode)}.${emailSent ? ' Ya se le ha enviado la confirmación con el enlace.' : ' <strong>Su email de confirmación NO se envió</strong>: mándale el enlace a mano.'}</p>`
+          + (opts.via === 'bank-auto' ? `<p style="margin:0;">Comprueba que la transferencia ha llegado a tu banco antes del evento. El justificante está en su fila en <a href="${SITE_URL}/admin/events/${encodeURIComponent(String(seat.event_id))}">/admin/events</a>.</p>` : ''),
       }))
     } catch (e) {
       console.error('[event-paid] owner notification failed', e)

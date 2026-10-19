@@ -7,7 +7,7 @@ function writeClipboard(text: string): Promise<void> {
   return copyText(text).then(ok => { if (!ok) throw new Error('copy refused') })
 }
 
-export function CopyButton({ value, label = 'Copy e-mail', style }: { value: string; label?: string; style?: CSSProperties }) {
+export function CopyButton({ value, label = 'Copiar email', style }: { value: string; label?: string; style?: CSSProperties }) {
   const [state, setState] = useState<'idle' | 'done' | 'fail'>('idle')
   const onClick = (e: MouseEvent<HTMLButtonElement>) => {
 
@@ -23,7 +23,7 @@ export function CopyButton({ value, label = 'Copy e-mail', style }: { value: str
     <button
       type="button"
       onClick={onClick}
-      title={state === 'done' ? 'Copied' : state === 'fail' ? 'Could not copy' : label}
+      title={state === 'done' ? 'Copiado' : state === 'fail' ? 'No se pudo copiar' : label}
       aria-label={label}
       className="os-copy-btn"
       data-state={state}

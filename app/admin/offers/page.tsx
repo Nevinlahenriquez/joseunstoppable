@@ -8,8 +8,8 @@ import OffersCatalog from '@/components/os/OffersCatalog'
 
 type Tab = 'ladder' | 'catalog'
 const TABS: { key: Tab; label: string; sub: string }[] = [
-  { key: 'ladder', label: 'Ascension Ladder', sub: 'Place your Service Catalog offers on the pyramid' },
-  { key: 'catalog', label: 'Service Catalog', sub: 'Define your offers, by business line' },
+  { key: 'ladder', label: 'Escalera de valor', sub: 'Coloca tus ofertas del catálogo en la pirámide' },
+  { key: 'catalog', label: 'Catálogo de servicios', sub: 'Define tus ofertas por línea de negocio' },
 ]
 
 function OffersInner() {
@@ -21,7 +21,7 @@ function OffersInner() {
     <>
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">Offers</div>
+          <div className="os-page-title">Ofertas</div>
           <div className="os-page-sub">{TABS.find(t => t.key === tab)?.sub}</div>
         </div>
       </div>

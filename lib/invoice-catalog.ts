@@ -14,22 +14,23 @@ export type CatalogItem = {
 }
 
 export const STRATEGY_SESSION = {
-  title: 'Strategy Session',
-  price: 250,
-  introDiscount: 100,
+  title: 'Programa Imparable, 90 días',
+  price: 497,
+  introDiscount: 0,
   line: {
-    name: 'Strategy Session, 90 minutes',
-    description: 'A 90 minute deep dive into your business and questions. We set up the systems you need together and you leave with a written blueprint and plan.',
+    name: 'Programa Imparable, 3 meses de coaching 1:1',
+    description: 'Plan de fuerza personalizado en la app, nutrición adaptada, WhatsApp diario y check-in semanal.',
   },
-  note: 'This covers one 90 minute session and the written blueprint. Anything beyond the session is billed separately. Once paid, your session date is confirmed.',
+  note: 'Garantía Imparable: si durante los 90 días sigues el plan y no ves resultados, te devuelvo el 100% de tu dinero.',
 }
 
 export const CATALOG_GROUPS = ['Sessions', 'Proposals', 'Offers'] as const
 
+export const CATALOG_GROUP_LABEL: Record<CatalogItem['group'], string> = { Sessions: 'Programa', Proposals: 'Plantillas', Offers: 'Ofertas' }
+
 export function buildCatalog(offers: Offer[]): CatalogItem[] {
   const items: CatalogItem[] = [
-    { key: 'strategy', group: 'Sessions', ...STRATEGY_SESSION.line, price: STRATEGY_SESSION.price, currency: 'USD' },
-    { key: 'strategy-intro', group: 'Sessions', name: 'Introductory price', description: 'First session rate', price: -STRATEGY_SESSION.introDiscount, currency: 'USD' },
+    { key: 'strategy', group: 'Sessions', ...STRATEGY_SESSION.line, price: STRATEGY_SESSION.price, currency: 'EUR' },
   ]
   for (const t of TEMPLATES) {
     const first = t.schedule[0]
@@ -53,7 +54,7 @@ export function buildCatalog(offers: Offer[]): CatalogItem[] {
       description: o.tagline?.trim() || o.services.filter(Boolean).slice(0, 3).join(', '),
       price: o.price,
       currency: o.currency,
-      suffix: o.billingType === 'monthly' ? '/mo' : undefined,
+      suffix: o.billingType === 'monthly' ? '/mes' : undefined,
     })
   }
 

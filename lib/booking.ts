@@ -23,7 +23,7 @@ export const DEFAULT_AVAILABILITY: Availability = {
 
 // Offset (ms) of a time zone at a given instant.
 function tzOffset(at: Date, timeZone: string): number {
-  const parts = new Intl.DateTimeFormat('en-US', { timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(at)
+  const parts = new Intl.DateTimeFormat('es-ES', { timeZone, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(at)
   const g = (t: string) => Number(parts.find(p => p.type === t)?.value)
   const asUtc = Date.UTC(g('year'), g('month') - 1, g('day'), g('hour'), g('minute'), g('second'))
   return asUtc - at.getTime()

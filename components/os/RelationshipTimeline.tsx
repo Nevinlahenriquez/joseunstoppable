@@ -20,8 +20,9 @@ export const KIND_META: Record<HistoryEvent['kind'], { icon: string; color: stri
 
 export function money(n?: number, cur?: string) {
   if (n === undefined) return null
-  const sym = cur === 'EUR' ? '€' : cur === 'AWG' ? 'Afl. ' : '$'
-  return sym + n.toLocaleString()
+  if (cur === 'USD') return '$' + n.toLocaleString('es-ES')
+  if (cur === 'AWG') return 'Afl. ' + n.toLocaleString('es-ES')
+  return n.toLocaleString('es-ES') + ' €'
 }
 
 export default function RelationshipTimeline({
@@ -42,23 +43,23 @@ export default function RelationshipTimeline({
   return (
     <div className="os-crm-section">
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Relationship history</div>
+        <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Historial con este contacto</div>
         <span className="os-tag-chip active" title={STATUS_HINT[person.status]}>{STATUS_LABEL[person.status]}</span>
       </div>
 
       {person.totalBilled > 0 && (
         <div style={{ display: 'flex', gap: 16, padding: '8px 10px', background: 'var(--os-good-soft)', borderRadius: 10, margin: '10px 0' }}>
           <div>
-            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Billed</div>
+            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Facturado</div>
             <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-text)' }}>{money(person.totalBilled)}</div>
           </div>
           <div>
-            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Paid</div>
+            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Pagado</div>
             <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-good)' }}>{money(person.totalPaid)}</div>
           </div>
           {person.totalBilled > person.totalPaid && (
             <div>
-              <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Outstanding</div>
+              <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Pendiente</div>
               <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-bad)' }}>{money(person.totalBilled - person.totalPaid)}</div>
             </div>
           )}
@@ -72,14 +73,14 @@ export default function RelationshipTimeline({
           </Link>
         ) : addingNote === null ? (
           <button className="os-btn os-btn-primary os-btn-sm" style={{ margin: '8px 0' }} onClick={() => setAddingNote('')}>
-            <i className="ti ti-plus" /> Add to lead pipeline
+            <i className="ti ti-plus" /> Añadir al pipeline
           </button>
         ) : (
           <div style={{ display: 'flex', gap: 6, margin: '8px 0' }}>
-            <input className="os-crm-input" placeholder="What's this about? (optional)" value={addingNote}
+            <input className="os-crm-input" placeholder="¿De qué se trata? (opcional)" value={addingNote}
               onChange={e => setAddingNote(e.target.value)} style={{ flex: 1 }}
               onKeyDown={e => { if (e.key === 'Enter') { onAddToPipeline(addingNote); setAddingNote(null) } }} />
-            <button className="os-btn os-btn-primary os-btn-sm" onClick={() => { onAddToPipeline(addingNote); setAddingNote(null) }}>Add</button>
+            <button className="os-btn os-btn-primary os-btn-sm" onClick={() => { onAddToPipeline(addingNote); setAddingNote(null) }}>Añadir</button>
             <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => setAddingNote(null)}>✕</button>
           </div>
         )
@@ -87,7 +88,7 @@ export default function RelationshipTimeline({
 
       {person.events.length === 0 ? (
         <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', padding: '6px 0' }}>
-          Nothing recorded yet. Deals, offers, invoices, events and logged calls for this email will appear here automatically.
+          Aún no hay nada registrado. Las oportunidades, ofertas, facturas, eventos y llamadas de este email aparecerán aquí automáticamente.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, marginTop: 6 }}>
@@ -109,7 +110,7 @@ export default function RelationshipTimeline({
                   </div>
                   {e.detail && <div style={{ fontSize: fs.detail, color: 'var(--os-text-muted)', marginTop: 1, overflowWrap: 'anywhere' }}>{e.detail}</div>}
                   <div style={{ fontSize: fs.ts, color: 'var(--os-text-faint)', marginTop: 1 }}>
-                    {new Date(e.at).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    {new Date(e.at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
                   </div>
                 </div>
               </div>
@@ -123,7 +124,7 @@ export default function RelationshipTimeline({
 
       {person.events.length > limit && (
         <button className="os-btn os-btn-ghost os-btn-sm" style={{ marginTop: 8 }} onClick={() => setAll(v => !v)}>
-          {all ? 'Show less' : `Show all ${person.events.length}`}
+          {all ? 'Ver menos' : `Ver los ${person.events.length}`}
         </button>
       )}
     </div>

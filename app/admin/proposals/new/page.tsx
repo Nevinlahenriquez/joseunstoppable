@@ -62,7 +62,7 @@ export default function NewProposalPage() {
   const [services, setServices]   = useState<string[]>([])
   const [deliverables, setDeliverables] = useState<string[]>([''])
   const [milestones, setMilestones]     = useState<PaymentMilestone[]>([{ label: '', amount: 0 }])
-  const [currency, setCurrency]   = useState<Currency>('USD')
+  const [currency, setCurrency]   = useState<Currency>('EUR')
 
   const [oneTime, setOneTime] = useState(false)
 
@@ -148,13 +148,13 @@ export default function NewProposalPage() {
       setStep(3)
       return
     }
-    setTitle(o.name + (clientCompany ? ` for ${clientCompany}` : ''))
-    setIntro(`${clientName}, here is the proposal for ${o.name}.\n\n${o.tagline}`)
+    setTitle(o.name + (clientCompany ? ` para ${clientCompany}` : ''))
+    setIntro(`${clientName}, aquí tienes la propuesta de ${o.name}.\n\n${o.tagline}`)
     setServices([...o.services])
     setDeliverables(o.deliverables.length ? [...o.deliverables] : [''])
 
     setMilestones(o.paymentSchedule.length ? [...o.paymentSchedule]
-      : o.price > 0 ? [{ label: o.billingType === 'monthly' ? 'Month 1' : 'Paid in full on signing', amount: o.price }]
+      : o.price > 0 ? [{ label: o.billingType === 'monthly' ? 'Mes 1' : 'Pago completo al firmar', amount: o.price }]
       : [{ label: '', amount: 0 }])
     setCurrency(o.currency)
     setValidDays(14)
@@ -179,7 +179,7 @@ export default function NewProposalPage() {
           company: clientCompany,
           source: 'proposal',
           status: 'qualified',
-          notes: `Added automatically when the proposal "${title}" was created.`,
+          notes: `Añadido automáticamente al crear la propuesta "${title}".`,
         })
       }
     }
@@ -198,16 +198,16 @@ export default function NewProposalPage() {
     router.push('/admin/proposals')
   }
 
-  const steps = ['Contact', 'Package', 'Review']
+  const steps = ['Contacto', 'Paquete', 'Revisión']
 
   return (
     <div className="os-doc-editor">
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">New Proposal</div>
-          <div className="os-page-sub">3 steps from contact to ready-to-send</div>
+          <div className="os-page-title">Nueva propuesta</div>
+          <div className="os-page-sub">3 pasos del contacto a la propuesta lista para enviar</div>
         </div>
-        <button className="os-btn os-btn-ghost" onClick={() => router.back()}>Cancel</button>
+        <button className="os-btn os-btn-ghost" onClick={() => router.back()}>Cancelar</button>
       </div>
 
       {}
@@ -242,10 +242,10 @@ export default function NewProposalPage() {
       {}
       {step === 1 && (
         <div className="os-card" style={{ padding: 24 }}>
-          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16 }}>Who is this proposal for?</div>
+          <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 16 }}>¿Para quién es esta propuesta?</div>
 
           {}
-          <input className="os-input" placeholder="Search leads and deals..." value={search}
+          <input className="os-input" placeholder="Buscar leads y oportunidades..." value={search}
             onChange={e => setSearch(e.target.value)} style={{ marginBottom: 12 }} autoFocus />
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 320, overflowY: 'auto', marginBottom: 16 }}>
@@ -271,22 +271,22 @@ export default function NewProposalPage() {
                 </span>
               </button>
             ))}
-            {filtered.length === 0 && <div style={{ color: 'var(--os-text-faint)', fontSize: 13, padding: '12px 0' }}>No matches. Enter details below.</div>}
+            {filtered.length === 0 && <div style={{ color: 'var(--os-text-faint)', fontSize: 13, padding: '12px 0' }}>Sin resultados. Escribe los datos abajo.</div>}
           </div>
 
           {}
           <div style={{ borderTop: '1px solid var(--os-line)', paddingTop: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--os-text-faint)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>Or enter manually</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--os-text-faint)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>O escríbelos a mano</div>
             {}
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 10 }}>
               <div style={{ flex: '1 1 200px' }}>
-                <label className="os-label">Full name</label>
+                <label className="os-label">Nombre completo</label>
                 <input className="os-input" placeholder="Nombre completo" value={manualName} onChange={e => setManualName(e.target.value)} autoComplete="off" />
               </div>
               <div style={{ flex: '1 1 240px' }}>
                 <label className="os-label">
                   Email <span style={{ color: 'var(--os-bad)' }}>*</span>
-                  <span style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0, color: 'var(--os-text-faint)' }}> — where the proposal is sent</span>
+                  <span style={{ fontWeight: 500, textTransform: 'none', letterSpacing: 0, color: 'var(--os-text-faint)' }}> — adonde se envía la propuesta</span>
                 </label>
                 <input
                   className="os-input"
@@ -299,15 +299,15 @@ export default function NewProposalPage() {
                   style={manualEmail && !EMAIL_OK.test(manualEmail) ? { borderColor: 'var(--os-bad)' } : undefined}
                 />
                 {manualEmail && !EMAIL_OK.test(manualEmail) && (
-                  <div style={{ fontSize: 12, color: 'var(--os-bad)', marginTop: 4 }}>That is not an email address.</div>
+                  <div style={{ fontSize: 12, color: 'var(--os-bad)', marginTop: 4 }}>Eso no es un email válido.</div>
                 )}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-              <input className="os-input" placeholder="Company (optional)" value={manualCompany} onChange={e => setManualCompany(e.target.value)} style={{ flex: '1 1 160px' }} />
+              <input className="os-input" placeholder="Empresa (opcional)" value={manualCompany} onChange={e => setManualCompany(e.target.value)} style={{ flex: '1 1 160px' }} />
               {}
-              <input className="os-input" placeholder="Phone (optional)" value={manualPhone} onChange={e => setManualPhone(e.target.value)} style={{ flex: '1 1 160px' }} />
-              <input className="os-input" placeholder="Address (optional)" value={manualAddress} onChange={e => setManualAddress(e.target.value)} style={{ flex: '1 1 220px' }} />
+              <input className="os-input" placeholder="Teléfono (opcional)" value={manualPhone} onChange={e => setManualPhone(e.target.value)} style={{ flex: '1 1 160px' }} />
+              <input className="os-input" placeholder="Dirección (opcional)" value={manualAddress} onChange={e => setManualAddress(e.target.value)} style={{ flex: '1 1 220px' }} />
             </div>
             {}
             {manualName && (
@@ -316,7 +316,7 @@ export default function NewProposalPage() {
                 className="os-btn os-btn-primary"
                 style={{ marginTop: 12 }}
                 disabled={!EMAIL_OK.test(manualEmail)}
-                title={EMAIL_OK.test(manualEmail) ? undefined : 'Add their email first'}
+                title={EMAIL_OK.test(manualEmail) ? undefined : 'Añade primero su email'}
                 onClick={() => { setContact(null); setStep(2) }}
               >
                 Continue with {manualName} <i className="ti ti-arrow-right" />
@@ -337,10 +337,10 @@ export default function NewProposalPage() {
             <>
               <div style={{ display: 'flex', gap: 4, marginBottom: 16, background: 'var(--os-card)', border: '1px solid var(--os-line)', borderRadius: 10, padding: 4, width: 'fit-content', flexWrap: 'wrap' }}>
                 {([
-                  { key: 'all', label: 'All' },
-                  { key: 'programs', label: '🎓 Programs' },
+                  { key: 'all', label: 'Todas' },
+                  { key: 'programs', label: '🎓 Programas' },
                   { key: 'coaching', label: '🧠 José Unstoppable' },
-                  { key: 'communication', label: '🎤 Communication' },
+                  { key: 'communication', label: '🎤 Comunicación' },
                   { key: 'premium', label: '💎 Alto ticket' },
                 ] as { key: OfferCategoryFilter; label: string }[]).map(f => (
                   <button
@@ -361,9 +361,9 @@ export default function NewProposalPage() {
               </div>
 
               {([
-                { key: 'programs', label: 'Online Programs', icon: '🎓', color: 'var(--os-warn)' },
+                { key: 'programs', label: 'Programas online', icon: '🎓', color: 'var(--os-warn)' },
                 { key: 'coaching', label: 'José Unstoppable', icon: '🧠', color: 'var(--os-good)' },
-                { key: 'communication', label: 'Communication Coaching', icon: '🎤', color: 'var(--os-bad)' },
+                { key: 'communication', label: 'Coaching de comunicación', icon: '🎤', color: 'var(--os-bad)' },
                 { key: 'premium', label: 'Alto ticket', icon: '💎', color: 'var(--os-text)' },
               ] as { key: OfferCategory; label: string; icon: string; color: string }[])
                 .filter(cat => (offerFilter === 'all' || offerFilter === cat.key) && filteredOffers.some(o => o.category === cat.key))
@@ -382,8 +382,8 @@ export default function NewProposalPage() {
                             <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-text)', marginBottom: 3 }}>{o.name}</div>
                             <div style={{ fontSize: 12, color: 'var(--os-text-faint)', lineHeight: 1.5, marginBottom: 10 }}>{o.tagline}</div>
                             <div style={{ fontWeight: 800, fontSize: 15, color: cat.color }}>
-                              {o.currency === 'EUR' ? '\u20ac' : o.currency === 'AWG' ? '\u0192' : '$'}{o.price.toLocaleString()}{o.billingType === 'monthly' ? '/mo' : o.billingType === 'retainer' ? ' retainer' : ''}
-                              {scheduleTotal !== o.price && <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--os-text-faint)' }}> ({scheduleTotal.toLocaleString()} total)</span>}
+                              {o.price.toLocaleString('es-ES')} {o.currency === 'USD' ? '$' : o.currency === 'AWG' ? '\u0192' : '\u20ac'}{o.billingType === 'monthly' ? '/mes' : o.billingType === 'retainer' ? ' cuota fija' : ''}
+                              {scheduleTotal !== o.price && <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--os-text-faint)' }}> (total {scheduleTotal.toLocaleString('es-ES')})</span>}
                             </div>
                           </button>
                         )
@@ -392,7 +392,7 @@ export default function NewProposalPage() {
                   </div>
                 ))}
 
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-text-faint)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 4 }}>Or start from a template</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--os-text-faint)', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8, marginTop: 4 }}>O empieza desde una plantilla</div>
             </>
           )}
 
@@ -409,15 +409,15 @@ export default function NewProposalPage() {
                 <div style={{ fontSize: 12, color: 'var(--os-text-faint)', lineHeight: 1.5 }}>{t.tagline}</div>
                 {t.schedule.length > 0 && t.id !== 'custom' && (
                   <div style={{ marginTop: 10, fontWeight: 800, fontSize: 15, color: t.color }}>
-                    ${t.schedule.reduce((s, m) => s + m.amount, 0).toLocaleString()}
-                    {(t.id === 'growth' || t.id === 'takeover' || t.id === 'ads') && <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--os-text-faint)' }}> + retainer</span>}
+                    {t.schedule.reduce((s, m) => s + m.amount, 0).toLocaleString('es-ES')} €
+                    {(t.id === 'growth' || t.id === 'takeover' || t.id === 'ads') && <span style={{ fontSize: 11, fontWeight: 500, color: 'var(--os-text-faint)' }}> + cuota</span>}
                   </div>
                 )}
               </button>
             ))}
           </div>
           <button type="button" className="os-btn os-btn-ghost" style={{ marginTop: 16 }} onClick={() => setStep(1)}>
-            <i className="ti ti-arrow-left" /> Back
+            <i className="ti ti-arrow-left" /> Volver
           </button>
         </div>
       )}
@@ -434,26 +434,26 @@ export default function NewProposalPage() {
               <div style={{ fontWeight: 700, fontSize: 14 }}>{clientName}</div>
               <div style={{ fontSize: 12, color: 'var(--os-text-faint)' }}>{clientCompany} {clientEmail && <>· <EmailText email={clientEmail} /></>}</div>
             </div>
-            <button type="button" onClick={() => setStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontSize: 12, fontWeight: 600 }}>Change</button>
+            <button type="button" onClick={() => setStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--accent)', fontSize: 12, fontWeight: 600 }}>Cambiar</button>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {}
             <div className="os-card" style={{ padding: 22 }}>
-              <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Proposal Copy</div>
+              <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Texto de la propuesta</div>
               <div className="os-form-group">
-                <label className="os-label">Title</label>
+                <label className="os-label">Título</label>
                 <input className="os-input" value={title} onChange={e => setTitle(e.target.value)} />
               </div>
               <div className="os-form-group" style={{ marginTop: 14 }}>
-                <label className="os-label">Opening message</label>
+                <label className="os-label">Mensaje de apertura</label>
                 <textarea className="os-textarea" value={intro} onChange={e => setIntro(e.target.value)} style={{ minHeight: 110 }} />
               </div>
             </div>
 
             {}
             <div className="os-card" style={{ padding: 22 }}>
-              <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Services Included</div>
+              <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Servicios incluidos</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {services.map((s, i) => (
                   <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
@@ -464,35 +464,35 @@ export default function NewProposalPage() {
                 ))}
               </div>
               <button type="button" className="os-add-btn" style={{ marginTop: 10 }} onClick={() => setServices(prev => [...prev, ''])}>
-                <i className="ti ti-plus" /> Add service
+                <i className="ti ti-plus" /> Añadir servicio
               </button>
             </div>
 
             {}
             <div className="os-card" style={{ padding: 22 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Payment Schedule</div>
+                <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Calendario de pagos</div>
                 <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--accent)' }}>
-                  {currency} {total.toLocaleString()}
+                  {total.toLocaleString('es-ES')} {currency}
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {milestones.map((m, i) => (
                   <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center', background: 'var(--os-card-alt)', border: '1px solid var(--os-line)', borderRadius: 10, padding: '12px 14px' }}>
-                    <input className="os-input" value={m.label} onChange={e => setMilestones(prev => prev.map((x, idx) => idx === i ? { ...x, label: e.target.value } : x))} placeholder="Label" style={{ flex: 2 }} />
+                    <input className="os-input" value={m.label} onChange={e => setMilestones(prev => prev.map((x, idx) => idx === i ? { ...x, label: e.target.value } : x))} placeholder="Concepto" style={{ flex: 2 }} />
                     <input className="os-input" type="number" value={m.amount || ''} onChange={e => setMilestones(prev => prev.map((x, idx) => idx === i ? { ...x, amount: Number(e.target.value) } : x))} placeholder="$" style={{ flex: '0 0 100px' }} />
                     <button type="button" onClick={() => setMilestones(prev => prev.filter((_, idx) => idx !== i))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--os-text-faint)' }}><i className="ti ti-x" /></button>
                   </div>
                 ))}
               </div>
               <button type="button" className="os-add-btn" style={{ marginTop: 10 }} onClick={() => setMilestones(prev => [...prev, { label: '', amount: 0 }])}>
-                <i className="ti ti-plus" /> Add payment
+                <i className="ti ti-plus" /> Añadir pago
               </button>
 
               {}
               <div style={{ marginTop: 14 }}>
                 <div style={{ fontSize: 11.5, fontWeight: 700, color: 'var(--os-text-faint)', textTransform: 'uppercase', letterSpacing: 0.4, marginBottom: 7 }}>
-                  Payment methods on the invoice
+                  Métodos de pago en la factura
                 </div>
                 <div style={{ display: 'flex', gap: 7, flexWrap: 'wrap' }}>
                   {([['wise','Transferencia'],['card','Tarjeta (Stripe)']] as const).map(([id, label]) => {
@@ -509,7 +509,7 @@ export default function NewProposalPage() {
                 </div>
                 {payMethods.length === 0 && (
                   <div style={{ fontSize: 12.5, color: 'var(--os-bad)', marginTop: 6 }}>
-                    Pick at least one, or the invoice tells them nothing about how to pay.
+                    Elige al menos uno; si no, la factura no dirá cómo pagar.
                   </div>
                 )}
               </div>
@@ -520,19 +520,19 @@ export default function NewProposalPage() {
                   {currencyOptions(currency).map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: 'var(--os-text-faint)' }}>
-                  Valid for
+                  Válida durante
                   <input className="os-input" type="number" value={validDays} onChange={e => setValidDays(Number(e.target.value))} style={{ width: 60, textAlign: 'center' }} />
-                  days
+                  días
                 </div>
               </div>
             </div>
 
             <div style={{ display: 'flex', gap: 10, justifyContent: 'space-between', paddingBottom: 40 }}>
               <button type="button" className="os-btn os-btn-ghost" onClick={() => setStep(2)}>
-                <i className="ti ti-arrow-left" /> Back
+                <i className="ti ti-arrow-left" /> Volver
               </button>
               <button type="button" className="os-btn os-btn-primary" disabled={saving || !clientName || !title} onClick={submit}>
-                <i className="ti ti-device-floppy" /> {saving ? 'Saving...' : 'Save proposal'}
+                <i className="ti ti-device-floppy" /> {saving ? 'Guardando...' : 'Guardar propuesta'}
               </button>
             </div>
           </div>

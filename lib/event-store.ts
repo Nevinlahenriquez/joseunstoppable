@@ -77,13 +77,13 @@ async function syncEvent(e: CrmEvent): Promise<SyncResult> {
     })
     const json = await res.json().catch(() => null)
     if (!res.ok || !json?.ok) {
-      const error = json?.error ? String(json.error) : `The server answered ${res.status}.`
+      const error = json?.error ? String(json.error) : `El servidor respondió ${res.status}.`
       console.error('[event-store] event sync failed:', error)
       return { ok: false, error }
     }
     return { ok: true }
   } catch (err) {
-    const error = err instanceof Error ? err.message : 'Network error, could not reach the server.'
+    const error = err instanceof Error ? err.message : 'Error de red, no se pudo conectar con el servidor.'
     console.error('[event-store] event sync threw:', err)
     return { ok: false, error }
   }
@@ -131,7 +131,7 @@ async function writeRemote(op: 'upsert' | 'delete', table: string, payload: Reco
     }
     recordWriteSuccess(key)
   } catch (err) {
-    recordWriteFailure({ key, op, table, payload, reason: err instanceof Error ? err.message : 'network error' })
+    recordWriteFailure({ key, op, table, payload, reason: err instanceof Error ? err.message : 'error de red' })
   } finally {
     recordWriteEnd()
   }
@@ -146,64 +146,64 @@ function deleteAttendeeRemote(id: string): void {
 }
 
 const DEFAULT_CONFIRMATION = `<div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
-  <div style="background:linear-gradient(135deg,#12002a,#2d0060);padding:32px 40px;text-align:center;border-radius:12px 12px 0 0">
-    <div style="color:#a855f7;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">José Unstoppable</div>
+  <div style="background:linear-gradient(135deg,#0C2A43,#0E71AC);padding:32px 40px;text-align:center;border-radius:12px 12px 0 0">
+    <div style="color:#BFE6FA;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">José Unstoppable</div>
     <div style="color:#fff;font-size:22px;font-weight:900">{{eventTitle}}</div>
   </div>
   <div style="background:#fff;padding:36px 40px;border:1px solid #E4F4FD">
-    <p style="color:#12002a;font-size:16px;margin:0 0 16px">Hi {{name}},</p>
-    <p style="color:#444;line-height:1.7;margin:0 0 20px">You're in! Your spot for <strong>{{eventTitle}}</strong> is confirmed. We're so excited to have you.</p>
+    <p style="color:#0C2A43;font-size:16px;margin:0 0 16px">Hola {{name}},</p>
+    <p style="color:#444;line-height:1.7;margin:0 0 20px">¡Ya estás dentro! Tu plaza para <strong>{{eventTitle}}</strong> está confirmada. Tengo muchas ganas de verte.</p>
     <div style="background:#F1F8FD;border:2px solid #0E71AC;border-radius:12px;padding:20px 24px;margin:24px 0;text-align:center">
-      <div style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Your Ticket Code</div>
+      <div style="color:#888;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Tu código de entrada</div>
       <div style="color:#0E71AC;font-size:28px;font-weight:900;letter-spacing:3px">{{ticketCode}}</div>
-      <div style="color:#aaa;font-size:11px;margin-top:6px">Present this at the event</div>
+      <div style="color:#aaa;font-size:11px;margin-top:6px">Tenlo a mano el día del evento</div>
     </div>
     <table style="width:100%;border-collapse:collapse;margin:20px 0">
-      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #f0eafc;width:40%">📅 Date</td><td style="padding:10px 0;font-weight:700;color:#12002a;border-bottom:1px solid #f0eafc">{{date}}</td></tr>
-      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #f0eafc">🕐 Time</td><td style="padding:10px 0;font-weight:700;color:#12002a;border-bottom:1px solid #f0eafc">{{time}}</td></tr>
-      <tr><td style="padding:10px 0;color:#888;font-size:13px">📍 Location</td><td style="padding:10px 0;font-weight:700;color:#12002a">{{location}}</td></tr>
+      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #E4F4FD;width:40%">📅 Fecha</td><td style="padding:10px 0;font-weight:700;color:#0C2A43;border-bottom:1px solid #E4F4FD">{{date}}</td></tr>
+      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #E4F4FD">🕐 Hora</td><td style="padding:10px 0;font-weight:700;color:#0C2A43;border-bottom:1px solid #E4F4FD">{{time}}</td></tr>
+      <tr><td style="padding:10px 0;color:#888;font-size:13px">📍 Lugar</td><td style="padding:10px 0;font-weight:700;color:#0C2A43">{{location}}</td></tr>
     </table>
-    <p style="color:#444;line-height:1.7;margin:0 0 20px">If you have any questions before the event, just reply to this email and we'll get back to you.</p>
-    <p style="color:#444;margin:0">With good vibes,<br><strong style="color:#12002a">José</strong></p>
+    <p style="color:#444;line-height:1.7;margin:0 0 20px">Si tienes cualquier duda antes del evento, responde a este correo y te contesto.</p>
+    <p style="color:#444;margin:0">Nos vemos pronto,<br><strong style="color:#0C2A43">José</strong></p>
   </div>
-  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
+  <div style="background:#F1F8FD;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
     <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#0E71AC;text-decoration:none">hola@joseunstoppable.com</a></div>
   </div>
 </div>`
 
 const DEFAULT_REMINDER = `<div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
-  <div style="background:linear-gradient(135deg,#12002a,#2d0060);padding:32px 40px;text-align:center;border-radius:12px 12px 0 0">
-    <div style="color:#a855f7;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Event Reminder</div>
+  <div style="background:linear-gradient(135deg,#0C2A43,#0E71AC);padding:32px 40px;text-align:center;border-radius:12px 12px 0 0">
+    <div style="color:#BFE6FA;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Recordatorio</div>
     <div style="color:#fff;font-size:22px;font-weight:900">{{eventTitle}}</div>
   </div>
   <div style="background:#fff;padding:36px 40px;border:1px solid #E4F4FD">
-    <p style="color:#12002a;font-size:16px;margin:0 0 16px">Hi {{name}},</p>
-    <p style="color:#444;line-height:1.7;margin:0 0 20px">Just a reminder, <strong>{{eventTitle}}</strong> is coming up soon! We can't wait to see you there.</p>
+    <p style="color:#0C2A43;font-size:16px;margin:0 0 16px">Hola {{name}},</p>
+    <p style="color:#444;line-height:1.7;margin:0 0 20px">Te recuerdo que <strong>{{eventTitle}}</strong> es muy pronto. ¡Te espero!</p>
     <table style="width:100%;border-collapse:collapse;margin:20px 0">
-      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #f0eafc;width:40%">📅 Date</td><td style="padding:10px 0;font-weight:700;color:#12002a;border-bottom:1px solid #f0eafc">{{date}}</td></tr>
-      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #f0eafc">🕐 Time</td><td style="padding:10px 0;font-weight:700;color:#12002a;border-bottom:1px solid #f0eafc">{{time}}</td></tr>
-      <tr><td style="padding:10px 0;color:#888;font-size:13px">📍 Location</td><td style="padding:10px 0;font-weight:700;color:#12002a">{{location}}</td></tr>
+      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #E4F4FD;width:40%">📅 Fecha</td><td style="padding:10px 0;font-weight:700;color:#0C2A43;border-bottom:1px solid #E4F4FD">{{date}}</td></tr>
+      <tr><td style="padding:10px 0;color:#888;font-size:13px;border-bottom:1px solid #E4F4FD">🕐 Hora</td><td style="padding:10px 0;font-weight:700;color:#0C2A43;border-bottom:1px solid #E4F4FD">{{time}}</td></tr>
+      <tr><td style="padding:10px 0;color:#888;font-size:13px">📍 Lugar</td><td style="padding:10px 0;font-weight:700;color:#0C2A43">{{location}}</td></tr>
     </table>
-    <p style="color:#444;line-height:1.7;margin:0">See you soon!<br><strong style="color:#12002a">José</strong></p>
+    <p style="color:#444;line-height:1.7;margin:0">¡Hasta pronto!<br><strong style="color:#0C2A43">José</strong></p>
   </div>
-  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
+  <div style="background:#F1F8FD;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
     <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#0E71AC;text-decoration:none">hola@joseunstoppable.com</a></div>
   </div>
 </div>`
 
 const DEFAULT_FOLLOWUP = `<div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:0 auto">
-  <div style="background:linear-gradient(135deg,#12002a,#2d0060);padding:32px 40px;text-align:center;border-radius:12px 12px 0 0">
-    <div style="color:#a855f7;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Thank You</div>
+  <div style="background:linear-gradient(135deg,#0C2A43,#0E71AC);padding:32px 40px;text-align:center;border-radius:12px 12px 0 0">
+    <div style="color:#BFE6FA;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px">Gracias</div>
     <div style="color:#fff;font-size:22px;font-weight:900">{{eventTitle}}</div>
   </div>
   <div style="background:#fff;padding:36px 40px;border:1px solid #E4F4FD">
-    <p style="color:#12002a;font-size:16px;margin:0 0 16px">Hi {{name}},</p>
-    <p style="color:#444;line-height:1.7;margin:0 0 20px">Thank you for joining <strong>{{eventTitle}}</strong>, it was truly incredible to have you there. Your energy and presence made the event special.</p>
-    <p style="color:#444;line-height:1.7;margin:0 0 20px">We'd love to hear your thoughts. Hit reply and tell us what you got out of it, what you'd love to see next, or just say hi.</p>
-    <p style="color:#444;line-height:1.7;margin:0 0 20px">Stay tuned for more upcoming events and opportunities to José Unstoppable.</p>
-    <p style="color:#444;margin:0">With good vibes,<br><strong style="color:#12002a">José</strong></p>
+    <p style="color:#0C2A43;font-size:16px;margin:0 0 16px">Hola {{name}},</p>
+    <p style="color:#444;line-height:1.7;margin:0 0 20px">Gracias por estar en <strong>{{eventTitle}}</strong>. Fue un placer tenerte allí.</p>
+    <p style="color:#444;line-height:1.7;margin:0 0 20px">Me encantaría saber qué te llevaste. Responde a este correo y cuéntamelo, o dime qué te gustaría ver en el próximo.</p>
+    <p style="color:#444;line-height:1.7;margin:0 0 20px">Si quieres aplicar el método con un plan hecho para ti, reserva tu llamada gratuita en joseunstoppable.com/reserva.</p>
+    <p style="color:#444;margin:0">Nos vemos pronto,<br><strong style="color:#0C2A43">José</strong></p>
   </div>
-  <div style="background:#f9f6ff;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
+  <div style="background:#F1F8FD;padding:16px 40px;text-align:center;border-radius:0 0 12px 12px;border:1px solid #E4F4FD;border-top:none">
     <div style="font-size:11px;color:#aaa">© José Unstoppable · <a href="mailto:hola@joseunstoppable.com" style="color:#0E71AC;text-decoration:none">hola@joseunstoppable.com</a></div>
   </div>
 </div>`
@@ -250,7 +250,7 @@ export function createEvent(data: Partial<CrmEvent>): CrmEvent {
     locationName: data.locationName ?? '',
     capacity: data.capacity ?? 0,
     price: data.price ?? 0,
-    currency: data.currency ?? 'USD',
+    currency: data.currency ?? 'EUR',
     coverImage: data.coverImage ?? '',
     thumbnailImage: data.thumbnailImage ?? '',
     status: 'draft',
@@ -301,7 +301,7 @@ export function updateEvent(id: string, patch: Partial<CrmEvent>): Promise<SyncR
     return updated
   })
   save(EVENTS_KEY, next)
-  return updated ? syncEvent(updated) : Promise.resolve({ ok: false, error: 'Event not found locally' })
+  return updated ? syncEvent(updated) : Promise.resolve({ ok: false, error: 'Evento no encontrado en este dispositivo' })
 }
 
 export function deleteEvent(id: string): void {
@@ -374,11 +374,11 @@ export function exportAttendeesCSV(eventId: string): void {
   const attendees = getAttendees(eventId)
   if (attendees.length === 0) return
 
-  const headers = ['Name', 'Email', 'Phone', 'Company', 'Status', 'Paid', 'Paid Amount', 'Checked In', 'Ticket Code', 'Source', 'Registered At']
+  const headers = ['Nombre', 'Email', 'Teléfono', 'Empresa', 'Estado', 'Pagado', 'Importe pagado', 'Check-in', 'Código de entrada', 'Origen', 'Fecha de inscripción']
   const rows = attendees.map(a => [
     a.name, a.email, a.phone, a.company, a.status,
-    a.paid ? 'Yes' : 'No', String(a.paidAmount),
-    a.checkedIn ? 'Yes' : 'No', a.ticketCode, a.source,
+    a.paid ? 'Sí' : 'No', String(a.paidAmount),
+    a.checkedIn ? 'Sí' : 'No', a.ticketCode, a.source,
     new Date(a.registeredAt).toLocaleString(),
   ])
 
@@ -422,7 +422,7 @@ function rowToAttendee(r: any): EventAttendee {
   }
 }
 
-function rowToEvent(r: any): CrmEvent {
+export function rowToEvent(r: any): CrmEvent {
 
   let extra: Record<string, unknown> = {}
   if (r.data) {
@@ -446,7 +446,7 @@ function rowToEvent(r: any): CrmEvent {
     format: str(r.format, str(e.format) || 'online'),
     capacity: num(r.capacity, num(e.capacity)),
     price: num(r.price, num(e.price)),
-    currency: str(r.currency, str(e.currency) || 'USD'),
+    currency: str(r.currency, str(e.currency) || 'EUR'),
     coverImage: str(r.cover_image, str(e.coverImage)),
     thumbnailImage: str(r.thumbnail_image, str(e.thumbnailImage)),
     status: (r.status ?? e.status ?? 'draft') as CrmEvent['status'],
@@ -465,7 +465,7 @@ export async function hydrateEvents(): Promise<boolean> {
 }
 
 export async function hydrateEventsDetailed(): Promise<{ ok: boolean; reason?: string; events: number; attendees: number }> {
-  if (typeof window === 'undefined') return { ok: false, reason: 'Not in a browser', events: 0, attendees: 0 }
+  if (typeof window === 'undefined') return { ok: false, reason: 'No estás en un navegador', events: 0, attendees: 0 }
   try {
     const res = await fetch('/api/os-data?parts=events', { cache: 'no-store' })
     if (!res.ok) {
@@ -473,26 +473,26 @@ export async function hydrateEventsDetailed(): Promise<{ ok: boolean; reason?: s
         ok: false,
         events: 0, attendees: 0,
         reason: res.status === 401 || res.status === 403
-          ? 'Not signed in as admin. Sign out and back in, then try again.'
-          : `The server answered ${res.status}.`,
+          ? 'No has iniciado sesión como admin. Sal, vuelve a entrar e inténtalo de nuevo.'
+          : `El servidor respondió ${res.status}.`,
       }
     }
     const json = await res.json()
     if (!json?.ok) {
-      return { ok: false, reason: json?.error ? String(json.error) : 'The server did not return data.', events: 0, attendees: 0 }
+      return { ok: false, reason: json?.error ? String(json.error) : 'El servidor no devolvió datos.', events: 0, attendees: 0 }
     }
     let events = 0, attendees = 0
     if (Array.isArray(json.events)) { save(EVENTS_KEY, json.events.map(rowToEvent)); events = json.events.length }
     if (Array.isArray(json.eventAttendees)) { save(ATTENDEES_KEY, json.eventAttendees.map(rowToAttendee)); attendees = json.eventAttendees.length }
     if (!Array.isArray(json.events) && !Array.isArray(json.eventAttendees)) {
-      return { ok: false, reason: 'The response carried no events or attendees.', events: 0, attendees: 0 }
+      return { ok: false, reason: 'La respuesta no traía eventos ni asistentes.', events: 0, attendees: 0 }
     }
     return { ok: true, events, attendees }
   } catch (err) {
     return {
       ok: false,
       events: 0, attendees: 0,
-      reason: err instanceof Error ? err.message : 'The request could not be made.',
+      reason: err instanceof Error ? err.message : 'No se pudo hacer la petición.',
     }
   }
 }

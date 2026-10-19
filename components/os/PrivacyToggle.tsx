@@ -24,7 +24,7 @@ export default function PrivacyToggle() {
   const on = useSyncExternalStore(subscribe, read, () => false)
   const flip = () => setPrivacy(!on)
 
-  const hint = on ? 'Show client names' : 'Hide client names'
+  const hint = on ? 'Mostrar nombres de clientes' : 'Ocultar nombres de clientes'
   return (
     <button
       type="button"
@@ -35,7 +35,7 @@ export default function PrivacyToggle() {
       title={hint}
     >
       {on ? <EyeOff size={17} strokeWidth={2} aria-hidden="true" /> : <Eye size={17} strokeWidth={2} aria-hidden="true" />}
-      <span className="os-privacy-label">{on ? 'Hidden' : 'Hide'}</span>
+      <span className="os-privacy-label">{on ? 'Ocultos' : 'Ocultar'}</span>
     </button>
   )
 }

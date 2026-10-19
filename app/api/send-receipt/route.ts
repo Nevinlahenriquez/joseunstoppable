@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     const clientEmail: string = inv.client_email ?? ''
     const clientCompany: string = inv.client_company ?? ''
     const projectTitle: string = inv.project_title ?? ''
-    const currency: string = inv.currency ?? 'USD'
+    const currency: string = inv.currency ?? 'EUR'
     const lineItems: { quantity: number; price: number }[] = Array.isArray(inv.line_items) ? inv.line_items : []
     const subtotal = lineItems.reduce((s, li) => s + li.quantity * li.price, 0)
     const total = subtotal + (inv.taxes ?? 0)
@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
           from: FROM,
           to: [clientEmail],
           reply_to: NOTIFY_EMAIL,
-          subject: `Receipt ${rNo}, payment received, thank you`,
+          subject: `Recibo ${rNo}: pago recibido, gracias`,
           html: receiptHtml,
           ...(attachments ? { attachments } : {}),
         }),
@@ -109,6 +109,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, emailed: true, receiptNumber: rNo, paidAt })
   } catch {
-    return NextResponse.json({ error: 'Failed to send receipt' }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo enviar el recibo' }, { status: 500 })
   }
 }

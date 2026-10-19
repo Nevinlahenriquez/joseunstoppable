@@ -57,13 +57,13 @@ export default function PaymentsPage() {
       })
       const d = await res.json().catch(() => null)
       if (!res.ok || !d?.ok) {
-        setError(d?.error ? String(d.error) : `Stripe refused that (HTTP ${res.status}).`)
+        setError(d?.error ? String(d.error) : `Stripe lo rechazó (HTTP ${res.status}).`)
       } else {
         setLinks(prev => [{ url: d.url, description: d.description, amount: d.amount, currency: d.currency, recurring: d.recurring }, ...prev])
         setDescription(''); setAmount('')
       }
     } catch {
-      setError('Could not reach the server. Nothing was created.')
+      setError('No se pudo conectar con el servidor. No se creó nada.')
     }
     setBusy(false)
   }
@@ -74,9 +74,9 @@ export default function PaymentsPage() {
     <div>
       <div className="os-page-header">
         <div>
-          <h1 className="os-page-title">Get paid</h1>
+          <h1 className="os-page-title">Cobrar</h1>
           <p className="os-page-sub">
-            Make a payment link for any amount, or copy your transfer details to send.
+            Crea un enlace de pago por cualquier importe o copia tus datos bancarios para enviarlos.
           </p>
         </div>
       </div>
@@ -91,23 +91,23 @@ export default function PaymentsPage() {
 
         {}
         <form onSubmit={create} className="os-card">
-          <div className="os-card-title" style={{ marginBottom: 4 }}>New payment link</div>
+          <div className="os-card-title" style={{ marginBottom: 4 }}>Nuevo enlace de pago</div>
           <p style={{ fontSize: 13, color: 'var(--os-text-faint)', margin: '0 0 16px' }}>
-            No expiry, so it still works when they open the mail next week.
+            No caduca, así que sigue funcionando aunque lo abran la semana que viene.
           </p>
 
-          <label className="os-label">What is it for</label>
+          <label className="os-label">Concepto</label>
           <input className="os-input" value={description} onChange={e => setDescription(e.target.value)}
-            placeholder="Express Web Design" required />
+            placeholder="Programa Imparable 90 días" required />
 
           <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
             <div style={{ flex: 1 }}>
-              <label className="os-label">Amount</label>
+              <label className="os-label">Importe</label>
               <input className="os-input" value={amount} onChange={e => setAmount(e.target.value)}
                 inputMode="decimal" placeholder="500" required />
             </div>
             <div style={{ width: 108 }}>
-              <label className="os-label">Currency</label>
+              <label className="os-label">Moneda</label>
               <select className="os-select" value={currency} onChange={e => setCurrency(e.target.value)} style={{ width: '100%' }}>
                 {}
                 {currencyOptions(currency).map(c => <option key={c} value={c}>{c}</option>)}
@@ -115,36 +115,36 @@ export default function PaymentsPage() {
             </div>
           </div>
 
-          <label className="os-label" style={{ display: 'block', marginTop: 12 }}>Pick from contacts</label>
+          <label className="os-label" style={{ display: 'block', marginTop: 12 }}>Elegir de contactos</label>
           <SearchSelect value={contactKey} items={contactItems} onChange={pickContact}
-            placeholder="Search a name or email…" />
+            placeholder="Busca un nombre o email…" />
 
           <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
             <div style={{ flex: 1 }}>
-              <label className="os-label">Client name</label>
-              <input className="os-input" value={clientName} onChange={e => { setClientName(e.target.value); setContactKey('') }} placeholder="Optional" />
+              <label className="os-label">Nombre del cliente</label>
+              <input className="os-input" value={clientName} onChange={e => { setClientName(e.target.value); setContactKey('') }} placeholder="Opcional" />
             </div>
             <div style={{ flex: 1 }}>
-              <label className="os-label">Client email</label>
-              <input className="os-input" value={clientEmail} onChange={e => { setClientEmail(e.target.value); setContactKey('') }} placeholder="Optional" />
+              <label className="os-label">Email del cliente</label>
+              <input className="os-input" value={clientEmail} onChange={e => { setClientEmail(e.target.value); setContactKey('') }} placeholder="Opcional" />
             </div>
           </div>
 
           <label style={{ display: 'flex', alignItems: 'center', gap: 9, marginTop: 14, fontSize: 13.5, cursor: 'pointer' }}>
             <input type="checkbox" checked={recurring} onChange={e => setRecurring(e.target.checked)} />
-            Charge this every month
+            Cobrar cada mes
           </label>
 
           <button className="os-btn os-btn-primary" disabled={busy} style={{ marginTop: 16, width: '100%' }}>
-            {busy ? 'Creating…' : 'Create the link'}
+            {busy ? 'Creando…' : 'Crear el enlace'}
           </button>
         </form>
 
         {}
         <div className="os-card">
-          <div className="os-card-title" style={{ marginBottom: 4 }}>Your payment details</div>
+          <div className="os-card-title" style={{ marginBottom: 4 }}>Tus datos de pago</div>
           <p style={{ fontSize: 13, color: 'var(--os-text-faint)', margin: '0 0 14px' }}>
-            The same block that goes on every invoice.
+            El mismo bloque que aparece en todas las facturas.
           </p>
 
           {PAYMENT_METHODS.filter(m => m.enabled).map(m => (
@@ -163,7 +163,7 @@ export default function PaymentsPage() {
           </div>
 
           <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => copy('details', paymentDetailsText())}>
-            {copied === 'details' ? '✓ Copied' : 'Copy for an email'}
+            {copied === 'details' ? '✓ Copiado' : 'Copiar para un email'}
           </button>
 
           {missingBank && (
@@ -178,7 +178,7 @@ export default function PaymentsPage() {
       {}
       {links.length > 0 && (
         <div className="os-card" style={{ marginTop: 16 }}>
-          <div className="os-card-title" style={{ marginBottom: 12 }}>Links made just now</div>
+          <div className="os-card-title" style={{ marginBottom: 12 }}>Enlaces creados ahora</div>
           {links.map(l => (
             <div key={l.url} style={{
               display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap',
@@ -186,18 +186,18 @@ export default function PaymentsPage() {
             }}>
               <div style={{ minWidth: 0, flex: 1 }}>
                 <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--os-text)' }}>
-                  {l.description} · {l.currency} {l.amount}{l.recurring ? ' / month' : ''}
+                  {l.description} · {l.currency} {l.amount}{l.recurring ? ' / mes' : ''}
                 </div>
                 <a href={l.url} target="_blank" rel="noopener noreferrer"
                   style={{ fontSize: 12.5, color: 'var(--os-accent)', wordBreak: 'break-all' }}>{l.url}</a>
               </div>
               <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => copy(l.url, l.url)}>
-                {copied === l.url ? '✓ Copied' : 'Copy link'}
+                {copied === l.url ? '✓ Copiado' : 'Copiar enlace'}
               </button>
             </div>
           ))}
           <p style={{ fontSize: 12.5, color: 'var(--os-text-faint)', margin: '12px 0 0' }}>
-            These live in Stripe from now on. This list is only what you made in this session.
+            Quedan guardados en Stripe. Esta lista solo muestra lo que has creado en esta sesión.
           </p>
         </div>
       )}

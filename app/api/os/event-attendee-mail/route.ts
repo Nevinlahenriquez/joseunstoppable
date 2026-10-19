@@ -18,20 +18,20 @@ export async function GET(req: NextRequest) {
   const db = await serviceDb()
   if (!db) return NextResponse.json(NO_DB, { status: 503 })
   const eventId = req.nextUrl.searchParams.get('eventId') || ''
-  if (!eventId) return NextResponse.json({ ok: false, error: 'eventId required' }, { status: 400 })
+  if (!eventId) return NextResponse.json({ ok: false, error: 'Falta eventId' }, { status: 400 })
 
   const { data: ev, error: evErr } = await db.from('events').select('*').eq('id', eventId).maybeSingle()
   if (evErr) return NextResponse.json({ ok: false, error: evErr.message }, { status: 500 })
-  if (!ev) return NextResponse.json({ ok: false, error: 'Event not found.' }, { status: 404 })
+  if (!ev) return NextResponse.json({ ok: false, error: 'Evento no encontrado.' }, { status: 404 })
 
   const { data: rows, error } = await db.from('event_attendees').select(SEAT_COLS).eq('event_id', eventId).order('registered_at', { ascending: false })
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
 
   const paidEvent = isPaidEvent(ev)
   const stages = [
-    { kind: 'confirmation', label: 'Confirmation', dueAt: null as string | null },
+    { kind: 'confirmation', label: 'Confirmación', dueAt: null as string | null },
     ...REMINDER_STAGES.map(s => ({ kind: s.kind, label: s.label, dueAt: toIso(dueAt(ev, s.kind)) })),
-    { kind: 'followup', label: 'Follow-up', dueAt: toIso(dueAt(ev, 'followup')) },
+    { kind: 'followup', label: 'Seguimiento', dueAt: toIso(dueAt(ev, 'followup')) },
   ]
 
   const people = (rows ?? []).map(r => {
@@ -60,20 +60,20 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({})) as { attendeeId?: string; kind?: string }
   const id = String(body.attendeeId || '')
   const kind = String(body.kind || '')
-  if (!id) return NextResponse.json({ ok: false, error: 'attendeeId required' }, { status: 400 })
-  if (kind !== 'sequence' && !KINDS.includes(kind as MailKind)) return NextResponse.json({ ok: false, error: 'Unknown email.' }, { status: 400 })
+  if (!id) return NextResponse.json({ ok: false, error: 'Falta attendeeId' }, { status: 400 })
+  if (kind !== 'sequence' && !KINDS.includes(kind as MailKind)) return NextResponse.json({ ok: false, error: 'Email desconocido.' }, { status: 400 })
 
   const { data: seat, error } = await db.from('event_attendees').select(SEAT_COLS).eq('id', id).maybeSingle()
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
-  if (!seat) return NextResponse.json({ ok: false, error: 'Seat not found.' }, { status: 404 })
-  if (!seat.email) return NextResponse.json({ ok: false, error: 'This seat has no email address.' }, { status: 400 })
+  if (!seat) return NextResponse.json({ ok: false, error: 'Plaza no encontrada.' }, { status: 404 })
+  if (!seat.email) return NextResponse.json({ ok: false, error: 'Esta plaza no tiene email.' }, { status: 400 })
 
   const { data: ev } = await db.from('events').select('*').eq('id', seat.event_id).maybeSingle()
-  if (!ev) return NextResponse.json({ ok: false, error: 'Event not found.' }, { status: 404 })
+  if (!ev) return NextResponse.json({ ok: false, error: 'Evento no encontrado.' }, { status: 404 })
 
   const block = seatBlock(ev, seat)
-  if (block === 'unpaid') return NextResponse.json({ ok: false, error: 'Not paid yet. The emails carry the joining link, so they go out once the seat is paid.' }, { status: 409 })
-  if (block === 'cancelled') return NextResponse.json({ ok: false, error: 'This seat is cancelled.' }, { status: 409 })
+  if (block === 'unpaid') return NextResponse.json({ ok: false, error: 'Aún no está pagada. Los emails llevan el enlace para unirse, así que salen cuando se pague la plaza.' }, { status: 409 })
+  if (block === 'cancelled') return NextResponse.json({ ok: false, error: 'Esta plaza está cancelada.' }, { status: 409 })
 
   const kinds: MailKind[] = kind === 'sequence' ? sequenceKinds(ev) : [kind as MailKind]
   const results: Array<{ kind: MailKind; sent: boolean }> = []
@@ -93,7 +93,7 @@ export async function POST(req: NextRequest) {
   }
 
   const sent = results.filter(r => r.sent).length
-  return NextResponse.json({ ok: sent > 0, sent, failed: results.length - sent, results, error: sent ? undefined : 'The email did not send.' })
+  return NextResponse.json({ ok: sent > 0, sent, failed: results.length - sent, results, error: sent ? undefined : 'El email no se envió.' })
 }
 
 function toIso(ms: number | null): string | null {

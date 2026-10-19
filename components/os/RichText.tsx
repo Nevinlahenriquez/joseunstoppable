@@ -15,7 +15,7 @@ type Props = {
   autoFocus?: boolean
 }
 
-export function RichText({ value, onChange, placeholder = 'Notes…', minHeight = 96, autoFocus }: Props) {
+export function RichText({ value, onChange, placeholder = 'Notas…', minHeight = 96, autoFocus }: Props) {
   const box = useRef<HTMLDivElement>(null)
   const purify = useRef<Purify | null>(null)
   const [empty, setEmpty] = useState(!value)
@@ -63,7 +63,7 @@ export function RichText({ value, onChange, placeholder = 'Notes…', minHeight 
   const link = () => {
     const sel = window.getSelection()
     if (!sel || sel.isCollapsed) return
-    const url = window.prompt('Link to (https://…)')
+    const url = window.prompt('Enlace a (https://…)')
     if (!url) return
     const safe = /^(https?:|mailto:|tel:)/i.test(url.trim()) ? url.trim() : `https://${url.trim()}`
     cmd('createLink', safe)
@@ -73,19 +73,19 @@ export function RichText({ value, onChange, placeholder = 'Notes…', minHeight 
   }
 
   const tools: { label: string; title: string; run: () => void; style?: React.CSSProperties }[] = [
-    { label: 'B', title: 'Bold', run: () => cmd('bold'), style: { fontWeight: 900 } },
-    { label: 'I', title: 'Italic', run: () => cmd('italic'), style: { fontStyle: 'italic', fontFamily: 'Georgia, serif' } },
-    { label: 'U', title: 'Underline', run: () => cmd('underline'), style: { textDecoration: 'underline' } },
-    { label: 'S', title: 'Strikethrough', run: () => cmd('strikeThrough'), style: { textDecoration: 'line-through' } },
-    { label: '•', title: 'Bullet list', run: () => cmd('insertUnorderedList'), style: { fontSize: 16 } },
-    { label: '1.', title: 'Numbered list', run: () => cmd('insertOrderedList') },
-    { label: '⛓', title: 'Link (select text first)', run: link, style: { fontSize: 12 } },
-    { label: '⌫', title: 'Clear formatting', run: () => { cmd('removeFormat'); cmd('unlink') }, style: { fontSize: 12 } },
+    { label: 'B', title: 'Negrita', run: () => cmd('bold'), style: { fontWeight: 900 } },
+    { label: 'I', title: 'Cursiva', run: () => cmd('italic'), style: { fontStyle: 'italic', fontFamily: 'Georgia, serif' } },
+    { label: 'U', title: 'Subrayado', run: () => cmd('underline'), style: { textDecoration: 'underline' } },
+    { label: 'S', title: 'Tachado', run: () => cmd('strikeThrough'), style: { textDecoration: 'line-through' } },
+    { label: '•', title: 'Lista con viñetas', run: () => cmd('insertUnorderedList'), style: { fontSize: 16 } },
+    { label: '1.', title: 'Lista numerada', run: () => cmd('insertOrderedList') },
+    { label: '⛓', title: 'Enlace (selecciona texto primero)', run: link, style: { fontSize: 12 } },
+    { label: '⌫', title: 'Quitar formato', run: () => { cmd('removeFormat'); cmd('unlink') }, style: { fontSize: 12 } },
   ]
 
   return (
     <div className={`os-richtext${focused ? ' is-focused' : ''}`}>
-      <div className="os-richtext-bar" role="toolbar" aria-label="Formatting">
+      <div className="os-richtext-bar" role="toolbar" aria-label="Formato">
         {tools.map(t => (
           <button
             key={t.title} type="button" title={t.title} aria-label={t.title}
@@ -108,7 +108,7 @@ export function RichText({ value, onChange, placeholder = 'Notes…', minHeight 
           suppressContentEditableWarning
           role="textbox"
           aria-multiline="true"
-          aria-label="Description"
+          aria-label="Descripción"
           autoFocus={autoFocus}
           style={{ minHeight }}
           onInput={emit}

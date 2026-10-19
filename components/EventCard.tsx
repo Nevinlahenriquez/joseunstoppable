@@ -75,10 +75,10 @@ export default function EventCard({ event, tone = 'light', image, priority = fal
   const c = PALETTE[tone]
 
   const meta = [
-    { k: 'Date', v: event.dateLabel },
-    { k: 'Time', v: event.timeLabel },
-    { k: 'Where', v: event.place },
-    { k: 'Ticket', v: event.ticket },
+    { k: 'Fecha', v: event.dateLabel },
+    { k: 'Hora', v: event.timeLabel },
+    { k: 'Dónde', v: event.place },
+    { k: 'Entrada', v: event.ticket },
   ].filter(d => !!d.v)
 
   const metaKey: React.CSSProperties = {

@@ -19,7 +19,7 @@ type Traffic = {
   capped?: boolean
 }
 
-const nf = new Intl.NumberFormat('en-US')
+const nf = new Intl.NumberFormat('es-ES')
 
 function VisitorsChart({ series }: { series: Series[] }) {
   const W = 720, H = 150, PAD = 6
@@ -87,10 +87,10 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
   const t = data?.totals
   const stats = [
 
-    { label: 'Visitors', value: t ? nf.format(t.visitors) : '0', note: 'Unique people' },
-    { label: 'Page views', value: t ? nf.format(t.pageViews) : '0', note: 'Pages opened' },
-    { label: 'Leads', value: t ? nf.format(t.leads) : '0', note: 'Forms completed' },
-    { label: 'Conversion', value: t ? `${t.conversion}%` : '0%', note: 'Visitor to lead' },
+    { label: 'Visitantes', value: t ? nf.format(t.visitors) : '0', note: 'Personas únicas' },
+    { label: 'Páginas vistas', value: t ? nf.format(t.pageViews) : '0', note: 'Páginas abiertas' },
+    { label: 'Leads', value: t ? nf.format(t.leads) : '0', note: 'Formularios enviados' },
+    { label: 'Conversión', value: t ? `${t.conversion}%` : '0%', note: 'De visitante a lead' },
   ]
 
   const maxPage = Math.max(1, ...(data?.topPages ?? []).map(p => p.views))
@@ -108,13 +108,13 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
           padding: '14px 20px', marginBottom: 22, textDecoration: 'none',
         }}
       >
-        <span className="os-card-title" style={{ flexShrink: 0 }}>Funnel, 30 days</span>
+        <span className="os-card-title" style={{ flexShrink: 0 }}>Embudo, 30 días</span>
 
         {}
         {ok && [
-          ['Visitors', nf.format(t!.visitors)],
+          ['Visitantes', nf.format(t!.visitors)],
           ['Leads', nf.format(t!.leads)],
-          ['Converted', `${t!.conversion}%`],
+          ['Conversión', `${t!.conversion}%`],
         ].map(([label, value]) => (
           <span key={label} style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
             <span style={{ fontFamily: 'var(--font-sora), Sora, sans-serif', fontWeight: 800, fontSize: 19, color: 'var(--os-text)', fontVariantNumeric: 'tabular-nums' }}>
@@ -124,14 +124,14 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
           </span>
         ))}
 
-        {loading && <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>Reading traffic</span>}
+        {loading && <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>Leyendo tráfico…</span>}
         {!loading && !ok && (
           <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>
-            No visitors recorded yet. This fills up once ads send traffic.
+            Aún no hay visitas registradas. Se llena cuando los anuncios empiecen a traer tráfico.
           </span>
         )}
         <span style={{ marginLeft: 'auto', fontSize: 12.5, fontWeight: 700, color: 'var(--os-accent)', whiteSpace: 'nowrap' }}>
-          Full insights &rarr;
+          Ver estadísticas &rarr;
         </span>
       </Link>
     )
@@ -141,9 +141,9 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
     <section style={{ marginBottom: 22 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
         <div>
-          <div className="os-card-title">Traffic and funnels</div>
+          <div className="os-card-title">Tráfico y embudos</div>
           <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginTop: 3 }}>
-            Where people came from, what they opened, and which funnel turned them into a lead.
+            De dónde vino la gente, qué abrió y qué embudo la convirtió en lead.
           </div>
         </div>
         <div style={{ display: 'flex', gap: 6 }}>
@@ -159,7 +159,7 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
                 color: days === d ? 'var(--os-text)' : 'var(--os-text-faint)',
               }}
             >
-              {d} days
+              {d} días
             </button>
           ))}
         </div>
@@ -168,13 +168,13 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
       {}
       {!loading && data && !data.ok && (
         <div className="os-card" style={{ padding: '18px 20px', fontSize: 13.5, color: 'var(--os-text-muted)' }}>
-          Traffic data is not readable yet. {data.error ? `Reason: ${data.error}` : 'The analytics store is not configured.'}
+          Todavía no se pueden leer los datos de tráfico. {data.error ? `Motivo: ${data.error}` : 'La base de datos no está configurada.'}
         </div>
       )}
 
       {!loading && data?.ok && data.totals.pageViews === 0 && (
         <div className="os-card" style={{ padding: '18px 20px', fontSize: 13.5, color: 'var(--os-text-muted)' }}>
-          No page views recorded in the last {days} days. Tracking fires from the funnel pages, so this fills up once ads start sending traffic.
+          No hay visitas en los últimos {days} días. Se registran desde las páginas del embudo, así que se llena cuando los anuncios empiecen a traer tráfico.
         </div>
       )}
 
@@ -192,9 +192,9 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
 
           <div className="os-card" style={{ padding: '20px 22px', marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div className="os-card-title">Visitors per day</div>
+              <div className="os-card-title">Visitantes por día</div>
               {data?.capped && (
-                <div style={{ fontSize: 11, color: 'var(--os-warn)' }}>Showing the most recent 20,000 events</div>
+                <div style={{ fontSize: 11, color: 'var(--os-warn)' }}>Mostrando los 20.000 eventos más recientes</div>
               )}
             </div>
             {data?.series?.length ? <VisitorsChart series={data.series} /> : <div style={{ height: 150 }} />}
@@ -202,42 +202,39 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14, marginBottom: 14 }}>
             <div className="os-card" style={{ padding: '20px 22px' }}>
-              <div className="os-card-title" style={{ marginBottom: 10 }}>Most visited pages</div>
+              <div className="os-card-title" style={{ marginBottom: 10 }}>Páginas más visitadas</div>
               {(data?.topPages ?? []).map(p => (
-                <BarRow key={p.path} label={p.path} value={p.views} max={maxPage} suffix="views" href={p.path} />
+                <BarRow key={p.path} label={p.path} value={p.views} max={maxPage} suffix="vistas" href={p.path} />
               ))}
               {!loading && !data?.topPages?.length && (
-                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nothing yet.</div>
+                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nada todavía.</div>
               )}
             </div>
 
             <div className="os-card" style={{ padding: '20px 22px' }}>
-              <div className="os-card-title" style={{ marginBottom: 10 }}>Where they came from</div>
+              <div className="os-card-title" style={{ marginBottom: 10 }}>De dónde vienen</div>
               {(data?.sources ?? []).map(s => (
-                <BarRow key={s.source} label={s.source} value={s.visitors} max={maxSource} suffix="people" />
+                <BarRow key={s.source} label={s.source} value={s.visitors} max={maxSource} suffix="personas" />
               ))}
               {!loading && !data?.sources?.length && (
-                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nothing yet.</div>
+                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nada todavía.</div>
               )}
             </div>
           </div>
 
           <div className="os-card" style={{ padding: '20px 22px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div className="os-card-title">Funnel performance</div>
-              <Link href="/admin/funnel" className="os-btn os-btn-ghost os-btn-sm" style={{ padding: '6px 14px', fontSize: 12, textDecoration: 'none' }}>
-                All funnels
-              </Link>
+              <div className="os-card-title">Rendimiento de embudos</div>
             </div>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', minWidth: 520 }}>
                 <thead>
                   <tr>
-                    <th style={{ padding: '8px 10px 8px 0' }}>Funnel</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Visitors</th>
+                    <th style={{ padding: '8px 10px 8px 0' }}>Embudo</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Visitantes</th>
                     <th style={{ padding: '8px 10px', textAlign: 'right' }}>Leads</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Sales</th>
-                    <th style={{ padding: '8px 0 8px 10px', width: '30%' }}>Conversion</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Ventas</th>
+                    <th style={{ padding: '8px 0 8px 10px', width: '30%' }}>Conversión</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -267,7 +264,7 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
                 </tbody>
               </table>
               {!loading && !data?.funnels?.length && (
-                <div style={{ fontSize: 13, color: 'var(--os-text-faint)', paddingTop: 8 }}>No funnel activity in this window.</div>
+                <div style={{ fontSize: 13, color: 'var(--os-text-faint)', paddingTop: 8 }}>Sin actividad de embudos en este periodo.</div>
               )}
             </div>
           </div>

@@ -13,25 +13,25 @@ import { confirmAction } from '@/app/admin/ConfirmHost'
 import { shareOrCopy } from '@/lib/clipboard'
 import { getPeople } from '@/lib/people'
 
-function fmt(n: number, cur = 'USD') {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(n)
+function fmt(n: number, cur = 'EUR') {
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: cur, minimumFractionDigits: 0 }).format(n)
 }
 
 function timeAgo(d: string) {
   const days = Math.floor((Date.now() - new Date(d).getTime()) / 86400000)
-  if (days === 0) return 'Today'
-  if (days === 1) return 'Yesterday'
-  if (days < 30) return `${days}d ago`
-  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+  if (days === 0) return 'hoy'
+  if (days === 1) return 'ayer'
+  if (days < 30) return `hace ${days} d`
+  return new Date(d).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })
 }
 
 const STATUS_META: Record<ProposalStatus, { color: string; bg: string; icon: string; label: string }> = {
-  draft:    { color: 'var(--os-text-faint)', bg: 'var(--os-line)', icon: 'ti-pencil',        label: 'Draft' },
-  sent:     { color: 'var(--os-warn)', bg: 'var(--os-warn-soft)', icon: 'ti-send',          label: 'Sent' },
-  signed:   { color: 'var(--os-good)', bg: 'var(--os-good-soft)', icon: 'ti-circle-check',  label: 'Signed' },
-  declined: { color: 'var(--os-bad)', bg: 'var(--os-bad-soft)', icon: 'ti-x',             label: 'Declined' },
+  draft:    { color: 'var(--os-text-faint)', bg: 'var(--os-line)', icon: 'ti-pencil',        label: 'Borrador' },
+  sent:     { color: 'var(--os-warn)', bg: 'var(--os-warn-soft)', icon: 'ti-send',          label: 'Enviada' },
+  signed:   { color: 'var(--os-good)', bg: 'var(--os-good-soft)', icon: 'ti-circle-check',  label: 'Firmada' },
+  declined: { color: 'var(--os-bad)', bg: 'var(--os-bad-soft)', icon: 'ti-x',             label: 'Rechazada' },
 
-  void:     { color: 'var(--os-text-faint)', bg: 'var(--os-line)', icon: 'ti-ban',          label: 'Void' },
+  void:     { color: 'var(--os-text-faint)', bg: 'var(--os-line)', icon: 'ti-ban',          label: 'Anulada' },
 }
 
 export default function ProposalsPage() {
@@ -67,7 +67,7 @@ export default function ProposalsPage() {
   const signedValue = proposals.filter(p => p.status === 'signed').reduce((s, p) => s + p.total, 0)
 
   async function sendReminder(p: Proposal) {
-    if (!p.clientEmail) { showToast('No email on this proposal, so there is nowhere to send it.'); return }
+    if (!p.clientEmail) { showToast('Esta propuesta no tiene email, así que no hay adónde enviarla.'); return }
     if (armedRemind !== p.id) { setArmedRemind(p.id); return }
     setArmedRemind(null)
     setSending(p.id)
@@ -83,23 +83,23 @@ export default function ProposalsPage() {
       })
       const data = await res.json().catch(() => null)
       if (!res.ok || (data && data.ok === false)) {
-        showToast(`Not sent: ${data?.error ?? res.status}.`)
+        showToast(`No enviada: ${data?.error ?? res.status}.`)
         return
       }
 
       setReminded(p.id)
-      showToast(`Reminder sent to ${p.clientEmail}`)
+      showToast(`Recordatorio enviado a ${p.clientEmail}`)
     } catch {
-      showToast('Could not send, check Resend')
+      showToast('No se pudo enviar, revisa Resend')
     } finally { setSending(null) }
   }
 
   function copyLink(token: string) {
     const url = `${window.location.origin}/proposal/${token}`
     setMenuOpen(null)
-    void shareOrCopy(url, 'Proposal').then(r => {
-      if (r === 'copied') showToast('Link copied!')
-      else if (r === 'failed') { showToast('Copy blocked, long-press the link'); window.prompt('Proposal link:', url) }
+    void shareOrCopy(url, 'Propuesta').then(r => {
+      if (r === 'copied') showToast('¡Enlace copiado!')
+      else if (r === 'failed') { showToast('Copia bloqueada, mantén pulsado el enlace'); window.prompt('Enlace de la propuesta:', url) }
     })
   }
 
@@ -107,9 +107,9 @@ export default function ProposalsPage() {
     setConverting(p.id); setMenuOpen(null)
     try {
       const inv = createInvoiceFromProposal(p)
-      showToast(`Invoice #${inv.number} created`)
+      showToast(`Factura #${inv.number} creada`)
       setTimeout(() => router.push(`/admin/invoices/${inv.id}`), 1200)
-    } catch { showToast('Could not create invoice') }
+    } catch { showToast('No se pudo crear la factura') }
     finally { setConverting(null) }
   }
 
@@ -129,13 +129,13 @@ export default function ProposalsPage() {
 
       const data = await res.json().catch(() => null)
       if (!res.ok || (data && data.ok === false)) {
-        showToast(`Not sent: ${data?.error ?? res.status}. The proposal is unchanged.`)
+        showToast(`No enviada: ${data?.error ?? res.status}. La propuesta no ha cambiado.`)
         return
       }
       updateProposal(p.id, { status: 'sent', sentAt: new Date().toISOString() })
       reload()
-      showToast(`Proposal sent to ${p.clientEmail}`)
-    } catch { showToast('Could not send, check Resend') }
+      showToast(`Propuesta enviada a ${p.clientEmail}`)
+    } catch { showToast('No se pudo enviar, revisa Resend') }
     finally { setSending(null) }
   }
 
@@ -146,7 +146,7 @@ export default function ProposalsPage() {
 
   async function handleDelete(p: Proposal) {
     setMenuOpen(null)
-    if (!(await confirmAction({ message: `Delete ${p.ref}?`, detail: 'This cannot be undone.' }))) return
+    if (!(await confirmAction({ message: `¿Eliminar ${p.ref}?`, detail: 'No se puede deshacer.' }))) return
     deleteProposal(p.id); reload()
   }
 
@@ -161,20 +161,20 @@ export default function ProposalsPage() {
       {}
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">Proposals</div>
-          <div className="os-page-sub">{proposals.length} proposals, {fmt(totalValue)} total pipeline value</div>
+          <div className="os-page-title">Propuestas</div>
+          <div className="os-page-sub">{proposals.length} {proposals.length === 1 ? 'propuesta' : 'propuestas'}, {fmt(totalValue)} en total</div>
         </div>
         <Link href="/admin/proposals/new" className="os-btn os-btn-primary">
-          <i className="ti ti-plus" /> New Proposal
+          <i className="ti ti-plus" /> Nueva propuesta
         </Link>
       </div>
 
       {}
       <div className="os-collapse-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
         {[
-          { icon: 'ti-file-text', label: 'Total pipeline', value: fmt(totalValue), sub: `${proposals.length} proposals`, accent: 'var(--os-accent)', light: 'var(--os-line)' },
-          { icon: 'ti-hourglass', label: 'Awaiting signature', value: fmt(pendingValue), sub: `${proposals.filter(p => p.status === 'sent').length} sent`, accent: 'var(--os-warn)', light: 'var(--os-warn-soft)' },
-          { icon: 'ti-trophy', label: 'Signed & won', value: fmt(signedValue), sub: `${proposals.filter(p => p.status === 'signed').length} deals closed`, accent: 'var(--os-good)', light: 'var(--os-good-soft)' },
+          { icon: 'ti-file-text', label: 'Total en propuestas', value: fmt(totalValue), sub: `${proposals.length} propuestas`, accent: 'var(--os-accent)', light: 'var(--os-line)' },
+          { icon: 'ti-hourglass', label: 'Pendiente de firma', value: fmt(pendingValue), sub: `${proposals.filter(p => p.status === 'sent').length} enviadas`, accent: 'var(--os-warn)', light: 'var(--os-warn-soft)' },
+          { icon: 'ti-trophy', label: 'Firmadas', value: fmt(signedValue), sub: `${proposals.filter(p => p.status === 'signed').length} cerradas`, accent: 'var(--os-good)', light: 'var(--os-good-soft)' },
         ].map(s => (
           <div key={s.label} style={{ background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', border: '1px solid var(--os-line)', borderRadius: 16, padding: '24px 28px', display: 'flex', gap: 18, alignItems: 'flex-start', boxShadow: '0 1px 4px rgba(0,0,0,.04)' }}>
             <div style={{ width: 48, height: 48, borderRadius: 14, background: s.light, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -205,8 +205,8 @@ export default function ProposalsPage() {
             <i className={`ti ${done ? 'ti-check' : 'ti-clock'}`} style={{ color: done ? 'var(--os-good)' : 'var(--os-warn)' }} />
             <span style={{ color: done ? 'var(--os-good)' : 'var(--os-warn)', fontWeight: 600 }}>
               {done
-                ? `Reminder sent to ${p.clientEmail}`
-                : `${p.clientName}, waiting ${days} days for signature · ${fmt(p.total, p.currency)}`}
+                ? `Recordatorio enviado a ${p.clientEmail}`
+                : `${p.clientName}, esperando firma desde hace ${days} días · ${fmt(p.total, p.currency)}`}
             </span>
             {!done && (
               <>
@@ -216,13 +216,13 @@ export default function ProposalsPage() {
                   disabled={sending === p.id}
                   style={{ marginLeft: 'auto', background: 'none', border: '1px solid #fcd34d', borderRadius: 6, padding: '3px 12px', cursor: 'pointer', fontSize: 12, fontWeight: armedRemind === p.id ? 800 : 600, color: 'var(--os-warn)' }}
                 >
-                  {sending === p.id ? 'Sending…'
-                    : armedRemind === p.id ? `Press again: email ${p.clientEmail}`
-                    : 'Send reminder'}
+                  {sending === p.id ? 'Enviando…'
+                    : armedRemind === p.id ? `Pulsa otra vez: enviar a ${p.clientEmail}`
+                    : 'Enviar recordatorio'}
                 </button>
                 {}
                 <button onClick={() => copyLink(p.token)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontWeight: 600, color: 'var(--os-warn)', textDecoration: 'underline' }}>
-                  Copy link
+                  Copiar enlace
                 </button>
               </>
             )}
@@ -243,7 +243,7 @@ export default function ProposalsPage() {
               display: 'flex', alignItems: 'center', gap: 5,
             }}>
               {meta && <i className={`ti ${meta.icon}`} style={{ fontSize: 11 }} />}
-              {s === 'all' ? 'All' : STATUS_META[s].label}
+              {s === 'all' ? 'Todas' : STATUS_META[s].label}
               {s !== 'all' && <span style={{ opacity: 0.7 }}>({proposals.filter(p => p.status === s).length})</span>}
             </button>
           )
@@ -255,8 +255,8 @@ export default function ProposalsPage() {
         <div className="os-card">
           <div className="os-empty">
             <i className="ti ti-file-description" />
-            <div className="os-empty-title">No proposals {filter !== 'all' ? `with status "${filter}"` : 'yet'}</div>
-            <div className="os-empty-sub">Create your first proposal and send a signing link to your client</div>
+            <div className="os-empty-title">{filter !== 'all' ? `No hay propuestas con estado «${STATUS_META[filter as keyof typeof STATUS_META]?.label ?? filter}»` : 'Aún no hay propuestas'}</div>
+            <div className="os-empty-sub">Crea tu primera propuesta y envía al cliente un enlace para firmarla</div>
           </div>
         </div>
       ) : (
@@ -278,8 +278,8 @@ export default function ProposalsPage() {
                       {p.status === 'sent' && (
                         <span
                           title={p.viewedAt
-                            ? `Opened ${new Date(p.viewedAt).toLocaleString()}`
-                            : 'Sent, not opened yet'}
+                            ? `Abierta el ${new Date(p.viewedAt).toLocaleString('es-ES')}`
+                            : 'Enviada, aún sin abrir'}
                           style={{
                             position: 'absolute', right: -5, bottom: -5,
                             width: 18, height: 18, borderRadius: '50%',
@@ -301,14 +301,14 @@ export default function ProposalsPage() {
                       <span style={{ fontWeight: 800, fontSize: 15, color: 'var(--os-text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0 }}>{p.clientName}</span>
                       {p.clientCompany && <span style={{ fontSize: 12, color: 'var(--os-text-faint)', fontWeight: 500, whiteSpace: 'nowrap', flexShrink: 0 }}>{p.clientCompany}</span>}
                       {(p.version ?? 1) > 1 && <span style={{ fontSize: 10, fontWeight: 800, background: '#0E71AC20', color: '#0E71AC', padding: '2px 7px', borderRadius: 20, flexShrink: 0 }}>v{p.version}</span>}
-                      {p.linkedInvoiceId && <span style={{ fontSize: 10.5, fontWeight: 700, background: '#16a34a18', color: 'var(--os-good)', padding: '2px 8px', borderRadius: 20, border: '1px solid #16a34a33', flexShrink: 0 }}>Invoiced</span>}
+                      {p.linkedInvoiceId && <span style={{ fontSize: 10.5, fontWeight: 700, background: '#16a34a18', color: 'var(--os-good)', padding: '2px 8px', borderRadius: 20, border: '1px solid #16a34a33', flexShrink: 0 }}>Facturada</span>}
                     </div>
                     <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', marginBottom: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.title}</div>
                     <div className="ospr-meta" style={{ fontSize: 11.5, color: 'var(--os-text-faint)', display: 'flex', gap: 12 }}>
                       <span><i className="ti ti-hash" style={{ marginRight: 3 }} />{p.ref}</span>
                       <span><i className="ti ti-calendar" style={{ marginRight: 3 }} />{timeAgo(p.createdAt)}</span>
-                      {p.sentAt && <span><i className="ti ti-send" style={{ marginRight: 3 }} />Sent {timeAgo(p.sentAt)}</span>}
-                      {p.signedAt && <span style={{ color: 'var(--os-good)' }}><i className="ti ti-writing" style={{ marginRight: 3 }} />Signed {timeAgo(p.signedAt)}</span>}
+                      {p.sentAt && <span><i className="ti ti-send" style={{ marginRight: 3 }} />Enviada {timeAgo(p.sentAt)}</span>}
+                      {p.signedAt && <span style={{ color: 'var(--os-good)' }}><i className="ti ti-writing" style={{ marginRight: 3 }} />Firmada {timeAgo(p.signedAt)}</span>}
                     </div>
                   </div>
 
@@ -330,7 +330,7 @@ export default function ProposalsPage() {
                   {}
                   <div className="ospr-total" style={{ padding: '0 24px 0 8px', textAlign: 'right', flexShrink: 0, minWidth: 110 }}>
                     <div style={{ fontSize: 24, fontWeight: 800, color: meta.color, letterSpacing: -1 }}>{fmt(p.total, p.currency)}</div>
-                    <div style={{ fontSize: 11, color: 'var(--os-text-faint)' }}>{p.currency} · {p.paymentSchedule.length} payment{p.paymentSchedule.length !== 1 ? 's' : ''}</div>
+                    <div style={{ fontSize: 11, color: 'var(--os-text-faint)' }}>{p.currency} · {p.paymentSchedule.length} {p.paymentSchedule.length === 1 ? 'pago' : 'pagos'}</div>
                   </div>
 
                   {}
@@ -362,25 +362,25 @@ export default function ProposalsPage() {
 
                         maxHeight: 'calc(100vh - 24px)', overflowY: 'auto',
                       }}>
-                        <MenuItem icon="ti-edit" label="Edit proposal" onClick={() => { setMenuOpen(null); router.push(`/admin/proposals/${p.id}/edit`) }} />
-                        <MenuLink icon="ti-eye" label="Preview" href={`/proposal/${p.token}?preview=1`} onClick={() => setMenuOpen(null)} />
-                        <MenuItem icon="ti-link" label="Copy signing link" onClick={() => copyLink(p.token)} />
+                        <MenuItem icon="ti-edit" label="Editar propuesta" onClick={() => { setMenuOpen(null); router.push(`/admin/proposals/${p.id}/edit`) }} />
+                        <MenuLink icon="ti-eye" label="Vista previa" href={`/proposal/${p.token}?preview=1`} onClick={() => setMenuOpen(null)} />
+                        <MenuItem icon="ti-link" label="Copiar enlace de firma" onClick={() => copyLink(p.token)} />
                         {(p.status === 'draft' || p.status === 'sent') && (
-                          <MenuItem icon="ti-mail-forward" label={sending === p.id ? 'Sending…' : 'Send to client'} onClick={() => handleSendProposal(p)} style={{ color: 'var(--os-accent)', fontWeight: 700 }} />
+                          <MenuItem icon="ti-mail-forward" label={sending === p.id ? 'Enviando…' : 'Enviar al cliente'} onClick={() => handleSendProposal(p)} style={{ color: 'var(--os-accent)', fontWeight: 700 }} />
                         )}
-                        <MenuItem icon="ti-git-branch" label="Revise (new version)" onClick={() => handleRevise(p.id)} />
-                        <MenuItem icon="ti-copy" label="Duplicate" onClick={() => { duplicateProposal(p.id); setMenuOpen(null); reload() }} />
+                        <MenuItem icon="ti-git-branch" label="Revisar (nueva versión)" onClick={() => handleRevise(p.id)} />
+                        <MenuItem icon="ti-copy" label="Duplicar" onClick={() => { duplicateProposal(p.id); setMenuOpen(null); reload() }} />
                         {p.status === 'signed' && isResultsBased(p) && (
-                          <MenuItem icon="ti-receipt" label="Invoice new clients" onClick={() => { setMenuOpen(null); router.push(`/admin/proposals/${p.id}/edit`) }} style={{ color: 'var(--os-accent)', fontWeight: 700 }} />
+                          <MenuItem icon="ti-receipt" label="Facturar clientes nuevos" onClick={() => { setMenuOpen(null); router.push(`/admin/proposals/${p.id}/edit`) }} style={{ color: 'var(--os-accent)', fontWeight: 700 }} />
                         )}
                         {p.status === 'signed' && !p.linkedInvoiceId && !isResultsBased(p) && (
-                          <MenuItem icon="ti-receipt" label={converting === p.id ? 'Creating…' : 'Convert to Invoice'} onClick={() => handleConvertToInvoice(p)} style={{ color: 'var(--os-accent)', fontWeight: 700 }} />
+                          <MenuItem icon="ti-receipt" label={converting === p.id ? 'Creando…' : 'Convertir en factura'} onClick={() => handleConvertToInvoice(p)} style={{ color: 'var(--os-accent)', fontWeight: 700 }} />
                         )}
                         {p.status === 'signed' && p.linkedInvoiceId && (
-                          <MenuItem icon="ti-receipt" label="View invoice" onClick={() => { setMenuOpen(null); router.push(`/admin/invoices/${p.linkedInvoiceId}`) }} style={{ color: 'var(--os-good)' }} />
+                          <MenuItem icon="ti-receipt" label="Ver factura" onClick={() => { setMenuOpen(null); router.push(`/admin/invoices/${p.linkedInvoiceId}`) }} style={{ color: 'var(--os-good)' }} />
                         )}
                         <div style={{ height: 1, background: 'var(--os-chip)', margin: '4px 0' }} />
-                        <MenuItem icon="ti-trash" label="Delete" onClick={() => handleDelete(p)} style={{ color: 'var(--os-bad)' }} />
+                        <MenuItem icon="ti-trash" label="Eliminar" onClick={() => handleDelete(p)} style={{ color: 'var(--os-bad)' }} />
                       </div>
                     )}
                   </div>

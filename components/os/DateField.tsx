@@ -15,7 +15,7 @@ export function spellDate(iso: string): string {
 
   const d = new Date(Number(y), Number(mo) - 1, Number(da), 12)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+  return d.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 export function nextMondayISO(): string {
@@ -49,8 +49,8 @@ export function DateField({
   const allowed = (iso: string) => (!max || iso <= max) && (!min || iso >= min)
 
   const quick = (quickProp ?? [
-    { iso: today, label: 'Today' },
-    { iso: yesterday, label: 'Yesterday' },
+    { iso: today, label: 'Hoy' },
+    { iso: yesterday, label: 'Ayer' },
   ]).filter(q => allowed(q.iso))
 
   function openPicker() {
@@ -90,8 +90,8 @@ export function DateField({
             </button>
           ))}
           {clearable && value && (
-            <button type="button" className={`os-datefield-chip${compact ? ' is-clear' : ''}`} onClick={() => onChange('')} aria-label="Clear the date" title="Clear the date">
-              {compact ? '×' : 'No date'}
+            <button type="button" className={`os-datefield-chip${compact ? ' is-clear' : ''}`} onClick={() => onChange('')} aria-label="Borrar la fecha" title="Borrar la fecha">
+              {compact ? '×' : 'Sin fecha'}
             </button>
           )}
         </div>
@@ -101,7 +101,7 @@ export function DateField({
       <p className="os-datefield-said" aria-live="polite">
         {spelled
           ? <>{spelled}{value === today ? ' · today' : value === yesterday ? ' · yesterday' : value === tomorrow ? ' · tomorrow' : ''}</>
-          : clearable ? 'No date set' : 'Pick a date'}
+          : clearable ? 'Sin fecha' : 'Elige una fecha'}
       </p>
 
       {hint ? <p className="os-datefield-hint">{hint}</p> : null}

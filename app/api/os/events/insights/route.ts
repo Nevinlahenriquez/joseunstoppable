@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   const db = await serviceDb()
   if (!db) return NextResponse.json(NO_DB, { status: 503 })
   const a = await gatherEventAnalytics(db, body.id)
-  if (!a) return NextResponse.json({ ok: false, error: 'Event not found' }, { status: 404 })
+  if (!a) return NextResponse.json({ ok: false, error: 'Evento no encontrado' }, { status: 404 })
 
   return NextResponse.json({
     ok: true,

@@ -58,11 +58,11 @@ function companyTypeOf(tags?: string[]): string | undefined {
 
 function timeAgo(iso: string) {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
-  if (d === 0) return 'Today'
-  if (d === 1) return 'Yesterday'
-  if (d < 30) return `${d}d ago`
-  if (d < 365) return `${Math.floor(d / 30)}mo ago`
-  return `${Math.floor(d / 365)}y ago`
+  if (d === 0) return 'Hoy'
+  if (d === 1) return 'Ayer'
+  if (d < 30) return `hace ${d} d`
+  if (d < 365) return `hace ${Math.floor(d / 30)} meses`
+  return `hace ${Math.floor(d / 365)} años`
 }
 
 function parseCSV(text: string): Record<string, string>[] {
@@ -101,7 +101,7 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
   const [file, setFile] = useState<File | null>(null)
   const [rows, setRows] = useState<ReturnType<typeof mapCSVRow>[]>([])
   const [tag, setTag] = useState('')
-  const [source, setSource] = useState('Workshop')
+  const [source, setSource] = useState('Masterclass')
   const [importing, setImporting] = useState(false)
   const [done, setDone] = useState(0)
   const [error, setError] = useState('')
@@ -133,10 +133,10 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
 
     const contacts = rows.map(r => {
       const extra = [
-        r.website ? `Website: ${r.website}` : '',
-        r.role ? `Role: ${r.role}` : '',
-        r.location ? `Location: ${r.location}` : '',
-        r.value ? `Value: ${r.value}` : '',
+        r.website ? `Web: ${r.website}` : '',
+        r.role ? `Cargo: ${r.role}` : '',
+        r.location ? `Ubicación: ${r.location}` : '',
+        r.value ? `Valor: ${r.value}` : '',
       ].filter(Boolean).join(' | ')
       const notes = [extra, r.notes].filter(Boolean).join('\n')
       const rowTags = r.tags ? r.tags.split(/[;,]/).map(t => t.trim()).filter(Boolean) : []
@@ -155,11 +155,11 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
         body: JSON.stringify({ contacts, tags: batchTags, source: source.toLowerCase().replace(/\s+/g, '-') }),
       })
       const data = await res.json()
-      if (!data.ok) { setError(data.error || 'Import failed'); setImporting(false); return }
+      if (!data.ok) { setError(data.error || 'La importación falló'); setImporting(false); return }
       setDone(data.imported)
       onImported(data.imported)
     } catch {
-      setError('Network error, try again')
+      setError('Error de red, inténtalo de nuevo')
     }
     setImporting(false)
   }
@@ -170,8 +170,8 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
       <div style={{ position: 'relative', background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', borderRadius: 20, padding: 32, width: '100%', maxWidth: 560, boxShadow: '0 24px 80px rgba(0,0,0,0.18)', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>Import Contacts</div>
-            <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginTop: 2 }}>CSV with name, email, phone, company columns</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>Importar contactos</div>
+            <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginTop: 2 }}>CSV con columnas de nombre, email, teléfono y empresa</div>
           </div>
           <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', background: 'var(--os-line)', borderRadius: 8, cursor: 'pointer', fontSize: 16, color: 'var(--os-text-faint)' }}>✕</button>
         </div>
@@ -180,8 +180,8 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--os-good)', marginBottom: 8 }}>{done} contacts imported</div>
-            <div style={{ fontSize: 14, color: 'var(--os-text-faint)', marginBottom: 24 }}>They are now in your Contacts list</div>
-            <button onClick={onClose} className="os-btn os-btn-primary">Done</button>
+            <div style={{ fontSize: 14, color: 'var(--os-text-faint)', marginBottom: 24 }}>Ya están en tu lista de contactos</div>
+            <button onClick={onClose} className="os-btn os-btn-primary">Listo</button>
           </div>
         ) : (
           <>
@@ -201,8 +201,8 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
                 </div>
               ) : (
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--os-accent)' }}>Drop CSV here or click to browse</div>
-                  <div style={{ fontSize: 12, color: 'var(--os-text-faint)', marginTop: 4 }}>Accepts: name, email, phone, company, notes</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--os-accent)' }}>Suelta el CSV aquí o haz clic para elegirlo</div>
+                  <div style={{ fontSize: 12, color: 'var(--os-text-faint)', marginTop: 4 }}>Acepta: nombre, email, teléfono, empresa, notas</div>
                 </div>
               )}
               <input id="csv-file-input" type="file" accept=".csv" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f) }} />
@@ -211,11 +211,11 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
             {}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
               <div>
-                <label className="os-label">Source / Event</label>
-                <input className="os-input" value={source} onChange={e => setSource(e.target.value)} placeholder="Workshop, Event name..." />
+                <label className="os-label">Origen / evento</label>
+                <input className="os-input" value={source} onChange={e => setSource(e.target.value)} placeholder="Masterclass, nombre del evento..." />
               </div>
               <div>
-                <label className="os-label">Tag (optional)</label>
+                <label className="os-label">Etiqueta (opcional)</label>
                 <input className="os-input" value={tag} onChange={e => setTag(e.target.value)} placeholder="Masterclass, VIP..." />
               </div>
             </div>
@@ -223,7 +223,7 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
             {}
             {rows.length > 0 && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--os-text-faint)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 8 }}>Preview, first 3 rows</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--os-text-faint)', textTransform: 'uppercase', letterSpacing: 0.6, marginBottom: 8 }}>Vista previa, primeras 3 filas</div>
                 <div style={{ border: '1px solid var(--os-line)', borderRadius: 10, overflow: 'hidden' }}>
                   {rows.slice(0, 3).map((r, i) => (
                     <div key={i} style={{ padding: '10px 14px', borderBottom: i < 2 ? '1px solid var(--os-line)' : 'none', display: 'flex', gap: 12, alignItems: 'center' }}>
@@ -253,7 +253,7 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
               className="os-btn os-btn-primary"
               style={{ width: '100%', justifyContent: 'center', opacity: (!rows.length || importing) ? 0.5 : 1 }}
             >
-              {importing ? 'Importing...' : `Import ${rows.length} contacts`}
+              {importing ? 'Importando...' : `Importar ${rows.length} contactos`}
             </button>
           </>
         )}
@@ -287,14 +287,14 @@ function ContactModal({ contact, onClose, onSaved }: { contact?: Lead; onClose: 
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={onClose} />
       <div style={{ position: 'relative', background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', borderRadius: 20, padding: 32, width: '100%', maxWidth: 480, boxShadow: '0 24px 80px rgba(0,0,0,0.15)', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>{contact ? 'Edit Contact' : 'New Contact'}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>{contact ? 'Editar contacto' : 'Nuevo contacto'}</div>
           <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', background: 'var(--os-line)', borderRadius: 8, cursor: 'pointer', fontSize: 16, color: 'var(--os-text-faint)' }}>✕</button>
         </div>
         <form className="os-form" onSubmit={submit}>
           <div className="os-form-row">
             <div className="os-form-group">
-              <label className="os-label">Full Name *</label>
-              <input className="os-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Jane Doe" />
+              <label className="os-label">Nombre completo *</label>
+              <input className="os-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Juan Pérez" />
             </div>
             <div className="os-form-group">
               <label className="os-label">Email</label>
@@ -303,43 +303,43 @@ function ContactModal({ contact, onClose, onSaved }: { contact?: Lead; onClose: 
           </div>
           <div className="os-form-row">
             <div className="os-form-group">
-              <label className="os-label">WhatsApp / Phone</label>
+              <label className="os-label">WhatsApp / teléfono</label>
               <input className="os-input" value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder=" xxx xxxx" />
             </div>
             <div className="os-form-group">
-              <label className="os-label">Company</label>
+              <label className="os-label">Empresa</label>
               <input className="os-input" value={form.company} onChange={e => setForm(f => ({ ...f, company: e.target.value }))} />
             </div>
           </div>
           <div className="os-form-group">
-            <label className="os-label">Status</label>
+            <label className="os-label">Estado</label>
             <select className="os-select" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
               {CONTACT_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
           <div className="os-form-row">
             <div className="os-form-group">
-              <label className="os-label">Source</label>
+              <label className="os-label">Origen</label>
               <select className="os-select" value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))}>
                 <option value="manual">Manual</option>
-                <option value="workshop">Workshop</option>
-                <option value="referral">Referral</option>
+                <option value="workshop">Masterclass</option>
+                <option value="referral">Referido</option>
                 <option value="web-form">Formulario web</option>
-                <option value="social">Social Media</option>
+                <option value="social">Redes sociales</option>
                 <option value="whatsapp">WhatsApp</option>
-                <option value="csv-import">CSV Import</option>
+                <option value="csv-import">Importación CSV</option>
               </select>
             </div>
             <div className="os-form-group">
-              <label className="os-label">Tags (comma-separated)</label>
-              <input className="os-input" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="Workshop, Coaching, VIP..." />
+              <label className="os-label">Etiquetas (separadas por comas)</label>
+              <input className="os-input" value={form.tags} onChange={e => setForm(f => ({ ...f, tags: e.target.value }))} placeholder="Masterclass, Coaching, VIP..." />
             </div>
           </div>
           <div className="os-form-group">
-            <label className="os-label">Notes</label>
-            <textarea className="os-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="What do they need? Where are they in their journey?" />
+            <label className="os-label">Notas</label>
+            <textarea className="os-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="¿Qué necesita? ¿En qué punto está?" />
           </div>
-          <button type="submit" className="os-btn os-btn-primary">{contact ? 'Save Changes' : 'Add Contact'}</button>
+          <button type="submit" className="os-btn os-btn-primary">{contact ? 'Guardar cambios' : 'Añadir contacto'}</button>
         </form>
       </div>
     </div>
@@ -435,7 +435,7 @@ export default function ContactsPage() {
   function exportCSV(onlySelected = false) {
     const source = onlySelected ? filtered.filter(r => selected.has(r.key)) : filtered
     const rowsOut = [
-      ['Name', 'Email', 'Phone', 'Company', 'Website', 'States', 'Tags', 'Events', 'First seen', 'Last seen'],
+      ['Nombre', 'Email', 'Teléfono', 'Empresa', 'Web', 'Estados', 'Etiquetas', 'Eventos', 'Primera vez', 'Última vez'],
       ...source.map(r => [
         r.name, r.email, r.phone, r.company, r.website,
         r.states.map(st => stateMeta(st).label).join('; '),
@@ -452,7 +452,7 @@ export default function ContactsPage() {
 
   async function sendBulkWhatsApp() {
     const targets = filtered.filter(r => selected.has(r.key) && r.phone)
-    if (!targets.length) { await confirmAction({ message: 'No phone numbers selected.', detail: 'Select at least one contact that has a phone number.', confirmLabel: 'OK', cancelLabel: 'Close', destructive: false }); return }
+    if (!targets.length) { await confirmAction({ message: 'No hay teléfonos seleccionados.', detail: 'Selecciona al menos un contacto con teléfono.', confirmLabel: 'OK', cancelLabel: 'Cerrar', destructive: false }); return }
 
     window.open(`https://wa.me/${targets[0].phone.replace(/[^0-9]/g, '')}`, '_blank')
   }
@@ -482,9 +482,9 @@ export default function ContactsPage() {
     if (!keys.length) return
     const names = rows.filter(r => r.spam).slice(0, 6).map(r => r.name || r.email).join(', ')
     if (!(await confirmAction({
-      message: `Delete ${keys.length} likely-spam contact${keys.length > 1 ? 's' : ''}?`,
-      detail: `${names}${keys.length > 6 ? `, and ${keys.length - 6} more` : ''}. Their pipeline cards and event registrations go too. This cannot be undone.`,
-      confirmLabel: `Delete ${keys.length}`,
+      message: `¿Eliminar ${keys.length} ${keys.length > 1 ? 'contactos que parecen spam' : 'contacto que parece spam'}?`,
+      detail: `${names}${keys.length > 6 ? ` y ${keys.length - 6} más` : ''}. También se borran sus tarjetas del pipeline y sus inscripciones a eventos. No se puede deshacer.`,
+      confirmLabel: `Eliminar ${keys.length}`,
     }))) return
     deletePeople(keys)
     setStateFilter('all')
@@ -493,36 +493,36 @@ export default function ContactsPage() {
   async function bulkDelete() {
     const keys = filtered.filter(r => selected.has(r.key)).map(r => r.key)
     if (!keys.length) return
-    if (!(await confirmAction({ message: `Delete ${keys.length} contact${keys.length > 1 ? 's' : ''}?`, detail: 'Every record they appear in goes with them. This cannot be undone.' }))) return
+    if (!(await confirmAction({ message: `¿Eliminar ${keys.length} ${keys.length > 1 ? 'contactos' : 'contacto'}?`, detail: 'Se borran todos los registros donde aparecen. No se puede deshacer.' }))) return
     deletePeople(keys)
   }
 
   const hasSelection = selected.size > 0
   const tabs: { key: 'all' | PersonState; label: string; n: number }[] = [
-    { key: 'all', label: 'Everyone', n: visible.length },
+    { key: 'all', label: 'Todos', n: visible.length },
     ...PERSON_STATES.filter(st => st.value !== 'spam').map(st => ({
       key: st.value, label: st.label, n: visible.filter(r => r.states.includes(st.value)).length,
     })),
-    { key: 'spam' as const, label: 'Likely spam', n: spamCount },
+    { key: 'spam' as const, label: 'Posible spam', n: spamCount },
   ]
 
   return (
     <>
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">Contacts</div>
+          <div className="os-page-title">Contactos</div>
           <div className="os-page-sub">
-            {visible.length} {visible.length === 1 ? 'person' : 'people'}
-            {spamCount > 0 && ` · ${spamCount} filtered as spam`}
-            {importCount > 0 && ` · ${importCount} imported`}
+            {visible.length} {visible.length === 1 ? 'persona' : 'personas'}
+            {spamCount > 0 && ` · ${spamCount} filtrados como spam`}
+            {importCount > 0 && ` · ${importCount} importados`}
           </div>
         </div>
         <div className="os-page-actions" style={{ display: 'flex', gap: 10 }}>
           <button className="os-btn os-btn-ghost" onClick={() => setShowImport(true)}>
-            <i className="ti ti-upload" /> Import CSV
+            <i className="ti ti-upload" /> Importar CSV
           </button>
           <button className="os-btn os-btn-primary" onClick={() => { setEditContact(undefined); setShowAdd(true) }}>
-            <i className="ti ti-plus" /> Add Contact
+            <i className="ti ti-plus" /> Añadir contacto
           </button>
         </div>
       </div>
@@ -547,7 +547,7 @@ export default function ContactsPage() {
         {stateFilter === 'spam' && spamCount > 0 && (
           <button type="button" className="os-btn os-btn-sm" onClick={deleteAllSpam}
             style={{ marginLeft: 'auto', background: 'var(--os-bad)', color: '#fff', border: 'none' }}>
-            Delete all {spamCount} likely spam
+            Eliminar los {spamCount} posibles spam
           </button>
         )}
       </div>
@@ -558,34 +558,34 @@ export default function ContactsPage() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search name, email, company, event..."
+            placeholder="Buscar nombre, email, empresa, evento..."
             style={{ width: '100%', padding: '9px 12px 9px 36px', border: '1.5px solid var(--os-line)', borderRadius: 10, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--os-text)', background: 'var(--os-card)' }}
           />
         </div>
         {allCountries.length > 0 && (
           <select value={countryFilter} onChange={e => setCountryFilter(e.target.value)} style={selectStyle}>
-            <option value="all">All countries</option>
+            <option value="all">Todos los países</option>
             {allCountries.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         )}
         {allCompanyTypes.length > 0 && (
           <select value={companyTypeFilter} onChange={e => setCompanyTypeFilter(e.target.value)} style={selectStyle}>
-            <option value="all">All company types</option>
+            <option value="all">Todos los tipos de empresa</option>
             {allCompanyTypes.map(t => <option key={t} value={t}>{t}</option>)}
           </select>
         )}
         <select value={lastContactedFilter} onChange={e => setLastContactedFilter(e.target.value)} style={selectStyle}>
-          <option value="all">Any time</option>
-          <option value="7d">Active in last 7 days</option>
-          <option value="30d">Active in last 30 days</option>
-          <option value="stale">Nothing in 30+ days</option>
+          <option value="all">Cualquier fecha</option>
+          <option value="7d">Activos en los últimos 7 días</option>
+          <option value="30d">Activos en los últimos 30 días</option>
+          <option value="stale">Sin actividad en 30+ días</option>
         </select>
         {allTags.length > 0 && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {(['all', ...allTags]).map(t => (
               <button key={t} onClick={() => setTagFilter(t)}
                 style={{ padding: '6px 14px', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12, background: tagFilter === t ? 'var(--os-accent)' : 'var(--os-card)', color: tagFilter === t ? '#fff' : 'var(--os-text-muted)', border: tagFilter === t ? 'none' : '1px solid var(--os-line)' }}>
-                {t === 'all' ? 'All tags' : t}
+                {t === 'all' ? 'Todas las etiquetas' : t}
               </button>
             ))}
           </div>
@@ -595,10 +595,10 @@ export default function ContactsPage() {
       {hasSelection && (
         <div style={{ background: 'var(--os-line)', border: '1px solid #c4b5fd', borderRadius: 12, padding: '10px 16px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--os-accent)' }}>{selected.size} selected</span>
-          <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => exportCSV(true)}><i className="ti ti-download" /> Export selected</button>
-          <button className="os-btn os-btn-ghost os-btn-sm" onClick={sendBulkWhatsApp} title="WhatsApp has no true bulk send. This opens a chat with the first selected contact."><i className="ti ti-brand-whatsapp" /> WhatsApp first</button>
+          <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => exportCSV(true)}><i className="ti ti-download" /> Exportar selección</button>
+          <button className="os-btn os-btn-ghost os-btn-sm" onClick={sendBulkWhatsApp} title="WhatsApp no permite envíos masivos. Esto abre un chat con el primer contacto seleccionado."><i className="ti ti-brand-whatsapp" /> WhatsApp al primero</button>
           <button className="os-btn os-btn-ghost os-btn-sm" style={{ color: '#e53e3e', borderColor: 'rgba(229,62,62,.35)' }} onClick={bulkDelete}><i className="ti ti-trash" /> Delete {selected.size}</button>
-          <button className="os-btn os-btn-ghost os-btn-sm" style={{ marginLeft: 'auto' }} onClick={() => setSelected(new Set())}>Clear</button>
+          <button className="os-btn os-btn-ghost os-btn-sm" style={{ marginLeft: 'auto' }} onClick={() => setSelected(new Set())}>Limpiar</button>
         </div>
       )}
 
@@ -606,8 +606,8 @@ export default function ContactsPage() {
         {filtered.length === 0 ? (
           <div className="os-empty">
             <i className="ti ti-users" />
-            <div className="os-empty-title">{search || stateFilter !== 'all' || tagFilter !== 'all' ? 'Nobody matches' : 'No contacts yet'}</div>
-            <div className="os-empty-sub">Import a CSV or add contacts manually to get started</div>
+            <div className="os-empty-title">{search || stateFilter !== 'all' || tagFilter !== 'all' ? 'Nadie coincide' : 'Aún no hay contactos'}</div>
+            <div className="os-empty-sub">Importa un CSV o añade contactos a mano para empezar</div>
           </div>
         ) : narrow ? (
 
@@ -619,7 +619,7 @@ export default function ContactsPage() {
                 <div className="os-pcard-top">
                   <div className="os-pcard-av" style={{ background: avatarBgOf(r.name || r.email) }}>{initialsOf(r.name || r.email)}</div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div className="os-pcard-name">{r.name || r.email || 'Unnamed'}</div>
+                    <div className="os-pcard-name">{r.name || r.email || 'Sin nombre'}</div>
                     {r.company && <div className="os-pcard-sub">{r.company}</div>}
                   </div>
                 </div>
@@ -642,12 +642,12 @@ export default function ContactsPage() {
                   <th style={{ width: 34 }}>
                     <input type="checkbox" checked={selected.size === filtered.length && filtered.length > 0} onChange={selectAll} style={{ cursor: 'pointer' }} />
                   </th>
-                  <th>Contact</th>
-                  <th>States</th>
-                  <th>Company</th>
-                  <th>Phone</th>
-                  <th>Tags</th>
-                  <th>Last seen</th>
+                  <th>Contacto</th>
+                  <th>Estados</th>
+                  <th>Empresa</th>
+                  <th>Teléfono</th>
+                  <th>Etiquetas</th>
+                  <th>Última actividad</th>
                   <th></th>
                 </tr>
               </thead>
@@ -665,7 +665,7 @@ export default function ContactsPage() {
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontWeight: 700, color: 'var(--os-text)', fontSize: 13.5, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={r.name}>{r.name || '—'}</div>
                           <div style={{ fontSize: 12, color: 'var(--os-text-faint)' }}>
-                            {r.email ? <EmailText email={r.email} style={{ maxWidth: 178 }} /> : <span>No e-mail</span>}
+                            {r.email ? <EmailText email={r.email} style={{ maxWidth: 178 }} /> : <span>Sin email</span>}
                           </div>
                         </div>
                       </div>
@@ -695,8 +695,8 @@ export default function ContactsPage() {
                       {r.email && (
                         <a className="os-btn os-btn-ghost os-btn-sm" href={`mailto:${r.email}`} title="Email"><i className="ti ti-mail" /></a>
                       )}
-                      <button className="os-btn os-btn-ghost os-btn-sm" style={{ color: '#e53e3e' }} title="Delete"
-                        onClick={async () => { if (await confirmAction({ message: `Delete ${r.name || r.email}?`, detail: 'Every record they appear in goes with them. This cannot be undone.' })) deletePeople([r.key]) }}>
+                      <button className="os-btn os-btn-ghost os-btn-sm" style={{ color: '#e53e3e' }} title="Eliminar"
+                        onClick={async () => { if (await confirmAction({ message: `¿Eliminar a ${r.name || r.email}?`, detail: 'Se borran todos los registros donde aparece. No se puede deshacer.' })) deletePeople([r.key]) }}>
                         <i className="ti ti-trash" />
                       </button>
                     </td>

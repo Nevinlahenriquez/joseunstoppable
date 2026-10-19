@@ -29,10 +29,10 @@ export async function POST(req: NextRequest) {
     const eCompany = escapeHtml(String(clientCompany ?? '').trim())
 
     const card = `
-<table role="presentation" class="e-wrap" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#241a33;line-height:1.7;">
+<table role="presentation" class="e-wrap" cellpadding="0" cellspacing="0" border="0" width="640" style="width:640px;max-width:640px;font-family:Helvetica,Arial,sans-serif;font-size:15px;color:#0C2A43;line-height:1.7;">
   <!-- Header -->
   <tr><td>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#12002a" style="background-color:#12002a;border-radius:12px 12px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#0C2A43" style="background-color:#0C2A43;border-radius:12px 12px 0 0;">
       <tr>
         <td class="e-hpad" style="padding:28px 32px;" valign="middle">
           <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
             </td>
             <td valign="middle">
               <div class="e-brand" style="color:#ffffff;font-weight:800;font-size:16px;line-height:1.2;">José Unstoppable</div>
-              <div style="color:#c4b5fd;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Service proposal</div>
+              <div style="color:#BFE6FA;font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:4px;">Propuesta</div>
             </td>
           </tr></table>
         </td>
@@ -54,29 +54,29 @@ export async function POST(req: NextRequest) {
 
   <!-- Body -->
   <tr><td class="e-body" bgcolor="#ffffff" style="background-color:#ffffff;padding:36px;border:1px solid #E4F4FD;border-top:none;border-radius:0 0 12px 12px;">
-    <p style="margin:0 0 20px;font-size:15px;color:#0C2A43;">Hi ${firstName},</p>
+    <p style="margin:0 0 20px;font-size:15px;color:#0C2A43;">Hola ${firstName},</p>
     <p style="margin:0 0 20px;font-size:14.5px;color:#4a4359;line-height:1.75;">
-      I have put together a proposal for ${eCompany ? `<strong>${eCompany}</strong>` : 'you'}, <strong>${eTitle}</strong>.
-      The full scope, the payment schedule and the terms are on the page behind the button.
+      Te he preparado la propuesta de lo que hablamos: <strong>${eTitle}</strong>.
+      Todo lo que incluye, el calendario de pagos y las condiciones están en la página del botón.
     </p>
     <p style="margin:0 0 8px;font-size:14.5px;color:#4a4359;line-height:1.75;">
-      When you are ready, you can sign directly on that page. I am notified the moment you do, your first invoice goes out with the payment details, and we begin as soon as it is settled.
+      Cuando lo tengas claro, puedes firmar en esa misma página. Me llega un aviso al momento, te envío la primera factura con los datos de pago y empezamos en cuanto se confirme.
     </p>
 
     <!-- CTA -->
     <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:26px auto 30px;">
       <tr><td bgcolor="#0E71AC" style="background-color:#0E71AC;border-radius:100px;">
-        <a href="${signingLink}" class="e-cta" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:16px 36px;border-radius:100px;text-decoration:none;letter-spacing:0.2px;">Review and sign the proposal</a>
+        <a href="${signingLink}" class="e-cta" style="display:inline-block;color:#ffffff;font-weight:700;font-size:15px;padding:16px 36px;border-radius:100px;text-decoration:none;letter-spacing:0.2px;">Ver y firmar la propuesta</a>
       </td></tr>
     </table>
 
-    <p style="font-size:13px;color:#5f5670;margin:0 0 6px;">Or copy this link into your browser:</p>
+    <p style="font-size:13px;color:#5f5670;margin:0 0 6px;">O copia este enlace en tu navegador:</p>
     <p style="font-size:12.5px;color:#0E71AC;margin:0 0 28px;word-break:break-all;">${signingLink}</p>
 
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #f0eafc;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top:1px solid #E4F4FD;">
       <tr><td style="padding-top:20px;">
-        <p style="font-size:13px;color:#5f5670;margin:0 0 4px;">Questions? Reply to this email and it comes straight back to me.</p>
-        <p style="font-size:13.5px;color:#241a33;margin:0;font-weight:600;">José Unstoppable &middot; José Unstoppable</p>
+        <p style="font-size:13px;color:#5f5670;margin:0 0 4px;">¿Dudas? Responde a este correo y me llega directamente.</p>
+        <p style="font-size:13.5px;color:#0C2A43;margin:0;font-weight:600;">José Sánchez &middot; José Unstoppable</p>
         <p style="font-size:12px;color:#8b839a;margin:4px 0 0;">hola@joseunstoppable.com &middot; joseunstoppable.com</p>
       </td></tr>
     </table>
@@ -84,8 +84,8 @@ export async function POST(req: NextRequest) {
 </table>`
 
     const html = documentShell({
-      title: `Your proposal from José Unstoppable`,
-      preview: `${scrubClientCopy(title) || 'Your proposal'}. Review, then sign on the page.`,
+      title: `Tu propuesta de José Unstoppable`,
+      preview: `${scrubClientCopy(title) || 'Tu propuesta'}. Revísala y fírmala en la página.`,
       card,
     })
 
@@ -97,7 +97,7 @@ export async function POST(req: NextRequest) {
           from: FROM,
           to: [clientEmail],
           reply_to: NOTIFY_EMAIL,
-          subject: `Your proposal from José Unstoppable${title ? `: ${scrubClientCopy(title)}` : ''}`,
+          subject: `Tu propuesta de José Unstoppable${title ? `: ${scrubClientCopy(title)}` : ''}`,
           html,
         }),
       }),
@@ -107,6 +107,6 @@ export async function POST(req: NextRequest) {
     await Promise.allSettled(sends)
     return NextResponse.json({ ok: true })
   } catch {
-    return NextResponse.json({ error: 'Failed to send proposal' }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo enviar la propuesta' }, { status: 500 })
   }
 }

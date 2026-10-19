@@ -49,9 +49,9 @@ async function sendAll<T>(items: T[], fn: (item: T) => Promise<void>): Promise<P
 
 function plainReason(err: unknown): string {
   const m = String(err instanceof Error ? err.message : err)
-  if (/429/.test(m)) return 'The mail service was busy. Retry it.'
-  if (/422|invalid|validation/i.test(m)) return 'The address looks invalid. Check it for a typo.'
-  if (/403/.test(m)) return 'The mail service refused it.'
+  if (/429/.test(m)) return 'El servicio de correo estaba ocupado. Reinténtalo.'
+  if (/422|invalid|validation/i.test(m)) return 'La dirección parece no válida. Revisa si hay una errata.'
+  if (/403/.test(m)) return 'El servicio de correo lo rechazó.'
   return m.slice(0, 160)
 }
 
@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
       .single()
 
     if (eventErr || !event) {
-      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+      return NextResponse.json({ error: 'Evento no encontrado' }, { status: 404 })
     }
 
     const fmtDate = weekdayDate(event.date, 'Fecha por confirmar')
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (!subjectMap[type]) {
-      return NextResponse.json({ error: `Unknown email type "${type}"` }, { status: 400 })
+      return NextResponse.json({ error: `Tipo de email desconocido "${type}"` }, { status: 400 })
     }
 
     if (type === 'offer' && (!offerSubject || !offerBody)) {
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
 
     const { data: attendees, error: attErr } = await query
     if (attErr) {
-      return NextResponse.json({ error: 'Failed to fetch attendees' }, { status: 500 })
+      return NextResponse.json({ error: 'No se pudieron cargar los asistentes' }, { status: 500 })
     }
 
     const guard = 'none'
@@ -187,6 +187,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, sent, failed, failedList, excluded, alreadySent, guard })
   } catch (err) {
     console.error('Send event email error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

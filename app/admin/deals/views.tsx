@@ -5,7 +5,7 @@ import type { Deal, DealStage } from '@/lib/crm-types'
 import { getStages, ContactTimer, LeadAge, isOpenStage, type Stage } from './crm-shared'
 
 function money(v: number, deal: Deal): string {
-  return deal.revenueType === 'mrr' ? `$${v.toLocaleString()}/mo` : `$${v.toLocaleString()}`
+  return deal.revenueType === 'mrr' ? `${v.toLocaleString('es-ES')} €/mes` : `${v.toLocaleString('es-ES')} €`
 }
 
 function lastActivityTs(deal: Deal): number {
@@ -56,13 +56,13 @@ export function TableView({ deals, onOpen, onStage, onContact, onArchive, onDele
     <div className="os-card" style={{ padding: 0, overflow: 'visible' }}>
       <table className="os-table">
         <thead><tr>
-          {head('name', 'Contact')}
-          {head('stage', 'Stage')}
-          {head('value', 'Value', 'right')}
-          {head('priority', 'Priority')}
-          <th>Next step</th>
-          {head('age', 'Lead age', 'right')}
-          {head('activity', 'Last action', 'right')}
+          {head('name', 'Contacto')}
+          {head('stage', 'Etapa')}
+          {head('value', 'Valor', 'right')}
+          {head('priority', 'Prioridad')}
+          <th>Próximo paso</th>
+          {head('age', 'Antigüedad', 'right')}
+          {head('activity', 'Última acción', 'right')}
           <th style={{ width: 44 }} />
         </tr></thead>
         <tbody>
@@ -101,16 +101,16 @@ export function TableView({ deals, onOpen, onStage, onContact, onArchive, onDele
                 <td onClick={stop} style={{ position: 'relative', textAlign: 'right' }}>
                   <button
                     onClick={() => setMenuId(menuId === d.id ? null : d.id)}
-                    title="Actions"
+                    title="Acciones"
                     style={{ background: 'none', border: '1px solid var(--os-line)', borderRadius: 7, padding: '3px 8px', cursor: 'pointer', color: 'var(--os-text-faint)', fontSize: 14, lineHeight: 1 }}
                   >⋯</button>
                   {menuId === d.id && (
                     <div style={{ position: 'absolute', top: '100%', right: 8, marginTop: 4, background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', border: '1px solid var(--os-line)', borderRadius: 10, boxShadow: '0 8px 28px var(--os-line)', zIndex: 50, minWidth: 180, padding: 6, textAlign: 'left' }}>
-                      <RowMenuItem icon="ti-circle-check" label="Mark contacted" onClick={() => { onContact(d); setMenuId(null) }} color="var(--os-good)" />
-                      <RowMenuItem icon="ti-trophy" label="Mark Won" onClick={() => { onStage(d, 'completed'); setMenuId(null) }} color="var(--os-good)" />
-                      <RowMenuItem icon="ti-archive" label="Archive (Lost)" onClick={() => { onArchive(d); setMenuId(null) }} color="var(--os-warn)" />
+                      <RowMenuItem icon="ti-circle-check" label="Marcar contactado" onClick={() => { onContact(d); setMenuId(null) }} color="var(--os-good)" />
+                      <RowMenuItem icon="ti-trophy" label="Marcar ganado" onClick={() => { onStage(d, 'completed'); setMenuId(null) }} color="var(--os-good)" />
+                      <RowMenuItem icon="ti-archive" label="Archivar (perdido)" onClick={() => { onArchive(d); setMenuId(null) }} color="var(--os-warn)" />
                       <div style={{ height: 1, background: 'var(--os-chip)', margin: '4px 0' }} />
-                      <RowMenuItem icon="ti-trash" label="Delete" onClick={() => { onDelete(d); setMenuId(null) }} color="var(--os-bad)" />
+                      <RowMenuItem icon="ti-trash" label="Eliminar" onClick={() => { onDelete(d); setMenuId(null) }} color="var(--os-bad)" />
                     </div>
                   )}
                 </td>
@@ -160,16 +160,16 @@ export function InsightsView({ deals }: { deals: Deal[] }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 14 }}>
-        {stat('Open pipeline', `$${openValue.toLocaleString()}`, `${open.length} active deals`)}
-        {stat('Monthly recurring', `$${mrr.toLocaleString()}/mo`, 'Signed + active retainers', 'var(--accent)')}
-        {stat('Won', `$${wonValue.toLocaleString()}`, `${won.length} closed`, 'var(--os-good)')}
-        {stat('Win rate', `${winRate}%`, `${won.length} won · ${lost.length} lost`)}
-        {stat('Activity (7d)', `${activityWeek}`, 'notes, calls, meetings')}
-        {stat('Overdue follow-ups', `${overdue.length}`, 'next steps past due', overdue.length ? 'var(--os-bad)' : undefined)}
+        {stat('Pipeline abierto', `${openValue.toLocaleString('es-ES')} €`, `${open.length} oportunidades activas`)}
+        {stat('Recurrente mensual', `${mrr.toLocaleString('es-ES')} €/mes`, 'Cuotas firmadas y activas', 'var(--accent)')}
+        {stat('Ganado', `${wonValue.toLocaleString('es-ES')} €`, `${won.length} cerradas`, 'var(--os-good)')}
+        {stat('Tasa de cierre', `${winRate}%`, `${won.length} ganadas · ${lost.length} perdidas`)}
+        {stat('Actividad (7 d)', `${activityWeek}`, 'notas, llamadas, reuniones')}
+        {stat('Seguimientos vencidos', `${overdue.length}`, 'próximos pasos atrasados', overdue.length ? 'var(--os-bad)' : undefined)}
       </div>
 
       <div className="os-card" style={{ padding: 24 }}>
-        <div className="os-crm-section-title" style={{ marginBottom: 16 }}>Funnel by stage</div>
+        <div className="os-crm-section-title" style={{ marginBottom: 16 }}>Embudo por etapa</div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {STAGES.map(s => {
             const ds = deals.filter(d => d.stage === s.key)
@@ -181,7 +181,7 @@ export function InsightsView({ deals }: { deals: Deal[] }) {
                   <div style={{ width: `${(ds.length / maxStage) * 100}%`, background: s.color, height: '100%', borderRadius: 8, minWidth: ds.length ? 24 : 0, transition: 'width .3s' }} />
                   <span style={{ position: 'absolute', left: 10, top: 0, lineHeight: '26px', fontSize: 12, fontWeight: 700, color: ds.length / maxStage > 0.15 ? '#fff' : 'var(--os-text-muted)' }}>{ds.length}</span>
                 </div>
-                <div style={{ width: 90, textAlign: 'right', fontSize: 12.5, color: 'var(--os-text-faint)' }}>{val > 0 ? `$${val.toLocaleString()}` : ''}</div>
+                <div style={{ width: 90, textAlign: 'right', fontSize: 12.5, color: 'var(--os-text-faint)' }}>{val > 0 ? `${val.toLocaleString('es-ES')} €` : ''}</div>
               </div>
             )
           })}
@@ -190,12 +190,12 @@ export function InsightsView({ deals }: { deals: Deal[] }) {
 
       {overdue.length > 0 && (
         <div className="os-card" style={{ padding: 24 }}>
-          <div className="os-crm-section-title" style={{ marginBottom: 12, color: 'var(--os-bad)' }}>Overdue follow-ups</div>
+          <div className="os-crm-section-title" style={{ marginBottom: 12, color: 'var(--os-bad)' }}>Seguimientos vencidos</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {overdue.map(d => (
               <div key={d.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, padding: '8px 0', borderBottom: '1px solid #f5f0fc' }}>
                 <span style={{ fontWeight: 600 }}>{d.clientName}</span>
-                <span style={{ color: 'var(--os-warn)' }}>{d.nextStep} · {new Date(d.nextStepDate!).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+                <span style={{ color: 'var(--os-warn)' }}>{d.nextStep} · {new Date(d.nextStepDate!).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</span>
               </div>
             ))}
           </div>

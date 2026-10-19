@@ -9,16 +9,16 @@ import { getStages, saveStages, stageSlug, type Stage, PRESET_TAGS, PRIORITY_COL
 import { TableView, InsightsView } from './views'
 import ContactCard, { type ContactCardContact } from '@/components/ContactCard'
 import { hasUnsyncedWrites } from '@/lib/sync-status'
-import LeadsSwitch from '@/components/os/LeadsSwitch'
 import { getPeople } from '@/lib/people'
 import { isLikelySpam } from '@/lib/apply-guard'
 import { confirmAction } from '@/app/admin/ConfirmHost'
 import { EmailText } from '@/components/os/CopyEmail'
+import { copyText } from '@/lib/clipboard'
 
 type ViewMode = 'pipeline' | 'table' | 'insights'
 
 function money(v: number, deal: Deal): string {
-  return deal.revenueType === 'mrr' ? `$${v.toLocaleString()}/mo` : `$${v.toLocaleString()}`
+  return deal.revenueType === 'mrr' ? `${v.toLocaleString('es-ES')} €/mes` : `${v.toLocaleString('es-ES')} €`
 }
 
 function initials(name: string): string {
@@ -106,6 +106,8 @@ export default function DealsPage() {
   useEffect(() => {
     reload()
     pullFromServer(true)
+    const open = new URLSearchParams(window.location.search).get('deal')
+    if (open) setSelectedId(open)
 
     const interval = setInterval(() => pullFromServer(), 20000)
     const onFocus = () => pullFromServer()
@@ -160,7 +162,7 @@ export default function DealsPage() {
   function setStage(deal: Deal, stage: DealStage) {
     if (deal.stage === stage) return
     const label = stages.find(s => s.key === stage)?.label ?? stage
-    const entry: ActivityEntry = { id: genId('a'), ts: new Date().toISOString(), type: 'stage', text: `Moved to ${label}` }
+    const entry: ActivityEntry = { id: genId('a'), ts: new Date().toISOString(), type: 'stage', text: `Movido a ${label}` }
     if (stage === 'signed' || stage === 'completed') provisionActiveClient(deal)
     updateDeal(deal.id, { stage, activity: [entry, ...(deal.activity ?? [])] })
     reload()
@@ -176,22 +178,22 @@ export default function DealsPage() {
   }
 
   function addDeal() {
-    const deal = saveDeal({ clientName: 'New Contact', clientEmail: '', clientCompany: '', stage: 'lead', value: 0, currency: 'USD', service: '', notes: '' })
+    const deal = saveDeal({ clientName: 'Nuevo contacto', clientEmail: '', clientCompany: '', stage: 'lead', value: 0, currency: 'EUR', service: '', notes: '' })
     reload(); setSelectedId(deal.id)
   }
 
   function patch(id: string, p: Partial<Deal>) { updateDeal(id, p); reload() }
 
   function markContacted(deal: Deal) {
-    const entry: ActivityEntry = { id: genId('a'), ts: new Date().toISOString(), type: 'call', text: 'Marked as contacted' }
+    const entry: ActivityEntry = { id: genId('a'), ts: new Date().toISOString(), type: 'call', text: 'Marcado como contactado' }
     updateDeal(deal.id, { activity: [entry, ...(deal.activity ?? [])] })
     reload()
   }
 
   function quickFollowUp(deal: Deal) {
     const next = new Date(Date.now() + 3 * 86400000).toISOString().slice(0, 10)
-    const entry: ActivityEntry = { id: genId('a'), ts: new Date().toISOString(), type: 'call', text: 'Logged a follow-up' }
-    updateDeal(deal.id, { activity: [entry, ...(deal.activity ?? [])], nextStep: deal.nextStep || 'Follow up', nextStepDate: next })
+    const entry: ActivityEntry = { id: genId('a'), ts: new Date().toISOString(), type: 'call', text: 'Seguimiento registrado' }
+    updateDeal(deal.id, { activity: [entry, ...(deal.activity ?? [])], nextStep: deal.nextStep || 'Seguimiento', nextStepDate: next })
     reload()
   }
 
@@ -200,7 +202,7 @@ export default function DealsPage() {
     const patch: Partial<Deal> = {}
     if (opts.stage && opts.stage !== deal.stage) {
       const label = stages.find(s => s.key === opts.stage)?.label ?? opts.stage
-      activity.unshift({ id: genId('a'), ts: new Date().toISOString(), type: 'stage', text: `Moved to ${label}` })
+      activity.unshift({ id: genId('a'), ts: new Date().toISOString(), type: 'stage', text: `Movido a ${label}` })
       patch.stage = opts.stage
       if (opts.stage === 'signed' || opts.stage === 'completed') provisionActiveClient(deal)
     }
@@ -225,60 +227,40 @@ export default function DealsPage() {
   function convertToProposal(deal: Deal) {
     const months = deal.retainerMonths && deal.retainerMonths > 0 ? deal.retainerMonths : 1
     const schedule = deal.revenueType === 'mrr'
-      ? Array.from({ length: months }, (_, i) => ({ label: `Month ${i + 1}`, amount: deal.value, note: '' }))
-      : [{ label: deal.service || 'Project fee', amount: deal.value, note: '' }]
+      ? Array.from({ length: months }, (_, i) => ({ label: `Mes ${i + 1}`, amount: deal.value, note: '' }))
+      : [{ label: deal.service || 'Programa de coaching', amount: deal.value, note: '' }]
     const total = schedule.reduce((s, m) => s + m.amount, 0)
     const proposal = saveProposal({
       dealId: deal.id, clientName: deal.clientName, clientEmail: deal.clientEmail, clientCompany: deal.clientCompany,
-      title: deal.service ? `${deal.service}, Proposal for ${deal.clientName}` : `Proposal for ${deal.clientName}`,
+      title: deal.service ? `${deal.service}, propuesta para ${deal.clientName}` : `Propuesta para ${deal.clientName}`,
       intro: deal.desiredOutcome || '', services: deal.service ? [deal.service] : [], deliverables: [],
-      paymentSchedule: schedule, total, currency: 'USD', validDays: 14, status: 'draft', paymentLink: '', bankInfo: '',
+      paymentSchedule: schedule, total, currency: 'EUR', validDays: 14, status: 'draft', paymentLink: '', bankInfo: '',
     })
-    logActivity(deal, 'note', `Created proposal ${proposal.ref}`)
+    logActivity(deal, 'note', `Propuesta creada ${proposal.ref}`)
     router.push(`/admin/proposals/${proposal.id}/edit`)
   }
 
-  async function openOnboarding(deal: Deal) {
-    setOnboarding({ deal, state: 'loading' })
-    try {
-      const res = await fetch('/api/os/learning-platform', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'send-welcome',
-          email: deal.clientEmail,
-          name: deal.clientName,
-        }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data.ok) {
-        setOnboarding({ deal, state: 'error', error: data.error || `Could not send access (${res.status}).` })
-        return
-      }
-      logActivity(deal, 'note', 'Portal access sent')
-      setOnboarding({ deal, state: 'sent' })
-    } catch {
-      setOnboarding({ deal, state: 'error', error: 'Could not reach the server.' })
-    }
+  function openOnboarding(deal: Deal) {
+    setOnboarding({ deal })
   }
 
+
   const headerSub =
-    view === 'insights' ? 'Pipeline analytics across all contacts'
-    : `$${totalPipeline.toLocaleString()} in active pipeline · ${visible.length} contacts`
+    view === 'insights' ? 'Análisis del pipeline de todos los contactos'
+    : `${totalPipeline.toLocaleString('es-ES')} € en pipeline activo · ${visible.length} contactos`
 
   return (
     <>
-      <LeadsSwitch active="inbound" />
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">Inbound leads</div>
+          <div className="os-page-title">Leads</div>
           <div className="os-page-sub">{headerSub}</div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="os-btn os-btn-ghost" onClick={() => setShowStages(true)}><i className="ti ti-columns" /> Stages</button>
+          <button className="os-btn os-btn-ghost" onClick={() => setShowStages(true)}><i className="ti ti-columns" /> Etapas</button>
           {}
-          <button className="os-btn os-btn-ghost" onClick={() => exportCsv(visible)}><i className="ti ti-download" /> Export{visible.length !== deals.length ? ` (${visible.length})` : ''}</button>
-          <button className="os-btn os-btn-primary" onClick={addDeal}><i className="ti ti-plus" /> Add Contact</button>
+          <button className="os-btn os-btn-ghost" onClick={() => exportCsv(visible)}><i className="ti ti-download" /> Exportar{visible.length !== deals.length ? ` (${visible.length})` : ''}</button>
+          <button className="os-btn os-btn-primary" onClick={addDeal}><i className="ti ti-plus" /> Añadir contacto</button>
         </div>
       </div>
 
@@ -287,7 +269,7 @@ export default function DealsPage() {
         <div className="os-view-tabs">
           {(['pipeline', 'table', 'insights'] as ViewMode[]).map(v => (
             <button key={v} className={`os-view-tab${view === v ? ' active' : ''}`} onClick={() => setView(v)}>
-              <i className={`ti ${v === 'pipeline' ? 'ti-layout-kanban' : v === 'table' ? 'ti-table' : 'ti-chart-bar'}`} /> {v.charAt(0).toUpperCase() + v.slice(1)}
+              <i className={`ti ${v === 'pipeline' ? 'ti-layout-kanban' : v === 'table' ? 'ti-table' : 'ti-chart-bar'}`} /> {v === 'pipeline' ? 'Pipeline' : v === 'table' ? 'Tabla' : 'Análisis'}
             </button>
           ))}
         </div>
@@ -295,10 +277,10 @@ export default function DealsPage() {
           <div className="os-crm-toolbar-right">
             <div className="os-search-box">
               <i className="ti ti-search" />
-              <input placeholder="Search contacts…" value={search} onChange={e => setSearch(e.target.value)} />
+              <input placeholder="Buscar contactos…" value={search} onChange={e => setSearch(e.target.value)} />
             </div>
             <select className="os-crm-input" value={prioFilter} onChange={e => setPrioFilter(e.target.value)} style={{ width: 'auto', padding: '7px 10px', fontSize: 12.5 }}>
-              <option value="">All priorities</option><option value="high">High</option><option value="medium">Medium</option><option value="low">Low</option>
+              <option value="">Todas las prioridades</option><option value="high">Alta</option><option value="medium">Media</option><option value="low">Baja</option>
             </select>
           </div>
         )}
@@ -309,13 +291,13 @@ export default function DealsPage() {
         <>
           <div className="os-tag-filter os-tag-filter-chips">
             {['All', ...PRESET_TAGS].map(t => (
-              <button key={t} className={`os-tag-chip${tagFilter === t ? ' active' : ''}`} onClick={() => setTagFilter(t)}>{t}</button>
+              <button key={t} className={`os-tag-chip${tagFilter === t ? ' active' : ''}`} onClick={() => setTagFilter(t)}>{t === 'All' ? 'Todos' : t}</button>
             ))}
           </div>
           <label className="os-tag-filter-select">
-            <span className="os-visually-hidden">Filter by industry</span>
+            <span className="os-visually-hidden">Filtrar por objetivo</span>
             <select value={tagFilter} onChange={e => setTagFilter(e.target.value)}>
-              <option value="All">All industries</option>
+              <option value="All">Todos los objetivos</option>
               {PRESET_TAGS.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
           </label>
@@ -326,10 +308,10 @@ export default function DealsPage() {
       {view === 'table' && orphanLeads.length > 0 && (
         <div className="os-card" style={{ marginBottom: 14, padding: '14px 16px', borderLeft: '3px solid var(--os-warn)' }}>
           <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-text)', marginBottom: 3 }}>
-            {orphanLeads.length} captured {orphanLeads.length === 1 ? 'lead is' : 'leads are'} not in the pipeline
+            {orphanLeads.length} {orphanLeads.length === 1 ? 'lead captado no está' : 'leads captados no están'} en el pipeline
           </div>
           <div style={{ fontSize: 12.5, color: 'var(--os-text-muted)', marginBottom: 10 }}>
-            They came in through a form but never became a deal, so they were only ever visible on the old Leads page.
+            Llegaron por un formulario pero nunca pasaron al pipeline.
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
             {orphanLeads.map(l => (
@@ -373,7 +355,7 @@ export default function DealsPage() {
                   <span style={{ width: 8, height: 8, borderRadius: '50%', background: stage.color, display: 'inline-block' }} />
                   {stage.label}
                   <span className="os-pipeline-col-count">{stageDeals.length}</span>
-                  {stageValue > 0 && <span style={{ marginLeft: 'auto', color: 'var(--os-text-muted)', fontSize: 11 }}>${stageValue.toLocaleString()}</span>}
+                  {stageValue > 0 && <span style={{ marginLeft: 'auto', color: 'var(--os-text-muted)', fontSize: 11 }}>{stageValue.toLocaleString('es-ES')} €</span>}
                 </div>
                 {stageDeals.map(deal => (
                   <div key={deal.id} className={`os-deal-card${dragId === deal.id ? ' dragging' : ''}`} draggable
@@ -399,7 +381,7 @@ export default function DealsPage() {
                     {deal.location && <div className="os-deal-line"><i className="ti ti-map-pin" /> {deal.location}</div>}
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                      <div className="os-deal-value">{deal.value > 0 ? money(deal.value, deal) : 'No value set'}</div>
+                      <div className="os-deal-value">{deal.value > 0 ? money(deal.value, deal) : 'Sin valor'}</div>
                       {(deal.activity?.length ?? 0) > 0 && (
                         <span style={{ fontSize: 11, color: 'var(--os-text-faint)', display: 'flex', alignItems: 'center', gap: 3 }}>
                           <i className="ti ti-message-dots" style={{ fontSize: 12 }} /> {deal.activity!.length}
@@ -413,34 +395,34 @@ export default function DealsPage() {
 
                     <div className={`os-deal-next${deal.nextStep ? '' : ' empty'}`}>
                       <i className={`ti ${deal.nextStep ? 'ti-flag-3' : 'ti-alert-triangle'}`} />
-                      <span>{deal.nextStep || 'No next activity'}</span>
-                      {deal.nextStepDate && <span className="os-deal-next-date">{new Date(deal.nextStepDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>}
+                      <span>{deal.nextStep || 'Sin próxima acción'}</span>
+                      {deal.nextStepDate && <span className="os-deal-next-date">{new Date(deal.nextStepDate).toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })}</span>}
                     </div>
 
                     {}
                     <div className="os-deal-actions" onClick={e => e.stopPropagation()}>
                       <div className="os-deal-actrow">
                       {deal.clientPhone ? (
-                        <a className="os-deal-act act-call" href={`tel:${deal.clientPhone}`} onClick={() => logTouch(deal, 'call', 'Called the lead')}><i className="ti ti-phone" /> Call</a>
+                        <a className="os-deal-act act-call" href={`tel:${deal.clientPhone}`} onClick={() => logTouch(deal, 'call', 'Llamada al lead')}><i className="ti ti-phone" /> Llamar</a>
                       ) : (
-                        <button className="os-deal-act act-disabled" onClick={() => setSelectedId(deal.id)} title="Add a phone number"><i className="ti ti-phone" /> Call</button>
+                        <button className="os-deal-act act-disabled" onClick={() => setSelectedId(deal.id)} title="Añade un teléfono"><i className="ti ti-phone" /> Llamar</button>
                       )}
                       {deal.clientPhone && (
-                        <a className="os-deal-act act-wa" href={`https://wa.me/${deal.clientPhone.replace(/[^\d]/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" aria-label="Message on WhatsApp" onClick={() => logTouch(deal, 'whatsapp', 'Messaged on WhatsApp')}><i className="ti ti-brand-whatsapp" /></a>
+                        <a className="os-deal-act act-wa" href={`https://wa.me/${deal.clientPhone.replace(/[^\d]/g, '')}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" aria-label="Escribir por WhatsApp" onClick={() => logTouch(deal, 'whatsapp', 'Messaged on WhatsApp')}><i className="ti ti-brand-whatsapp" /></a>
                       )}
                       </div>
                       <div className="os-deal-actrow">
-                      <button className="os-deal-act act-follow" onClick={() => quickFollowUp(deal)} title="Log a follow-up and schedule the next in 3 days"><i className="ti ti-corner-down-right" /> Follow up</button>
-                      <button className="os-deal-act act-log" onClick={() => setLogDeal(deal)} title="Log a call or a quick update" aria-label="Log a call or update"><i className="ti ti-notes" /></button>
+                      <button className="os-deal-act act-follow" onClick={() => quickFollowUp(deal)} title="Registra un seguimiento y programa el siguiente en 3 días"><i className="ti ti-corner-down-right" /> Seguimiento</button>
+                      <button className="os-deal-act act-log" onClick={() => setLogDeal(deal)} title="Registra una llamada o una novedad" aria-label="Registrar llamada o novedad"><i className="ti ti-notes" /></button>
                       {}
                       <button
                         className={`os-deal-act act-del${armedDelete === deal.id ? ' armed' : ''}`}
                         onClick={() => removeDeal(deal.id)}
-                        title={armedDelete === deal.id ? 'Press again to delete' : 'Delete this lead'}
-                        aria-label={armedDelete === deal.id ? 'Press again to delete this lead' : 'Delete this lead'}
+                        title={armedDelete === deal.id ? 'Pulsa otra vez para eliminar' : 'Eliminar este lead'}
+                        aria-label={armedDelete === deal.id ? 'Pulsa otra vez para eliminar este lead' : 'Eliminar este lead'}
                       >
                         <i className={`ti ${armedDelete === deal.id ? 'ti-alert-triangle' : 'ti-trash'}`} />
-                        {armedDelete === deal.id ? 'Sure? Delete' : ''}
+                        {armedDelete === deal.id ? '¿Seguro? Eliminar' : ''}
                       </button>
                       </div>
                     </div>
@@ -450,7 +432,7 @@ export default function DealsPage() {
                     </div>
                   </div>
                 ))}
-                <div className="os-pipeline-dropzone">{stageDeals.length === 0 ? 'Drop here' : '+'}</div>
+                <div className="os-pipeline-dropzone">{stageDeals.length === 0 ? 'Suelta aquí' : '+'}</div>
               </div>
             )
           })}
@@ -472,16 +454,16 @@ export default function DealsPage() {
                     {stages.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
                   </select>
                   <select className="os-crm-input" value={selected.priority ?? ''} onChange={e => patch(selected.id, { priority: (e.target.value || undefined) as Deal['priority'] })} style={{ width: 'auto', padding: '3px 8px', fontSize: 12, fontWeight: 600 }}>
-                    <option value="">No priority</option><option value="low">Low</option><option value="medium">Medium</option><option value="high">High</option>
+                    <option value="">Sin prioridad</option><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option>
                   </select>
                 </div>
                 <LeadTimers deal={selected} style={{ marginTop: 10, paddingLeft: 4 }} />
               </div>
-              <button className="os-icon-btn" title="View contact profile" onClick={() => setCardContact({ id: selected.id, name: selected.clientName, email: selected.clientEmail, phone: selected.clientPhone, company: selected.clientCompany, tags: selected.tags, notes: selected.notes, createdAt: selected.createdAt, _deal: selected })}><i className="ti ti-user-circle" /></button>
-              <button className="os-icon-btn" title="Open full contact page" onClick={() => router.push(`/admin/contacts/${encodeURIComponent(selected.clientEmail)}`)}><i className="ti ti-arrows-diagonal" /></button>
+              <button className="os-icon-btn" title="Ver perfil del contacto" onClick={() => setCardContact({ id: selected.id, name: selected.clientName, email: selected.clientEmail, phone: selected.clientPhone, company: selected.clientCompany, tags: selected.tags, notes: selected.notes, createdAt: selected.createdAt, _deal: selected })}><i className="ti ti-user-circle" /></button>
+              <button className="os-icon-btn" title="Abrir ficha completa" onClick={() => router.push(`/admin/contacts/${encodeURIComponent(selected.clientEmail)}`)}><i className="ti ti-arrows-diagonal" /></button>
               <button
                 className="os-icon-btn"
-                title={armedDelete === selected.id ? 'Press again to delete' : 'Delete'}
+                title={armedDelete === selected.id ? 'Pulsa otra vez para eliminar' : 'Eliminar'}
                 onClick={() => removeDeal(selected.id)}
                 style={{
                   color: 'var(--os-bad)',
@@ -493,24 +475,24 @@ export default function DealsPage() {
                 }}
               >
                 <i className={`ti ${armedDelete === selected.id ? 'ti-alert-triangle' : 'ti-trash'}`} />
-                {armedDelete === selected.id ? ' Sure?' : ''}
+                {armedDelete === selected.id ? ' ¿Seguro?' : ''}
               </button>
-              <button className="os-icon-btn" title="Close" onClick={() => setSelectedId(null)}><i className="ti ti-x" /></button>
+              <button className="os-icon-btn" title="Cerrar" onClick={() => setSelectedId(null)}><i className="ti ti-x" /></button>
             </div>
             <div className="os-drawer-body">
               <QuickActions deal={selected} onLog={(t, txt) => logActivity(selected, t, txt)} />
               <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
                 <button className="os-btn os-btn-sm" onClick={() => convertToProposal(selected)} style={{ background: 'var(--os-deep)', color: 'var(--os-on-deep)', flex: 1, minWidth: 165 }}>
-                  <i className="ti ti-file-export" /> Convert to Proposal
+                  <i className="ti ti-file-export" /> Convertir en propuesta
                 </button>
-                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Get this client's onboarding link" style={{ background: '#2A98D6', color: '#3a2600', flex: 1, minWidth: 140 }}>
+                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Enlace de onboarding para este cliente" style={{ background: '#2A98D6', color: '#3a2600', flex: 1, minWidth: 140 }}>
                   <i className="ti ti-clipboard-check" /> Onboarding
                 </button>
-                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => setStage(selected, 'completed')} style={{ color: 'var(--os-good)', borderColor: '#bbf7d0' }}><i className="ti ti-trophy" /> Won</button>
-                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => { const r = prompt('Reason lost? (optional)'); if (r) logActivity(selected, 'note', `Lost: ${r}`); setStage(selected, 'lost') }} style={{ color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }}>Lost</button>
+                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => setStage(selected, 'completed')} style={{ color: 'var(--os-good)', borderColor: '#bbf7d0' }}><i className="ti ti-trophy" /> Ganado</button>
+                <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => { const r = prompt('¿Motivo de la pérdida? (opcional)'); if (r) logActivity(selected, 'note', `Perdido: ${r}`); setStage(selected, 'lost') }} style={{ color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }}>Perdido</button>
               </div>
               <div className="os-crm-section">
-                <div className="os-crm-section-title">Process</div>
+                <div className="os-crm-section-title">Proceso</div>
                 <ProcessStepper stage={selected.stage} onPick={s => setStage(selected, s)} stages={stages} />
               </div>
               <CrmDetail deal={selected} layout="drawer" onPatch={p => patch(selected.id, p)} onAddActivity={(t, txt) => logActivity(selected, t, txt)} />
@@ -542,25 +524,26 @@ export default function DealsPage() {
         <OnboardingLinkModal
           link={onboarding}
           onClose={() => setOnboarding(null)}
+          onShared={() => logActivity(onboarding.deal, 'note', 'Enlace de onboarding enviado')}
         />
       )}
     </>
   )
 }
 
-type OnboardingLink =
-  | { deal: Deal; state: 'loading' }
-  | { deal: Deal; state: 'error'; error: string }
+type OnboardingLink = { deal: Deal }
 
-  | { deal: Deal; state: 'sent' }
-
-function OnboardingLinkModal({ link, onClose }: {
+function OnboardingLinkModal({ link, onClose, onShared }: {
   link: OnboardingLink
   onClose: () => void
   onShared?: () => void
 }) {
   const deal = link.deal
-  const firstName = deal.clientName.trim().split(/\s+/)[0] || 'there'
+  const firstName = deal.clientName.trim().split(/\s+/)[0] || ''
+  const url = `${typeof window !== 'undefined' ? window.location.origin : ''}/onboarding${firstName ? `?nombre=${encodeURIComponent(firstName)}` : ''}`
+  const wa = (deal.clientPhone ?? '').replace(/[^\d]/g, '')
+  const text = `¡Hola${firstName ? ` ${firstName}` : ''}! Bienvenido al programa. Rellena este formulario para que pueda preparar tu plan: ${url}`
+  const [copied, setCopied] = useState(false)
 
   return (
     <div style={{ position:'fixed', inset:0, zIndex:400, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
@@ -569,37 +552,28 @@ function OnboardingLinkModal({ link, onClose }: {
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12, marginBottom:16 }}>
           <div>
             <div style={{ fontFamily:'var(--font-sora), Sora, sans-serif', fontSize:18, fontWeight:800, color:'var(--os-text)' }}>
-              Portal access
+              Enlace de onboarding
             </div>
             <div style={{ fontSize:13, color:'var(--os-text-faint)', marginTop:2 }}>
               {deal.clientName}{deal.clientRole ? ` · ${deal.clientRole}` : ''}
             </div>
           </div>
-          <button onClick={onClose} style={{ width:32, height:32, border:'none', background:'rgba(14,113,172,.1)', borderRadius:8, cursor:'pointer', fontSize:14, color:'var(--os-accent)' }}>✕</button>
+          <button onClick={onClose} aria-label="Cerrar" style={{ width:32, height:32, border:'none', background:'rgba(14,113,172,.1)', borderRadius:8, cursor:'pointer', fontSize:14, color:'var(--os-accent)' }}>✕</button>
         </div>
-
-        {link.state === 'loading' && (
-          <p style={{ fontSize:14, color:'var(--os-text-muted)', margin:0 }}>Sending…</p>
-        )}
-
-        {link.state === 'error' && (
-          <div style={{ background:'var(--os-bad-soft, rgba(220,38,38,.1))', borderRadius:10, padding:'12px 14px', fontSize:14, color:'var(--os-bad)', lineHeight:1.6 }}>
-            {link.error}
-          </div>
-        )}
-
-        {link.state === 'sent' && (
-          <>
-            <div style={{ background:'var(--os-good-soft, rgba(31,138,91,.12))', borderRadius:10, padding:'12px 14px', fontSize:14, color:'var(--os-good)', fontWeight:600, marginBottom:12 }}>
-              Sent to {deal.clientEmail}
-            </div>
-            <p style={{ fontSize:13.5, color:'var(--os-text-muted)', lineHeight:1.65, margin:0 }}>
-              {firstName} has their login link and their account is live. Their business details
-              are collected by the portal itself on first login, and they write straight back onto
-              this contact, so there is nothing else to send.
-            </p>
-          </>
-        )}
+        <p style={{ fontSize:13.5, color:'var(--os-text-muted)', lineHeight:1.65, margin:'0 0 12px' }}>
+          Envíaselo después del pago. Sus respuestas te llegan por WhatsApp.
+        </p>
+        <code style={{ display:'block', padding:'10px 12px', background:'var(--os-card-alt)', borderRadius:10, fontSize:12.5, wordBreak:'break-all', marginBottom:14 }}>{url}</code>
+        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
+          <button className="os-btn os-btn-ghost" style={{ flex:1 }} onClick={() => { void copyText(url).then(ok => { setCopied(ok); if (ok) onShared?.() }) }}>
+            <i className="ti ti-copy" /> {copied ? 'Copiado' : 'Copiar enlace'}
+          </button>
+          {wa && (
+            <a className="os-btn os-btn-primary" style={{ flex:1, textDecoration:'none' }} href={`https://wa.me/${wa}?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer" onClick={() => onShared?.()}>
+              <i className="ti ti-brand-whatsapp" /> Enviar por WhatsApp
+            </a>
+          )}
+        </div>
       </div>
     </div>
   )
@@ -623,17 +597,17 @@ function QuickLogModal({ deal, stages, onClose, onSave }: {
     <div className="os-drawer-overlay" onClick={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--os-card)', borderRadius: 16, padding: 24, width: '100%', maxWidth: 460, boxShadow: '0 24px 70px rgba(26,14,0,0.22)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 17, fontWeight: 800, color: 'var(--os-text-primary)' }}>Log update</div>
-          <button className="os-icon-btn" onClick={onClose} title="Close"><i className="ti ti-x" /></button>
+          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 17, fontWeight: 800, color: 'var(--os-text-primary)' }}>Registrar novedad</div>
+          <button className="os-icon-btn" onClick={onClose} title="Cerrar"><i className="ti ti-x" /></button>
         </div>
         <div style={{ fontSize: 13, color: 'var(--os-text-muted)', marginBottom: 16 }}>{deal.clientName}{deal.clientCompany ? ` · ${deal.clientCompany}` : ''}</div>
 
-        <label className="os-label">Note / what happened</label>
+        <label className="os-label">Nota / qué ha pasado</label>
         <textarea
           className="os-crm-textarea"
           autoFocus
           rows={4}
-          placeholder="Discovery call done. Offered $1,500 for website + Meta ads, payable in 2-3 parts…"
+          placeholder="Llamada hecha. Le ofrecí el programa de 90 días por 497 €, en 2 pagos…"
           value={note}
           onChange={e => setNote(e.target.value)}
           onKeyDown={e => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') save() }}
@@ -642,20 +616,20 @@ function QuickLogModal({ deal, stages, onClose, onSave }: {
 
         <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
           <div style={{ flex: 1 }}>
-            <label className="os-label">Stage</label>
+            <label className="os-label">Etapa</label>
             <select className="os-select" value={stage} onChange={e => setStage(e.target.value)}>
               {stages.map(s => <option key={s.key} value={s.key}>{s.label}</option>)}
             </select>
           </div>
           <div style={{ width: 130 }}>
-            <label className="os-label">Value (USD)</label>
+            <label className="os-label">Valor (€)</label>
             <input className="os-input" type="number" value={value} onChange={e => setValue(e.target.value)} />
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <button className="os-btn os-btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancel</button>
-          <button className="os-btn os-btn-primary" onClick={save} style={{ flex: 1 }}><i className="ti ti-device-floppy" /> Save update</button>
+          <button className="os-btn os-btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancelar</button>
+          <button className="os-btn os-btn-primary" onClick={save} style={{ flex: 1 }}><i className="ti ti-device-floppy" /> Guardar novedad</button>
         </div>
       </div>
     </div>
@@ -674,7 +648,7 @@ function StagesManager({ initial, onClose, onSave }: { initial: Stage[]; onClose
     const copy = [...rs];[copy[i], copy[j]] = [copy[j], copy[i]]; return copy
   })
   const remove = (i: number) => setRows(rs => rs.filter((_, idx) => idx !== i))
-  const add = () => setRows(rs => [...rs, { key: 'stage_' + Date.now().toString(36), label: 'New Stage', color: STAGE_PALETTE[rs.length % STAGE_PALETTE.length] }])
+  const add = () => setRows(rs => [...rs, { key: 'stage_' + Date.now().toString(36), label: 'Nueva etapa', color: STAGE_PALETTE[rs.length % STAGE_PALETTE.length] }])
 
   function save() {
     const cleaned = rows
@@ -689,27 +663,27 @@ function StagesManager({ initial, onClose, onSave }: { initial: Stage[]; onClose
       <div className="os-drawer-overlay" onClick={onClose} />
       <div className="os-crm-drawer">
         <div className="os-drawer-head">
-          <div style={{ flex: 1, fontSize: 18, fontWeight: 800 }}>Pipeline stages</div>
-          <button className="os-icon-btn" title="Close" onClick={onClose}><i className="ti ti-x" /></button>
+          <div style={{ flex: 1, fontSize: 18, fontWeight: 800 }}>Etapas del pipeline</div>
+          <button className="os-icon-btn" title="Cerrar" onClick={onClose}><i className="ti ti-x" /></button>
         </div>
         <div className="os-drawer-body">
-          <div style={{ fontSize: 13, color: '#998fb3', marginBottom: 16 }}>Rename, recolor, reorder, add or remove stages. Drag cards between them on the board.</div>
+          <div style={{ fontSize: 13, color: '#998fb3', marginBottom: 16 }}>Renombra, cambia el color, reordena, añade o elimina etapas. Arrastra las tarjetas entre ellas en el tablero.</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {rows.map((r, i) => (
               <div key={r.key} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <input type="color" value={r.color} onChange={e => update(i, { color: e.target.value })}
                   style={{ width: 34, height: 34, border: 'none', background: 'none', cursor: 'pointer', flexShrink: 0, padding: 0 }} />
                 <input className="os-crm-input" value={r.label} onChange={e => update(i, { label: e.target.value })} style={{ flex: 1 }} />
-                <button className="os-icon-btn" title="Move up" onClick={() => move(i, -1)} disabled={i === 0}><i className="ti ti-chevron-up" /></button>
-                <button className="os-icon-btn" title="Move down" onClick={() => move(i, 1)} disabled={i === rows.length - 1}><i className="ti ti-chevron-down" /></button>
-                <button className="os-icon-btn" title="Remove" onClick={() => remove(i)} style={{ color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }} disabled={rows.length <= 1}><i className="ti ti-trash" /></button>
+                <button className="os-icon-btn" title="Subir" onClick={() => move(i, -1)} disabled={i === 0}><i className="ti ti-chevron-up" /></button>
+                <button className="os-icon-btn" title="Bajar" onClick={() => move(i, 1)} disabled={i === rows.length - 1}><i className="ti ti-chevron-down" /></button>
+                <button className="os-icon-btn" title="Quitar" onClick={() => remove(i)} style={{ color: 'var(--os-bad)', borderColor: 'var(--os-bad-soft)' }} disabled={rows.length <= 1}><i className="ti ti-trash" /></button>
               </div>
             ))}
           </div>
-          <button className="os-add-btn" style={{ marginTop: 14 }} onClick={add}><i className="ti ti-plus" /> Add stage</button>
+          <button className="os-add-btn" style={{ marginTop: 14 }} onClick={add}><i className="ti ti-plus" /> Añadir etapa</button>
           <div style={{ display: 'flex', gap: 10, marginTop: 24 }}>
-            <button className="os-btn os-btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancel</button>
-            <button className="os-btn os-btn-primary" onClick={save} style={{ flex: 1 }}><i className="ti ti-device-floppy" /> Save stages</button>
+            <button className="os-btn os-btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancelar</button>
+            <button className="os-btn os-btn-primary" onClick={save} style={{ flex: 1 }}><i className="ti ti-device-floppy" /> Guardar etapas</button>
           </div>
           <div style={{ fontSize: 11.5, color: 'var(--os-text-muted)', marginTop: 14, lineHeight: 1.5 }}>
             Note: stage settings are saved on this device. Deals you already moved keep their stage; renaming a stage keeps its cards.
@@ -737,7 +711,7 @@ function PipelineHygiene({ deals, onMoveOut, onKeepAsClient }: {
   if (total === 0) return null
 
   const bucket = async (label: string, items: Deal[], act: (d: Deal) => void, detail: string, tone: string) => {
-    if (!(await confirmAction({ message: `${label} — ${items.length} card${items.length === 1 ? '' : 's'}?`, detail, confirmLabel: label }))) return
+    if (!(await confirmAction({ message: `${label} — ¿${items.length} ${items.length === 1 ? 'tarjeta' : 'tarjetas'}?`, detail, confirmLabel: label }))) return
     items.forEach(act)
   }
 
@@ -761,17 +735,17 @@ function PipelineHygiene({ deals, onMoveOut, onKeepAsClient }: {
       <button type="button" onClick={() => setOpen(o => !o)} aria-expanded={open}
         style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>
         <span style={{ fontSize: 10, color: 'var(--os-text-faint)' }}>{open ? '▼' : '▶'}</span>
-        <span style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--os-text)' }}>Clean up the pipeline</span>
-        <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>{total} card{total === 1 ? '' : 's'} that should not be here</span>
+        <span style={{ fontSize: 13.5, fontWeight: 800, color: 'var(--os-text)' }}>Limpiar el pipeline</span>
+        <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>{total} {total === 1 ? 'tarjeta que no debería estar aquí' : 'tarjetas que no deberían estar aquí'}</span>
       </button>
       {open && (
         <div style={{ marginTop: 10 }}>
-          <Row title="Already a client" hint="Signed, invoiced or in the portal. They belong in Active, not the pipeline." items={isClient} action="Move to Active" tone="var(--os-good)"
-            onAct={() => bucket('Move to Active', isClient, onKeepAsClient, 'They stay clients; the cards leave the pipeline columns.', 'var(--os-good)')} />
-          <Row title="Likely spam" hint="Generated names, throwaway addresses. The same verdict Contacts shows." items={isSpam} action="Mark lost" tone="var(--os-bad)"
-            onAct={() => bucket('Mark lost', isSpam, d => onMoveOut(d, 'Cleanup: likely spam'), 'Marked Lost with a note. Delete them from Contacts if you want them gone.', 'var(--os-bad)')} />
-          <Row title="Not qualified" hint="The application put them under the revenue line for the free call." items={unqualified} action="Mark lost" tone="var(--os-warn)"
-            onAct={() => bucket('Mark lost', unqualified, d => onMoveOut(d, 'Cleanup: not qualified'), 'Marked Lost with a note; the history stays on their contact card.', 'var(--os-warn)')} />
+          <Row title="Ya son clientes" hint="Firmados o facturados. Van en Activos, no en el pipeline." items={isClient} action="Pasar a activos" tone="var(--os-good)"
+            onAct={() => bucket('Pasar a activos', isClient, onKeepAsClient, 'Siguen siendo clientes; las tarjetas salen de las columnas del pipeline.', 'var(--os-good)')} />
+          <Row title="Posible spam" hint="Nombres generados, emails desechables. El mismo criterio que en Contactos." items={isSpam} action="Marcar perdido" tone="var(--os-bad)"
+            onAct={() => bucket('Marcar perdido', isSpam, d => onMoveOut(d, 'Limpieza: posible spam'), 'Se marcan como perdidos con una nota. Bórralos de Contactos si quieres eliminarlos.', 'var(--os-bad)')} />
+          <Row title="No cualificados" hint="Por sus respuestas no encajan para la llamada gratuita." items={unqualified} action="Marcar perdido" tone="var(--os-warn)"
+            onAct={() => bucket('Marcar perdido', unqualified, d => onMoveOut(d, 'Limpieza: no cualificado'), 'Se marcan como perdidos con una nota; el historial queda en su ficha.', 'var(--os-warn)')} />
         </div>
       )}
     </div>

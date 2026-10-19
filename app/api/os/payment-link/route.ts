@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
   const secret = process.env.STRIPE_SECRET_KEY
   if (!secret) {
-    return NextResponse.json({ ok: false, error: 'STRIPE_SECRET_KEY is not set.' }, { status: 503 })
+    return NextResponse.json({ ok: false, error: 'Falta STRIPE_SECRET_KEY en Vercel.' }, { status: 503 })
   }
 
   const body = await req.json().catch(() => ({})) as {
@@ -23,11 +23,11 @@ export async function POST(req: NextRequest) {
 
   const description = String(body.description ?? '').trim()
   const amount = Number(body.amount)
-  const currency = String(body.currency ?? 'USD').toUpperCase()
+  const currency = String(body.currency ?? 'EUR').toUpperCase()
 
-  if (!description) return NextResponse.json({ ok: false, error: 'Describe what this is for.' }, { status: 400 })
+  if (!description) return NextResponse.json({ ok: false, error: 'Escribe el concepto.' }, { status: 400 })
   if (!Number.isFinite(amount) || amount <= 0) {
-    return NextResponse.json({ ok: false, error: 'Enter an amount above zero.' }, { status: 400 })
+    return NextResponse.json({ ok: false, error: 'Escribe un importe mayor que cero.' }, { status: 400 })
   }
 
   const unit = ZERO_DECIMAL.has(currency) ? Math.round(amount) : Math.round(amount * 100)

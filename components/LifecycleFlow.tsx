@@ -12,10 +12,10 @@ function fmt(at?: string): string {
   const d = new Date(at)
   const today = new Date()
   const days = Math.floor((today.getTime() - d.getTime()) / 86400000)
-  const date = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-  if (days <= 0) return `Today · ${date}`
-  if (days === 1) return `Yesterday`
-  if (days < 30) return `${days}d ago`
+  const date = d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })
+  if (days <= 0) return `Hoy · ${date}`
+  if (days === 1) return `Ayer`
+  if (days < 30) return `hace ${days} d`
   return date
 }
 
@@ -47,7 +47,7 @@ export function LifecycleFlow({ steps }: { steps: LifecycleStep[] }) {
                   <i className={`ti ${done ? 'ti-check' : s.icon}`} />
                 </div>
                 <div style={{ fontSize: 11.5, fontWeight: 700, color: done ? '#15803d' : current ? '#5b21b6' : '#a99dc4', marginTop: 8, lineHeight: 1.25 }}>{s.label}</div>
-                <div style={{ fontSize: 10.5, color: '#bbb', marginTop: 2, minHeight: 13 }}>{done ? fmt(s.at) : current ? 'Pending' : ''}</div>
+                <div style={{ fontSize: 10.5, color: '#bbb', marginTop: 2, minHeight: 13 }}>{done ? fmt(s.at) : current ? 'Pendiente' : ''}</div>
               </div>
               {}
               {!isLast && (

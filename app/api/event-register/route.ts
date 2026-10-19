@@ -53,7 +53,7 @@ function reportRegistration(req: NextRequest, e: { ticketCode: string; email: st
     ip, userAgent: req.headers.get('user-agent') || '',
     fbp: req.cookies.get('_fbp')?.value, fbc: req.cookies.get('_fbc')?.value,
     pageUrl: req.headers.get('referer') || (e.slug ? `${origin}/events/${e.slug}` : undefined),
-    customData: { content_name: e.title, content_category: 'event', currency: 'USD', value: 0, status: true },
+    customData: { content_name: e.title, content_category: 'event', currency: 'EUR', value: 0, status: true },
   }))
 }
 
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     const plusOne = typeof email === 'string' ? readPlusOne(body.plusOne, email) : null
 
     if (!eventId || !name || !email) {
-      return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+      return NextResponse.json({ error: 'Faltan datos obligatorios' }, { status: 400 })
     }
 
     const { data: liveEvent, error: eventErr } = await supabase
@@ -94,7 +94,7 @@ export async function POST(req: NextRequest) {
     if (eventErr || !event) {
       const coded = upcomingFeaturedRecords().find(e => e.id === eventId)
       if (!coded) {
-        return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+        return NextResponse.json({ error: 'Evento no encontrado' }, { status: 404 })
       }
       console.warn(`[event-register] no Supabase row for ${eventId}, using the coded record`)
       event = {
@@ -107,7 +107,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (event.status !== 'published') {
-      return NextResponse.json({ error: 'Registration is closed' }, { status: 400 })
+      return NextResponse.json({ error: 'Las inscripciones están cerradas.' }, { status: 400 })
     }
 
     const paidEvent = isPaidEvent(event)
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest) {
       const theirs = rows.find(r => String(r.notes || '').includes(marker))
       if (theirs) return { ticketCode: String(theirs.ticket_code || '') }
       if (rows.some(r => String(r.email || '').toLowerCase() === plusOne.email)) {
-        return { note: `${plusOne.name} is already registered for this event with that email.` }
+        return { note: `${plusOne.name} ya está inscrito en este evento con ese email.` }
       }
       const code = newTicketCode()
       const guestRow: Record<string, unknown> = {
@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
       const g = await supabase.from('event_attendees').insert(guestRow)
       if (g.error) {
         console.error('[event-register] plus one insert failed', g.error.message)
-        return { note: `We could not add ${plusOne.name}. Please register them separately.` }
+        return { note: `No se pudo añadir a ${plusOne.name}. Inscríbelo por separado.` }
       }
 
       if (!paidEvent) {
@@ -199,7 +199,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (existing) {
-      return NextResponse.json({ error: 'You are already registered for this event' }, { status: 400 })
+      return NextResponse.json({ error: 'Ya estás inscrito en este evento. Revisa tu email.' }, { status: 400 })
     }
 
     const attendeeId = uid()
@@ -324,9 +324,9 @@ export async function POST(req: NextRequest) {
     }
 
     reportRegistration(req, { ticketCode, email, name, phone, title: String(event.title), slug: event.slug })
-    return NextResponse.json({ success: true, attendeeId, ticketCode, ...(guest.ticketCode ? { guestTicketCode: guest.ticketCode } : {}), ...(guest.note ? { guestNote: guest.note } : {}), ...(circleMember ? { circle: true } : {}) })
+    return NextResponse.json({ success: true, attendeeId, ticketCode, ...(guest.ticketCode ? { guestTicketCode: guest.ticketCode } : {}), ...(guest.note ? { guestNote: guest.note } : {}), ...(circleMember ? { circle: true } : {}), ...(waitlisted ? { waitlisted: true } : {}) })
   } catch (err) {
     console.error('Event register error:', err)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: 'Error interno del servidor' }, { status: 500 })
   }
 }

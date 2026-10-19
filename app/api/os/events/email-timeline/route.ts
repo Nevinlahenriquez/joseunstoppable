@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
   const eventId = req.nextUrl.searchParams.get('eventId') || ''
-  if (!eventId) return NextResponse.json({ error: 'eventId required' }, { status: 400 })
+  if (!eventId) return NextResponse.json({ error: 'Falta eventId' }, { status: 400 })
 
   const sb = serverSupabase()
 
@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
     .eq('id', eventId)
     .maybeSingle()
   if (evErr) return NextResponse.json({ error: evErr.message }, { status: 500 })
-  if (!ev) return NextResponse.json({ error: 'event not found' }, { status: 404 })
+  if (!ev) return NextResponse.json({ error: 'Evento no encontrado' }, { status: 404 })
 
   const { data: rows, error } = await sb
     .from('event_attendees')
@@ -54,25 +54,25 @@ export async function GET(req: NextRequest) {
   const count = (col: string) => owed.filter(a => (a as Record<string, unknown>)[col] === true).length
 
   const stages = [
-    { key: 'confirmation', label: 'Confirmation', when: 'At registration', dueAt: null as string | null, sent: total, total },
+    { key: 'confirmation', label: 'Confirmación', when: 'Al inscribirse', dueAt: null as string | null, sent: total, total },
     ...[
-      { col: 'reminder_sent_24', hours: 24, label: 'Reminder · 24h before' },
-      { col: 'reminder_sent_10', hours: 10, label: 'Reminder · 10h before' },
-      { col: 'reminder_sent_5', hours: 5, label: 'Reminder · 5h before' },
-      { col: 'reminder_sent_3', hours: 3, label: 'Reminder · 3h before' },
-      { col: 'reminder_sent', hours: 1, label: 'Reminder · 1h before' },
+      { col: 'reminder_sent_24', hours: 24, label: 'Recordatorio · 24 h antes' },
+      { col: 'reminder_sent_10', hours: 10, label: 'Recordatorio · 10 h antes' },
+      { col: 'reminder_sent_5', hours: 5, label: 'Recordatorio · 5 h antes' },
+      { col: 'reminder_sent_3', hours: 3, label: 'Recordatorio · 3 h antes' },
+      { col: 'reminder_sent', hours: 1, label: 'Recordatorio · 1 h antes' },
     ].map(s => ({
       key: s.col,
       label: s.label,
-      when: `${s.hours}h before start`,
+      when: `${s.hours} h antes del inicio`,
       dueAt: startAt ? new Date(startAt.getTime() - s.hours * 3600_000).toISOString() : null,
       sent: count(s.col),
       total,
     })),
     {
       key: 'followup_sent',
-      label: 'Follow-up',
-      when: '30 min after the end',
+      label: 'Seguimiento',
+      when: '30 min después del final',
       dueAt: endAt ? new Date(endAt.getTime() + 30 * 60_000).toISOString() : null,
       sent: count('followup_sent'),
       total,

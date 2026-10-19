@@ -14,11 +14,11 @@ import { shareOrCopy } from '@/lib/clipboard'
 import PrivacyToggle from '@/components/os/PrivacyToggle'
 
 function fmt(n: number, cur: string) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: cur, minimumFractionDigits: 2 }).format(n)
 }
 
 function fmtDate(d: string) {
-  return new Date(d).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
+  return new Date(d).toLocaleDateString('es-ES', { month: 'numeric', day: 'numeric', year: 'numeric' })
 }
 
 function invoiceBalance(inv: Invoice): number {
@@ -29,6 +29,8 @@ function invoiceBalance(inv: Invoice): number {
 function invoiceSubtotal(inv: Invoice): number {
   return (inv.lineItems ?? []).reduce((s, li) => s + li.quantity * li.price, 0)
 }
+
+const INVOICE_STATUS_LABEL: Record<string, string> = { draft: 'Borrador', sent: 'Enviada', paid: 'Pagada', overdue: 'Vencida', void: 'Anulada' }
 
 const STATUS_COLOR: Record<string, string> = {
   draft: '#9ca3af',
@@ -55,7 +57,7 @@ function nextBillDate(day: 1 | 15): { bill: Date; send: Date; due: Date } {
   return { bill, send, due }
 }
 
-const fmtDay = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+const fmtDay = (d: Date) => d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' })
 
 function invoiceBalanceTotal(inv: Invoice): number {
   const sub = (inv.lineItems ?? []).reduce((n, li) => n + (li.quantity ?? 1) * (li.price ?? 0), 0)
@@ -66,7 +68,15 @@ export default function InvoicesPage() {
   const router = useRouter()
   const [invoices, setInvoices] = useState<Invoice[]>([])
 
-  const [currency, setCurrency] = useState<'ALL' | 'USD' | 'EUR' | 'AWG'>('ALL')
+  const [pickedCurrency, setCurrency] = useState<'ALL' | 'USD' | 'EUR' | 'AWG'>('ALL')
+
+  const currencyTabs = useMemo<Array<'ALL' | 'USD' | 'EUR' | 'AWG'>>(() => {
+    const present = new Set(invoices.map(i => (i.currency ?? 'EUR') as 'USD' | 'EUR' | 'AWG'))
+    const one = (['EUR', 'USD', 'AWG'] as const).filter(c => c === INVOICE_CURRENCIES[0] || present.has(c))
+
+    return one.length > 1 ? ['ALL', ...one] : one
+  }, [invoices])
+  const currency = currencyTabs.includes(pickedCurrency) ? pickedCurrency : currencyTabs[0]
   const allCurrencies = currency === 'ALL'
   const [filter, setFilter] = useState<'all' | Invoice['status']>('all')
 
@@ -155,15 +165,15 @@ export default function InvoicesPage() {
   useEffect(() => { setUsdPerEur(loadRate()) }, [])
 
   const usd = (list: Invoice[], amount: (i: Invoice) => number) =>
-    list.reduce((s, i) => s + toUsd(amount(i), (i.currency ?? 'USD') as Money3, usdPerEur), 0)
+    list.reduce((s, i) => s + toUsd(amount(i), (i.currency ?? 'EUR') as Money3, usdPerEur), 0)
 
   const allOutstandingUsd = usd(invoices.filter(i => i.status === 'sent'), invoiceBalance)
   const allOverdueUsd = usd(invoices.filter(i => i.status === 'overdue'), invoiceBalance)
   const allPaidUsd = usd(invoices.filter(i => i.status === 'paid'), i => i.amountPaid)
 
-  const hasMixedCurrency = new Set(invoices.map(i => i.currency ?? 'USD')).size > 1
+  const hasMixedCurrency = new Set(invoices.map(i => i.currency ?? 'EUR')).size > 1
 
-  async function sendReceipt(id: string, method = 'Manual payment', paidAt?: string): Promise<void> {
+  async function sendReceipt(id: string, method = 'Pago manual', paidAt?: string): Promise<void> {
     try {
       const res = await fetch('/api/send-receipt', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -171,17 +181,17 @@ export default function InvoicesPage() {
         body: JSON.stringify({ invoiceId: id, method, ...(paidAt ? { paidAt } : {}) }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok) { flash('Marked paid, but the receipt email failed. Try Resend receipt.'); return }
-      if (data.emailed === false) flash('Marked paid. No client email on file, so no receipt was sent.')
-      else flash('Paid. Receipt emailed to the client and saved.')
+      if (!res.ok) { flash('Marcada como pagada, pero el email del recibo falló. Prueba Reenviar recibo.'); return }
+      if (data.emailed === false) flash('Marcada como pagada. El cliente no tiene email, así que no se envió recibo.')
+      else flash('Pagada. Recibo enviado al cliente y guardado.')
     } catch {
-      flash('Marked paid, but the receipt email failed. Try Resend receipt.')
+      flash('Marcada como pagada, pero el email del recibo falló. Prueba Reenviar recibo.')
     }
   }
 
   async function resendReceipt(id: string) {
     setMenuOpen(null)
-    flash('Sending receipt…')
+    flash('Enviando recibo…')
     await sendReceipt(id)
   }
 
@@ -192,10 +202,10 @@ export default function InvoicesPage() {
 
   async function resendInvoice(inv: Invoice) {
     setMenuOpen(null)
-    if (!inv.clientEmail) { flash('No email on this invoice, so there is nowhere to send it.'); return }
+    if (!inv.clientEmail) { flash('Esta factura no tiene email, así que no hay adónde enviarla.'); return }
     if (armedSend !== inv.id) { setArmedSend(inv.id); return }
     setArmedSend(null)
-    flash(`Sending to ${inv.clientEmail}…`)
+    flash(`Enviando a ${inv.clientEmail}…`)
     try {
       const res = await fetch('/api/send-invoice', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -208,18 +218,18 @@ export default function InvoicesPage() {
         }),
       })
       const d = await res.json().catch(() => ({}))
-      if (!res.ok || d?.error) { flash(`Not sent: ${d?.error ?? `HTTP ${res.status}`}`); return }
+      if (!res.ok || d?.error) { flash(`No enviada: ${d?.error ?? `HTTP ${res.status}`}`); return }
       if (inv.status !== 'paid') updateInvoice(inv.id, { status: 'sent', sentAt: new Date().toISOString() })
-      flash(`Sent to ${inv.clientEmail}`)
+      flash(`Enviada a ${inv.clientEmail}`)
       reload()
     } catch {
-      flash('Could not reach the server. Nothing was sent.')
+      flash('No se pudo conectar con el servidor. No se envió nada.')
     }
   }
 
   async function sendReminder(inv: Invoice) {
     setMenuOpen(null)
-    if (!inv.clientEmail) { flash('No email on this invoice, so there is nowhere to send it.'); return }
+    if (!inv.clientEmail) { flash('Esta factura no tiene email, así que no hay adónde enviarla.'); return }
     if (armedRemind !== inv.id) { setArmedRemind(inv.id); return }
     setArmedRemind(null)
 
@@ -227,7 +237,7 @@ export default function InvoicesPage() {
     const due = inv.dueDate ? new Date(inv.dueDate + 'T00:00:00').getTime() : 0
     const daysPastDue = due ? Math.floor((Date.now() - due) / 86_400_000) : 0
 
-    flash(`Sending a reminder to ${inv.clientEmail}…`)
+    flash(`Enviando un recordatorio a ${inv.clientEmail}…`)
     try {
       const res = await fetch('/api/send-invoice-reminder', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -240,10 +250,10 @@ export default function InvoicesPage() {
         }),
       })
       const d = await res.json().catch(() => ({}))
-      if (!res.ok || !d?.ok) { flash(`Not sent: ${d?.error ?? `HTTP ${res.status}`}`); return }
-      flash(`Reminder sent to ${inv.clientEmail}`)
+      if (!res.ok || !d?.ok) { flash(`No enviada: ${d?.error ?? `HTTP ${res.status}`}`); return }
+      flash(`Recordatorio enviado a ${inv.clientEmail}`)
     } catch {
-      flash('Could not reach the server. Nothing was sent.')
+      flash('No se pudo conectar con el servidor. No se envió nada.')
     }
   }
 
@@ -252,12 +262,6 @@ export default function InvoicesPage() {
     window.open(`/invoice/${encodeURIComponent(id)}?preview=1&print=1`, '_blank', 'noopener,noreferrer')
   }
 
-  const currencyTabs = useMemo<Array<'ALL' | 'USD' | 'EUR' | 'AWG'>>(() => {
-    const present = new Set(invoices.map(i => (i.currency ?? 'USD') as 'USD' | 'EUR' | 'AWG'))
-    const one = (['USD', 'EUR', 'AWG'] as const).filter(c => INVOICE_CURRENCIES.includes(c as 'USD' | 'EUR') || present.has(c))
-
-    return one.length > 1 ? ['ALL', ...one] : one
-  }, [invoices])
 
   function todayLocal(): string {
     const d = new Date()
@@ -281,11 +285,11 @@ export default function InvoicesPage() {
     const total = invoiceSubtotal(inv) + inv.taxes
     const already = inv.amountPaid ?? 0
     const amount = parseFloat(payAmount.replace(/[^0-9.]/g, ''))
-    if (!Number.isFinite(amount) || amount <= 0) { flash('That is not an amount.'); return }
+    if (!Number.isFinite(amount) || amount <= 0) { flash('Eso no es un importe válido.'); return }
 
     const stamp = new Date(`${payDate}T12:00:00`)
-    if (!payDate || Number.isNaN(stamp.getTime())) { flash('Pick the date the payment arrived.'); return }
-    if (stamp.getTime() > Date.now() + 86_400_000) { flash('That date is in the future.'); return }
+    if (!payDate || Number.isNaN(stamp.getTime())) { flash('Elige la fecha en que llegó el pago.'); return }
+    if (stamp.getTime() > Date.now() + 86_400_000) { flash('Esa fecha es futura.'); return }
     const paidAtIso = stamp.toISOString()
 
     const paidNow = already + amount
@@ -293,10 +297,10 @@ export default function InvoicesPage() {
     const settled = paidNow >= total - 0.005
 
     const typed = payMethodOther.trim()
-    if (payMethod === 'other' && !typed) { flash('Say how the money arrived.'); return }
+    if (payMethod === 'other' && !typed) { flash('Indica cómo llegó el dinero.'); return }
     const methodLabel = payMethod === 'other'
       ? typed.slice(0, RECEIPT_METHOD_MAX)
-      : RECEIPT_METHODS.find(m => m.id === payMethod)?.label ?? 'Manual payment'
+      : RECEIPT_METHODS.find(m => m.id === payMethod)?.label ?? 'Pago manual'
 
     updateInvoice(inv.id, {
       amountPaid: paidNow,
@@ -307,23 +311,23 @@ export default function InvoicesPage() {
 
     if (settled) {
 
-      flash('Recorded. Sending the receipt…')
+      flash('Registrado. Enviando el recibo…')
       await sendReceipt(inv.id, methodLabel, paidAtIso)
     } else {
-      flash(`Recorded ${inv.currency} ${amount.toFixed(2)} by ${methodLabel}. ${inv.currency} ${(total - paidNow).toFixed(2)} still outstanding, so no receipt yet.`)
+      flash(`Registrados ${amount.toFixed(2)} ${inv.currency} por ${methodLabel}. Quedan ${(total - paidNow).toFixed(2)} ${inv.currency} pendientes, así que aún no hay recibo.`)
     }
   }
 
   async function voidInvoice(inv: Invoice) {
     setMenuOpen(null)
     if (!(await confirmAction({
-      message: `Void invoice ${inv.number}?`,
-      detail: 'It stays on the list and keeps its number, stops counting as outstanding, and is never chased. Use this instead of Delete for anything that was actually sent.',
-      confirmLabel: 'Void it',
+      message: `¿Anular la factura ${inv.number}?`,
+      detail: 'Se queda en la lista con su número, deja de contar como pendiente y no se reclama. Úsalo en vez de Eliminar para cualquier factura que ya se envió.',
+      confirmLabel: 'Anular',
     }))) return
     updateInvoice(inv.id, { status: 'void' })
     reload()
-    flash(`${inv.number} voided.`)
+    flash(`${inv.number} anulada.`)
   }
 
   function downloadReceipt(id: string) {
@@ -340,17 +344,17 @@ export default function InvoicesPage() {
   function copyLink(id: string) {
     const url = `${window.location.origin}/invoice/${id}`
     setMenuOpen(null)
-    void shareOrCopy(url, 'Invoice').then(r => {
-      if (r === 'copied') flash('Link copied. Paste it into WhatsApp or an email.')
-      else if (r === 'failed') { flash('This phone blocked copying. Long-press the link to copy it.'); window.prompt('Invoice link:', url) }
+    void shareOrCopy(url, 'Factura').then(r => {
+      if (r === 'copied') flash('Enlace copiado. Pégalo en WhatsApp o en un email.')
+      else if (r === 'failed') { flash('Este móvil bloqueó la copia. Mantén pulsado el enlace para copiarlo.'); window.prompt('Enlace de la factura:', url) }
     })
   }
 
   async function remove(id: string) {
     if (await confirmAction({
-      message: 'Move this invoice to the trash?',
-      detail: `It leaves the list and keeps its number, and you can restore it from Deleted for ${TRASH_DAYS} days. After that it is gone for good.`,
-      confirmLabel: 'Move to trash',
+      message: '¿Mover esta factura a la papelera?',
+      detail: `Sale de la lista pero conserva su número, y puedes restaurarla desde Eliminadas durante ${TRASH_DAYS} días. Después se borra definitivamente.`,
+      confirmLabel: 'Mover a la papelera',
     })) { deleteInvoice(id); reload() }
     setMenuOpen(null)
   }
@@ -365,12 +369,12 @@ export default function InvoicesPage() {
     <>
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">Invoices</div>
-          <div className="os-page-sub">{invoices.length} invoices total</div>
+          <div className="os-page-title">Facturas</div>
+          <div className="os-page-sub">{invoices.length} {invoices.length === 1 ? 'factura' : 'facturas'} en total</div>
         </div>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <Link href="/admin/invoices/new" className="os-btn os-btn-primary">
-            <i className="ti ti-plus" /> Create New
+            <i className="ti ti-plus" /> Nueva factura
           </Link>
         </div>
       </div>
@@ -378,7 +382,7 @@ export default function InvoicesPage() {
       {}
       <div className="os-card" style={{ marginBottom: 24 }}>
         <div className="os-inv-overview-head">
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--os-text)' }}>Overview</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--os-text)' }}>Resumen</div>
           <div style={{ display: 'flex', gap: 0, border: '1px solid var(--os-line)', borderRadius: 8, overflow: 'hidden' }}>
             {currencyTabs.map(c => (
               <button key={c} onClick={() => setCurrency(c)}
@@ -392,9 +396,9 @@ export default function InvoicesPage() {
         <div className="os-inv-stats">
           {[
 
-            { label: 'Outstanding', value: allCurrencies ? fmt(allOutstandingUsd, 'USD') : fmt(outstanding, currency), sub: allCurrencies ? 'Sent, awaiting payment · converted' : 'Sent, awaiting payment' },
-            { label: 'Overdue', value: allCurrencies ? fmt(allOverdueUsd, 'USD') : fmt(overdue, currency), sub: allCurrencies ? 'Past due date · converted' : 'Past due date', red: (allCurrencies ? allOverdueUsd : overdue) > 0 },
-            { label: 'Total Paid', value: allCurrencies ? fmt(allPaidUsd, 'USD') : fmt(paid, currency), sub: allCurrencies ? 'Collected · converted' : 'Collected', green: true },
+            { label: 'Pendiente', value: allCurrencies ? fmt(allOutstandingUsd, 'USD') : fmt(outstanding, currency), sub: allCurrencies ? 'Enviadas, pendientes de pago · convertido' : 'Enviadas, pendientes de pago' },
+            { label: 'Vencido', value: allCurrencies ? fmt(allOverdueUsd, 'USD') : fmt(overdue, currency), sub: allCurrencies ? 'Fuera de plazo · convertido' : 'Fuera de plazo', red: (allCurrencies ? allOverdueUsd : overdue) > 0 },
+            { label: 'Total cobrado', value: allCurrencies ? fmt(allPaidUsd, 'USD') : fmt(paid, currency), sub: allCurrencies ? 'Cobrado · convertido' : 'Cobrado', green: true },
           ].map(item => (
             <div key={item.label} className="os-inv-stat">
               <div className="os-inv-stat-value" style={{ color: item.red ? 'var(--os-bad)' : item.green && paid > 0 ? 'var(--os-good)' : 'var(--os-text)' }}>{item.value}</div>
@@ -408,14 +412,14 @@ export default function InvoicesPage() {
         {hasMixedCurrency && (
           <div className="os-inv-total">
             <div className="os-inv-total-head">
-              <span>All currencies, in USD</span>
+              <span>Todas las monedas, en USD</span>
               {}
               <span className="os-inv-total-rate">1 EUR = {usdPerEur.toFixed(2)} USD</span>
             </div>
             <div className="os-inv-total-figures">
-              <span><strong>{fmt(allOutstandingUsd, 'USD')}</strong> outstanding</span>
-              <span><strong style={{ color: allOverdueUsd > 0 ? 'var(--os-bad)' : undefined }}>{fmt(allOverdueUsd, 'USD')}</strong> overdue</span>
-              <span><strong style={{ color: allPaidUsd > 0 ? 'var(--os-good)' : undefined }}>{fmt(allPaidUsd, 'USD')}</strong> collected</span>
+              <span><strong>{fmt(allOutstandingUsd, 'USD')}</strong> pendiente</span>
+              <span><strong style={{ color: allOverdueUsd > 0 ? 'var(--os-bad)' : undefined }}>{fmt(allOverdueUsd, 'USD')}</strong> vencido</span>
+              <span><strong style={{ color: allPaidUsd > 0 ? 'var(--os-good)' : undefined }}>{fmt(allPaidUsd, 'USD')}</strong> cobrado</span>
             </div>
           </div>
         )}
@@ -424,9 +428,9 @@ export default function InvoicesPage() {
       {}
       <div style={{ display: 'inline-flex', background: 'var(--os-line)', borderRadius: 10, padding: 3, gap: 2, marginBottom: 14 }}>
         {([
-          { k: 'all' as const, label: `All (${recurringCount + oneoffCount})` },
-          { k: 'recurring' as const, label: `Recurring (${recurringCount})` },
-          { k: 'oneoff' as const, label: `One-off (${oneoffCount})` },
+          { k: 'all' as const, label: `Todas (${recurringCount + oneoffCount})` },
+          { k: 'recurring' as const, label: `Recurrentes (${recurringCount})` },
+          { k: 'oneoff' as const, label: `Puntuales (${oneoffCount})` },
         ]).map(t => (
           <button key={t.k} onClick={() => setKind(t.k)}
             style={{ padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 12.5, fontWeight: 700,
@@ -444,7 +448,7 @@ export default function InvoicesPage() {
           {(['all', 'sent', 'paid', 'overdue', 'draft'] as const).map(s => (
             <button key={s} onClick={() => setFilter(s)}
               style={{ padding: '5px 14px', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12, background: filter === s ? 'var(--os-accent)' : 'transparent', color: filter === s ? '#fff' : 'var(--os-text-muted)', border: `1px solid ${filter === s ? 'var(--os-accent)' : 'var(--os-line)'}` }}>
-              {s === 'all' ? 'All invoices' : s.charAt(0).toUpperCase() + s.slice(1)}
+              {s === 'all' ? 'Todas las facturas' : INVOICE_STATUS_LABEL[s] ?? s}
             </button>
           ))}
         </div>
@@ -452,7 +456,7 @@ export default function InvoicesPage() {
         {trash.length > 0 && (
           <button onClick={() => setShowTrash(v => !v)}
             style={{ padding: '5px 14px', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12, background: showTrash ? 'var(--os-bad)' : 'transparent', color: showTrash ? '#fff' : 'var(--os-text-muted)', border: `1px solid ${showTrash ? 'var(--os-bad)' : 'var(--os-line)'}` }}>
-            <i className="ti ti-trash" /> Deleted ({trash.length})
+            <i className="ti ti-trash" /> Eliminadas ({trash.length})
           </button>
         )}
         {}
@@ -476,13 +480,13 @@ export default function InvoicesPage() {
       {}
       {kind === 'recurring' && (
         <div className="os-card" style={{ padding: '16px 18px', marginBottom: 14 }}>
-          <div style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--os-text)', marginBottom: 2 }}>Standing agreements</div>
+          <div style={{ fontSize: 12.5, fontWeight: 800, color: 'var(--os-text)', marginBottom: 2 }}>Cobros recurrentes</div>
           <div style={{ fontSize: 12, color: 'var(--os-text-faint)', marginBottom: anchors.length ? 12 : 0 }}>
-            Reissued automatically, {LEAD_DAYS} days before the billing day so it lands before the period starts. Net 7.
+            Se emiten automáticamente {LEAD_DAYS} días antes del día de cobro, para que lleguen antes de que empiece el periodo. Plazo de 7 días.
           </div>
           {anchors.length === 0 ? (
             <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>
-              None yet. Create an invoice, tick <strong>Recurring</strong> and pick its billing day, and it becomes the anchor for that client.
+              Aún no hay ninguno. Crea una factura, marca <strong>Recurrente</strong> y elige el día de cobro; será la base para ese cliente.
             </div>
           ) : anchors.map(a => {
             const next = nextBillDate(a.recurringDay === 15 ? 15 : 1)
@@ -497,16 +501,16 @@ export default function InvoicesPage() {
                     {a.clientName}{a.clientCompany ? <span style={{ color: 'var(--os-text-faint)', fontWeight: 500 }}> · {a.clientCompany}</span> : null}
                   </span>
                   <span style={{ display: 'block', fontSize: 12, color: 'var(--os-text-faint)' }}>
-                    {fmt(invoiceBalanceTotal(a), a.currency)} on the {a.recurringDay === 15 ? '15th' : '1st'} · sent {fmtDay(next.send)} · due {fmtDay(next.due)}
+                    {fmt(invoiceBalanceTotal(a), a.currency)} el día {a.recurringDay === 15 ? '15' : '1'} · se envía el {fmtDay(next.send)} · vence el {fmtDay(next.due)}
                   </span>
                   {adjusted.length > 0 && (
                     <span style={{ display: 'block', fontSize: 12, color: 'var(--os-accent)', fontWeight: 700, marginTop: 2 }}>
-                      {adjusted.map(([k, ov]) => `${monthLabel(k)}: ${fmt(ov.amount, a.currency)} once`).join(' · ')}
+                      {adjusted.map(([k, ov]) => `${monthLabel(k)}: ${fmt(ov.amount, a.currency)} solo ese mes`).join(' · ')}
                     </span>
                   )}
                 </span>
                 <span style={{ fontSize: 11.5, fontWeight: 800, color: 'var(--os-good)', background: 'var(--os-good-soft)', borderRadius: 999, padding: '3px 10px', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                  next {fmtDay(next.bill)}
+                  próximo: {fmtDay(next.bill)}
                 </span>
               </div>
             )
@@ -517,10 +521,10 @@ export default function InvoicesPage() {
       {}
       {showTrash && (
         <div className="os-card" style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--os-text)', marginBottom: 4 }}>Deleted invoices</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--os-text)', marginBottom: 4 }}>Facturas eliminadas</div>
           <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', marginBottom: 14 }}>
-            Kept for {TRASH_DAYS} days, then gone for good. Their numbers stay spent either way, so
-            restoring one never collides with an invoice issued since.
+            Se guardan {TRASH_DAYS} días y después se borran definitivamente. Sus números quedan usados,
+            así que restaurar una nunca choca con una factura emitida después.
           </div>
           <div style={{ display: 'grid', gap: 8 }}>
             {trash.map(inv => {
@@ -533,26 +537,26 @@ export default function InvoicesPage() {
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--os-text-faint)' }}>
                       {fmt(invoiceSubtotal(inv) + inv.taxes, inv.currency)}
-                      {' · deleted '}{fmtDate((inv.deletedAt ?? '').slice(0, 10))}
+                      {' · eliminada el '}{fmtDate((inv.deletedAt ?? '').slice(0, 10))}
                       {' · '}
                       <strong style={{ color: left <= 3 ? 'var(--os-bad)' : 'inherit' }}>
-                        {left} day{left === 1 ? '' : 's'} left
+                        {left === 1 ? 'queda 1 día' : `quedan ${left} días`}
                       </strong>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button className="os-btn" onClick={() => { restoreInvoice(inv.id); reload() }}>Restore</button>
+                    <button className="os-btn" onClick={() => { restoreInvoice(inv.id); reload() }}>Restaurar</button>
                     <button
                       className="os-btn"
                       style={{ color: 'var(--os-bad)' }}
                       onClick={async () => {
                         if (await confirmAction({
-                          message: `Delete invoice #${inv.number} for good?`,
-                          detail: 'This cannot be undone. The number stays spent, so the sequence will still show the gap.',
-                          confirmLabel: 'Delete for good',
+                          message: `¿Eliminar definitivamente la factura #${inv.number}?`,
+                          detail: 'No se puede deshacer. El número queda usado, así que la numeración mostrará el hueco.',
+                          confirmLabel: 'Eliminar definitivamente',
                         })) { destroyInvoice(inv.id); reload() }
                       }}>
-                      Delete for good
+                      Eliminar definitivamente
                     </button>
                   </div>
                 </div>
@@ -568,19 +572,19 @@ export default function InvoicesPage() {
         {filtered.length === 0 ? (
           <div className="os-empty">
             <i className="ti ti-receipt" />
-            <div className="os-empty-title">No invoices {filter !== 'all' ? `with status "${filter}"` : 'yet'}</div>
-            <div className="os-empty-sub">Create your first invoice above</div>
+            <div className="os-empty-title">{filter !== 'all' ? `No hay facturas con estado «${INVOICE_STATUS_LABEL[filter] ?? filter}»` : 'Aún no hay facturas'}</div>
+            <div className="os-empty-sub">Crea tu primera factura arriba</div>
           </div>
         ) : (
           <table className="os-table">
             <thead>
               <tr>
-                <th>Number</th>
-                <th>Customer</th>
-                <th>Issue Date</th>
-                <th>Due Date</th>
+                <th>Número</th>
+                <th>Cliente</th>
+                <th>Emisión</th>
+                <th>Vencimiento</th>
                 <th>Total</th>
-                <th>Status</th>
+                <th>Estado</th>
                 <th style={{ width: 40 }}></th>
               </tr>
             </thead>
@@ -597,14 +601,14 @@ export default function InvoicesPage() {
                       {(inv.reminders?.length ?? 0) > 0 && (
                         <button
                           onClick={e => { e.stopPropagation(); setRemindersFor(inv) }}
-                          title="See when each reminder went"
+                          title="Ver cuándo se envió cada recordatorio"
                           style={{
                             marginTop: 4, display: 'inline-flex', alignItems: 'center', gap: 5, cursor: 'pointer',
                             background: 'var(--os-warn)18', border: '1px solid var(--os-warn)44', color: 'var(--os-warn)',
                             borderRadius: 20, padding: '2px 9px', fontSize: 11, fontWeight: 700,
                           }}>
                           <i className="ti ti-bell" />
-                          {inv.reminders!.length} reminder{inv.reminders!.length === 1 ? '' : 's'}
+                          {inv.reminders!.length} {inv.reminders!.length === 1 ? 'recordatorio' : 'recordatorios'}
                           {' · '}
                           {fmtDate(inv.reminders![inv.reminders!.length - 1].at.slice(0, 10))}
                         </button>
@@ -618,7 +622,7 @@ export default function InvoicesPage() {
                         display: 'inline-block', padding: '3px 10px', borderRadius: 20, fontSize: 11.5, fontWeight: 700,
                         background: STATUS_COLOR[inv.status] + '18', color: STATUS_COLOR[inv.status], border: `1px solid ${STATUS_COLOR[inv.status]}44`
                       }}>
-                        {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
+                        {INVOICE_STATUS_LABEL[inv.status] ?? inv.status}
                       </span>
                     </td>
                     <td style={{ position: 'relative' }} onClick={e => e.stopPropagation()}>
@@ -651,34 +655,34 @@ export default function InvoicesPage() {
                           maxHeight: 'calc(100vh - 24px)', overflowY: 'auto',
                         }}>
                           <Link href={`/admin/invoices/${inv.id}`} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 12px', color: 'var(--os-text)', textDecoration: 'none', fontSize: 13, borderRadius: 6 }}>
-                            <i className="ti ti-edit" /> Edit invoice
+                            <i className="ti ti-edit" /> Editar factura
                           </Link>
                           <a href={`/invoice/${inv.id}?preview=1`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 12px', color: 'var(--os-text)', textDecoration: 'none', fontSize: 13, borderRadius: 6 }}>
-                            <i className="ti ti-eye" /> Preview
+                            <i className="ti ti-eye" /> Vista previa
                           </a>
                           <button onClick={() => resendInvoice(inv)} onBlur={() => setArmedSend(a => (a === inv.id ? null : a))} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, color: 'var(--os-accent)', fontWeight: armedSend === inv.id ? 700 : 600 }}>
-                            <i className="ti ti-mail-forward" /> {armedSend === inv.id ? `Press again: email ${inv.clientEmail}` : 'Resend invoice'}
+                            <i className="ti ti-mail-forward" /> {armedSend === inv.id ? `Pulsa otra vez: enviar a ${inv.clientEmail}` : 'Reenviar factura'}
                           </button>
                           <button onClick={() => downloadInvoice(inv.id)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, fontWeight: 600 }}>
-                            <i className="ti ti-file-type-pdf" /> Download PDF
+                            <i className="ti ti-file-type-pdf" /> Descargar PDF
                           </button>
                           <button onClick={() => copyLink(inv.id)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6 }}>
-                            <i className="ti ti-link" /> Copy link
+                            <i className="ti ti-link" /> Copiar enlace
                           </button>
                           <button onClick={() => printInvoice(inv.id)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6 }}>
-                            <i className="ti ti-printer" /> Print
+                            <i className="ti ti-printer" /> Imprimir
                           </button>
                           <button onClick={() => handleDuplicate(inv.id)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6 }}>
-                            <i className="ti ti-copy" /> Duplicate
+                            <i className="ti ti-copy" /> Duplicar
                           </button>
                           {inv.status !== 'paid' && inv.status !== 'void' && (
                             <button onClick={() => openRecordPayment(inv)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, color: 'var(--os-good)' }}>
-                              <i className="ti ti-cash" /> Record a payment
+                              <i className="ti ti-cash" /> Registrar un pago
                             </button>
                           )}
                           {inv.status !== 'paid' && inv.status !== 'void' && (
                             <button onClick={() => sendReminder(inv)} onBlur={() => setArmedRemind(a => (a === inv.id ? null : a))} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, color: 'var(--os-warn)', fontWeight: armedRemind === inv.id ? 700 : 600 }}>
-                              <i className="ti ti-bell" /> {armedRemind === inv.id ? `Press again: remind ${inv.clientEmail}` : 'Send payment reminder'}
+                              <i className="ti ti-bell" /> {armedRemind === inv.id ? `Pulsa otra vez: recordar a ${inv.clientEmail}` : 'Enviar recordatorio de pago'}
                             </button>
                           )}
                           {}
@@ -686,24 +690,24 @@ export default function InvoicesPage() {
                             <>
                               <div style={{ height: 1, background: 'var(--os-chip)', margin: '4px 8px' }} />
                               <a href={`/receipt/${inv.id}?preview=1`} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '8px 12px', color: 'var(--os-good)', textDecoration: 'none', fontSize: 13, borderRadius: 6 }}>
-                                <i className="ti ti-receipt-2" /> View receipt
+                                <i className="ti ti-receipt-2" /> Ver recibo
                               </a>
                               <button onClick={() => downloadReceipt(inv.id)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, color: 'var(--os-good)' }}>
-                                <i className="ti ti-download" /> Download receipt
+                                <i className="ti ti-download" /> Descargar recibo
                               </button>
                               <button onClick={() => resendReceipt(inv.id)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, color: 'var(--os-good)' }}>
-                                <i className="ti ti-send" /> Resend receipt
+                                <i className="ti ti-send" /> Reenviar recibo
                               </button>
                               <div style={{ height: 1, background: 'var(--os-chip)', margin: '4px 8px' }} />
                             </>
                           )}
                           {inv.status !== 'paid' && inv.status !== 'void' && (
                             <button onClick={() => voidInvoice(inv)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, color: 'var(--os-text-faint)' }}>
-                              <i className="ti ti-ban" /> Void
+                              <i className="ti ti-ban" /> Anular
                             </button>
                           )}
                           <button onClick={() => remove(inv.id)} style={{ display: 'flex', gap: 8, alignItems: 'center', width: '100%', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, borderRadius: 6, color: 'var(--os-bad)' }}>
-                            <i className="ti ti-trash" /> Delete
+                            <i className="ti ti-trash" /> Eliminar
                           </button>
                         </div>
                       )}
@@ -725,10 +729,10 @@ export default function InvoicesPage() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
           <div onClick={() => setRemindersFor(null)} style={{ position: 'absolute', inset: 0, background: 'var(--os-overlay, rgba(18,0,42,.42))' }} />
           <div role="dialog" aria-modal="true" style={{ position: 'relative', width: '100%', maxWidth: 460, maxHeight: '80vh', overflowY: 'auto', background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', border: '1px solid var(--os-line)', borderRadius: 16, padding: '24px 24px 20px', boxShadow: '0 24px 60px rgba(0,0,0,.22)' }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--os-text)', marginBottom: 4 }}>Reminders sent</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--os-text)', marginBottom: 4 }}>Recordatorios enviados</div>
             <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', marginBottom: 18 }}>
               {remindersFor.number} · <span className="os-private">{remindersFor.clientName}</span>
-              {remindersFor.status === 'paid' ? ' · paid' : ` · ${fmt(invoiceBalance(remindersFor), remindersFor.currency)} still due`}
+              {remindersFor.status === 'paid' ? ' · pagada' : ` · quedan ${fmt(invoiceBalance(remindersFor), remindersFor.currency)} por pagar`}
             </div>
 
             <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 2 }}>
@@ -738,8 +742,8 @@ export default function InvoicesPage() {
                   <div style={{ minWidth: 0 }}>
                     <div style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--os-text)' }}>{fmtDate(r.at.slice(0, 10))}</div>
                     <div style={{ fontSize: 12, color: 'var(--os-text-faint)', overflowWrap: 'anywhere' }}>
-                      to <span className="os-private">{r.to}</span>
-                      {typeof r.daysPastDue === 'number' && r.daysPastDue > 0 && ` · ${r.daysPastDue} day${r.daysPastDue === 1 ? '' : 's'} past due`}
+                      a <span className="os-private">{r.to}</span>
+                      {typeof r.daysPastDue === 'number' && r.daysPastDue > 0 && ` · ${r.daysPastDue} ${r.daysPastDue === 1 ? 'día' : 'días'} de retraso`}
                     </div>
                   </div>
                 </li>
@@ -748,11 +752,11 @@ export default function InvoicesPage() {
 
             {}
             <p style={{ margin: '14px 0 16px', fontSize: 12, lineHeight: 1.6, color: 'var(--os-text-faint)' }}>
-              Only reminders the client actually received are listed, recorded once the mail was
-              accepted. Anything sent before this log existed is not here.
+              Solo aparecen los recordatorios que el cliente recibió de verdad, registrados cuando el correo
+              se aceptó. Lo enviado antes de existir este registro no aparece.
             </p>
 
-            <button className="os-btn" onClick={() => setRemindersFor(null)} style={{ width: '100%' }}>Close</button>
+            <button className="os-btn" onClick={() => setRemindersFor(null)} style={{ width: '100%' }}>Cerrar</button>
           </div>
         </div>
       )}
@@ -762,22 +766,22 @@ export default function InvoicesPage() {
         <div style={{ position: 'fixed', inset: 0, zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
           <div onClick={() => setPayFor(null)} style={{ position: 'absolute', inset: 0, background: 'var(--os-overlay, rgba(18,0,42,.42))' }} />
           <div role="dialog" aria-modal="true" style={{ position: 'relative', width: '100%', maxWidth: 420, background: 'var(--os-base-2, var(--os-card))', border: '1px solid var(--os-line)', borderRadius: 16, padding: '24px 24px 20px', boxShadow: '0 24px 60px rgba(0,0,0,.22)' }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--os-text)', marginBottom: 4 }}>Record a payment</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--os-text)', marginBottom: 4 }}>Registrar un pago</div>
             <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', marginBottom: 18 }}>
               {payFor.number} · <span className="os-private">{payFor.clientName}</span> · total {payFor.currency} {(invoiceSubtotal(payFor) + payFor.taxes).toFixed(2)}
-              {(payFor.amountPaid ?? 0) > 0 && ` · already recorded ${payFor.currency} ${(payFor.amountPaid ?? 0).toFixed(2)}`}
+              {(payFor.amountPaid ?? 0) > 0 && ` · ya registrados ${(payFor.amountPaid ?? 0).toFixed(2)} ${payFor.currency}`}
             </div>
 
             {}
             <DateField
-              label="Date it arrived"
+              label="Fecha de llegada"
               value={payDate}
               max={todayLocal()}
               onChange={setPayDate}
-              hint="The day the money actually landed. A future date is refused."
+              hint="El día en que llegó el dinero. No se aceptan fechas futuras."
             />
 
-            <label className="os-label">Amount received</label>
+            <label className="os-label">Importe recibido</label>
             <input
               className="os-input"
               autoFocus
@@ -788,7 +792,7 @@ export default function InvoicesPage() {
               style={{ marginBottom: 14 }}
             />
 
-            <label className="os-label">How it arrived</label>
+            <label className="os-label">Cómo llegó</label>
             {}
             <select
               className="os-input"
@@ -814,13 +818,13 @@ export default function InvoicesPage() {
             )}
 
             <p style={{ margin: '0 0 16px', fontSize: 12.5, lineHeight: 1.6, color: 'var(--os-text-faint)' }}>
-              Once the full amount is recorded the invoice is marked paid and the receipt is
-              emailed automatically. A part payment records the balance and sends nothing.
+              Cuando se registra el importe completo, la factura se marca como pagada y el recibo
+              se envía por email automáticamente. Un pago parcial registra el saldo y no envía nada.
             </p>
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className="os-btn os-btn-primary" onClick={submitPayment} style={{ flex: 1 }}>Record payment</button>
-              <button className="os-btn" onClick={() => setPayFor(null)}>Cancel</button>
+              <button className="os-btn os-btn-primary" onClick={submitPayment} style={{ flex: 1 }}>Registrar pago</button>
+              <button className="os-btn" onClick={() => setPayFor(null)}>Cancelar</button>
             </div>
           </div>
         </div>

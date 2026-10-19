@@ -16,13 +16,13 @@ export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => ({})) as { attendeeId?: string; email?: string }
   const id = String(body.attendeeId || '')
   const email = String(body.email || '').trim().toLowerCase()
-  if (!id) return NextResponse.json({ ok: false, error: 'attendeeId required' }, { status: 400 })
-  if (!EMAIL_RE.test(email)) return NextResponse.json({ ok: false, error: 'That email address does not look right.' }, { status: 400 })
+  if (!id) return NextResponse.json({ ok: false, error: 'Falta attendeeId' }, { status: 400 })
+  if (!EMAIL_RE.test(email)) return NextResponse.json({ ok: false, error: 'Ese email no parece correcto.' }, { status: 400 })
 
   const { data: seat, error } = await db.from('event_attendees')
     .select('id, name, email, notes, paid, ticket_code, event_id, referral_code').eq('id', id).maybeSingle()
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
-  if (!seat) return NextResponse.json({ ok: false, error: 'Seat not found.' }, { status: 404 })
+  if (!seat) return NextResponse.json({ ok: false, error: 'Plaza no encontrada.' }, { status: 404 })
 
   if (String(seat.email || '').toLowerCase() !== email) {
     const w = await db.from('event_attendees').update({ email }).eq('id', id)

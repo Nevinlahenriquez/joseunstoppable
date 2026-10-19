@@ -79,7 +79,7 @@ async function readStripe(): Promise<{ charges: StripeCharge[]; sessions: Map<st
     }
     return { charges, sessions }
   } catch (e) {
-    return { error: e instanceof Error ? e.message : 'Stripe could not be read.' }
+    return { error: e instanceof Error ? e.message : 'No se pudo leer Stripe.' }
   }
 }
 
@@ -135,32 +135,32 @@ export async function buildPaymentsFeed(db: SupabaseClient | null): Promise<Paym
       const name = session?.customer_details?.name || c.billing_details?.name || ''
       const email = session?.customer_details?.email || c.billing_details?.email || c.receipt_email || ''
       let source: PaymentSource = 'other'
-      let what = c.description || 'Card payment'
+      let what = c.description || 'Pago con tarjeta'
       let linkUrl: string | undefined
 
       if (kind === 'invoice' && meta.invoiceId) {
         source = 'invoice'
         coveredInvoices.add(meta.invoiceId)
         const inv = invoiceById.get(meta.invoiceId)
-        what = `Invoice #${meta.invoiceNumber || inv?.number || ''}`.trim()
+        what = `Factura #${meta.invoiceNumber || inv?.number || ''}`.trim()
         if (inv?.project_title) what += ` · ${inv.project_title}`
         linkUrl = `/admin/invoices/${meta.invoiceId}`
       } else if (kind === 'event-ticket') {
         source = 'event'
         const seat = meta.ticketCode ? seatByTicket.get(meta.ticketCode) : undefined
-        what = events.get(meta.eventId)?.title || seat?.event_title || 'Event ticket'
+        what = events.get(meta.eventId)?.title || seat?.event_title || 'Entrada de evento'
         if (meta.eventId) linkUrl = `/admin/events/${meta.eventId}?tab=attendees`
       } else if (kind === 'circle-first-month') {
         source = 'program'; what = meta.program || 'Programa, primer mes'
       } else if (meta.upsellForSession) {
-        source = 'program'; what = 'Add-on after checkout'
+        source = 'program'; what = 'Extra tras el pago'
       } else if (meta.tierId || meta.program) {
         source = session?.mode === 'subscription' ? 'subscription' : 'program'
         what = meta.program || meta.tierId
       } else if (c.invoice) {
-        source = 'subscription'; what = c.description || 'Subscription payment'
+        source = 'subscription'; what = c.description || 'Pago de suscripción'
       } else if (session?.payment_link || meta.created_from === 'os-payment-links') {
-        source = 'link'; what = c.description || 'Payment link'
+        source = 'link'; what = c.description || 'Enlace de pago'
       }
 
       if (session) {
@@ -170,7 +170,7 @@ export async function buildPaymentsFeed(db: SupabaseClient | null): Promise<Paym
       if (c.payment_intent) coveredPIs.add(c.payment_intent)
 
       const card = c.payment_method_details?.card
-      const methodDetail = card?.last4 ? `${cap(card.brand || 'Card')} •••• ${card.last4}` : cap(c.payment_method_details?.type || 'card')
+      const methodDetail = card?.last4 ? `${cap(card.brand || 'Tarjeta')} •••• ${card.last4}` : cap(c.payment_method_details?.type || 'card')
       const status: PaymentStatus = c.status === 'failed' || (!c.paid && c.status !== 'pending') ? 'failed'
         : c.refunded ? 'refunded' : c.amount_refunded > 0 ? 'partly-refunded' : 'paid'
       const ref = c.payment_intent || c.id
@@ -192,9 +192,9 @@ export async function buildPaymentsFeed(db: SupabaseClient | null): Promise<Paym
       id: `inv-${i.id}`, at: i.paid_at || i.created_at || new Date(0).toISOString(),
       amount: invoiceTotal(i), refunded: 0, currency: (i.currency || 'USD').toUpperCase(),
       status: 'paid', method: fromStripe ? 'card' : 'bank',
-      methodDetail: fromStripe ? 'Card (Stripe)' : 'Recorded paid in invoices',
+      methodDetail: fromStripe ? 'Tarjeta (Stripe)' : 'Registrado como pagado en facturas',
       source: fromStripe ? 'program' : 'invoice',
-      what: fromStripe ? (i.project_title || 'Online program') : `Invoice #${i.number}${i.project_title ? ` · ${i.project_title}` : ''}`,
+      what: fromStripe ? (i.project_title || 'Programa online') : `Factura #${i.number}${i.project_title ? ` · ${i.project_title}` : ''}`,
       name: i.client_company ? `${i.client_name || ''}${i.client_name ? ', ' : ''}${i.client_company}` : (i.client_name || ''),
       email: i.client_email || '',
       code: fromStripe ? i.number : `#${i.number}`,
@@ -217,12 +217,12 @@ export async function buildPaymentsFeed(db: SupabaseClient | null): Promise<Paym
       currency: (typeof ref.currency === 'string' ? ref.currency : ev?.currency || 'USD').toUpperCase(),
       status: 'paid',
       method: free ? 'free' : isCard ? 'card' : 'bank',
-      methodDetail: free ? 'Free seat (invited friends)'
-        : isCard ? 'Card (Stripe)'
+      methodDetail: free ? 'Plaza gratis (invitó a amigos)'
+        : isCard ? 'Tarjeta (Stripe)'
         : via === 'bank-auto' ? 'Bank transfer · proof matched'
         : via === 'bank-manual' ? 'Bank transfer · marked paid by hand'
-        : 'Bank transfer',
-      source: 'event', what: ev?.title || s.event_title || 'Event ticket',
+        : 'Transferencia bancaria',
+      source: 'event', what: ev?.title || s.event_title || 'Entrada de evento',
       name: s.name || '', email: s.email || '',
       code: pi || s.ticket_code || '',
       stripeUrl: pi ? dashboard(pi, ref.livemode !== false) : undefined,

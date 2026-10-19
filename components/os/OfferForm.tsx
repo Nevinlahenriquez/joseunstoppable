@@ -69,8 +69,8 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
 
   const billingLabel: Record<BillingType, string> = {
     'one-time': 'One-time',
-    'monthly': 'Monthly',
-    'retainer': 'Retainer',
+    'monthly': 'Mensual',
+    'retainer': 'Cuota fija',
   }
 
   return (
@@ -88,7 +88,7 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
         <div style={{ padding: '24px 28px 0', borderBottom: '1px solid var(--os-line)', paddingBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div style={{ fontWeight: 800, fontSize: 17, color: 'var(--os-text)' }}>
-              {offer ? 'Edit Offer' : 'New Offer'}
+              {offer ? 'Editar oferta' : 'Nueva oferta'}
             </div>
             <button
               type="button"
@@ -102,7 +102,7 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
 
         <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 20, flex: 1 }}>
           <div className="os-form-group">
-            <label className="os-label">Category</label>
+            <label className="os-label">Categoría</label>
             <div style={{ display: 'flex', gap: 10 }}>
               {(['programs', 'coaching', 'premium'] as OfferCategory[]).map(c => (
                 <button
@@ -116,29 +116,29 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
                     color: category === c ? 'var(--os-accent)' : 'var(--os-text-muted)',
                   }}
                 >
-                  {c === 'programs' ? '🎓 Online Programs' : c === 'coaching' ? '🧠 Coaching' : '💎 Alto ticket'}
+                  {c === 'programs' ? '🎓 Programas online' : c === 'coaching' ? '🧠 Coaching' : '💎 Alto ticket'}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="os-form-group">
-            <label className="os-label">Name</label>
-            <input className="os-input" value={name} onChange={e => setName(e.target.value)} placeholder="Offer name" />
+            <label className="os-label">Nombre</label>
+            <input className="os-input" value={name} onChange={e => setName(e.target.value)} placeholder="Nombre de la oferta" />
           </div>
 
           <div className="os-form-group">
-            <label className="os-label">Tagline</label>
-            <input className="os-input" value={tagline} onChange={e => setTagline(e.target.value)} placeholder="Short description" />
+            <label className="os-label">Subtítulo</label>
+            <input className="os-input" value={tagline} onChange={e => setTagline(e.target.value)} placeholder="Descripción corta" />
           </div>
 
           <div style={{ display: 'flex', gap: 12 }}>
             <div className="os-form-group" style={{ flex: 1 }}>
-              <label className="os-label">Price</label>
+              <label className="os-label">Precio</label>
               <input className="os-input" type="number" value={price || ''} onChange={e => setPrice(Number(e.target.value))} placeholder="0" />
             </div>
             <div className="os-form-group" style={{ width: 100 }}>
-              <label className="os-label">Currency</label>
+              <label className="os-label">Moneda</label>
               <select className="os-select" value={currency} onChange={e => setCurrency(e.target.value as Currency)}>
                 {}
                 {currencyOptions(currency).map(c => <option key={c} value={c}>{c}</option>)}
@@ -147,7 +147,7 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
           </div>
 
           <div className="os-form-group">
-            <label className="os-label">Billing Type</label>
+            <label className="os-label">Tipo de cobro</label>
             <div style={{ display: 'flex', gap: 8 }}>
               {(['one-time', 'monthly', 'retainer'] as BillingType[]).map(b => (
                 <button
@@ -168,29 +168,29 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
           </div>
 
           <div className="os-form-group">
-            <label className="os-label">Services <span style={{ fontWeight: 400, color: 'var(--os-text-faint)' }}>(one per line)</span></label>
+            <label className="os-label">Servicios <span style={{ fontWeight: 400, color: 'var(--os-text-faint)' }}>(uno por línea)</span></label>
             <textarea
               className="os-textarea"
               value={servicesText}
               onChange={e => setServicesText(e.target.value)}
-              placeholder="Meta & Google advertising setup&#10;AI chatbot built and integrated&#10;..."
+              placeholder="Plan de fuerza personalizado en la app&#10;Nutrición adaptada con recetas sencillas&#10;..."
               style={{ minHeight: 100 }}
             />
           </div>
 
           <div className="os-form-group">
-            <label className="os-label">Deliverables <span style={{ fontWeight: 400, color: 'var(--os-text-faint)' }}>(one per line)</span></label>
+            <label className="os-label">Entregables <span style={{ fontWeight: 400, color: 'var(--os-text-faint)' }}>(uno por línea)</span></label>
             <textarea
               className="os-textarea"
               value={deliverablesText}
               onChange={e => setDeliverablesText(e.target.value)}
-              placeholder="Live ad campaigns on Meta and Google&#10;Custom AI chatbot deployed&#10;..."
+              placeholder="Check-in semanal&#10;WhatsApp diario conmigo&#10;..."
               style={{ minHeight: 80 }}
             />
           </div>
 
           <div className="os-form-group">
-            <label className="os-label">Payment Schedule</label>
+            <label className="os-label">Calendario de pagos</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {milestones.map((m, i) => (
                 <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'var(--os-card-alt)', border: '1px solid var(--os-line)', borderRadius: 8, padding: '10px 12px' }}>
@@ -198,7 +198,7 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
                     className="os-input"
                     value={m.label}
                     onChange={e => updateMilestone(i, { label: e.target.value })}
-                    placeholder="Label"
+                    placeholder="Concepto"
                     style={{ flex: 2 }}
                   />
                   <input
@@ -213,7 +213,7 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
                     className="os-input"
                     value={m.note ?? ''}
                     onChange={e => updateMilestone(i, { note: e.target.value || undefined })}
-                    placeholder="Note (optional)"
+                    placeholder="Nota (opcional)"
                     style={{ flex: 2 }}
                   />
                   <button
@@ -232,12 +232,12 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
           </div>
 
           <div className="os-form-group">
-            <label className="os-label">Notes <span style={{ fontWeight: 400, color: 'var(--os-text-faint)' }}>(optional)</span></label>
+            <label className="os-label">Notas <span style={{ fontWeight: 400, color: 'var(--os-text-faint)' }}>(opcional)</span></label>
             <textarea
               className="os-textarea"
               value={notes}
               onChange={e => setNotes(e.target.value)}
-              placeholder="Internal notes about this offer..."
+              placeholder="Notas internas sobre esta oferta..."
               style={{ minHeight: 60 }}
             />
           </div>
@@ -257,13 +257,13 @@ export default function OfferForm({ offer, onSave, onClose }: Props) {
               }} />
             </button>
             <span style={{ fontSize: 13, fontWeight: 600, color: active ? 'var(--os-accent)' : 'var(--os-text-faint)' }}>
-              {active ? 'Active' : 'Inactive'}
+              {active ? 'Activa' : 'Inactiva'}
             </span>
           </div>
         </div>
 
         <div style={{ padding: '16px 28px 28px', borderTop: '1px solid var(--os-line)', display: 'flex', gap: 10 }}>
-          <button type="button" className="os-btn os-btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancel</button>
+          <button type="button" className="os-btn os-btn-ghost" onClick={onClose} style={{ flex: 1 }}>Cancelar</button>
           <button
             type="button"
             className="os-btn os-btn-primary"

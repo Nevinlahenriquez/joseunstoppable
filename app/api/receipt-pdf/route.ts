@@ -15,13 +15,13 @@ const BIZ = {
 }
 
 function fmt(n: number, currency: string) {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency, minimumFractionDigits: 2 }).format(n)
 }
 
 function fmtDate(d: string) {
 
   const date = d.length <= 10 ? new Date(d + 'T00:00:00') : new Date(d)
-  return date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  return date.toLocaleDateString('es-ES', { month: 'long', day: 'numeric', year: 'numeric' })
 }
 
 export function receiptNumber(invoiceNumber: string): string {
@@ -49,11 +49,11 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
     </tr>`).join('')
 
   return `<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
 <meta charset="UTF-8"/>
 <style>
-  @page { size: Letter; margin: 0; }
+  @page { size: A4; margin: 0; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 100%; }
   body {
@@ -103,8 +103,8 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
   thead tr { background: #212A4D; }
   thead th { padding: 9px 12px; font-size: 7.5pt; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: rgba(255,255,255,0.75); text-align: left; }
   thead th:not(:first-child) { text-align: right; }
-  .td-main { padding: 10px 12px; border-bottom: 1px solid #f0eafc; vertical-align: top; }
-  .td-num { padding: 10px 12px; border-bottom: 1px solid #f0eafc; text-align: right; vertical-align: top; white-space: nowrap; }
+  .td-main { padding: 10px 12px; border-bottom: 1px solid #E4F4FD; vertical-align: top; }
+  .td-num { padding: 10px 12px; border-bottom: 1px solid #E4F4FD; text-align: right; vertical-align: top; white-space: nowrap; }
   .td-bold { font-weight: 700; }
   .li-name { font-weight: 600; color: #0C2A43; font-size: 10pt; }
   .li-desc { font-size: 8.5pt; color: #999; margin-top: 2px; }
@@ -134,7 +134,7 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
       </div>
     </div>
     <div>
-      <div class="r-label">Payment Receipt</div>
+      <div class="r-label">Recibo de pago</div>
       <div class="r-number">${rNo}</div>
       <div class="r-ref">for Invoice #${escapeHtml(inv.number)}</div>
     </div>
@@ -145,12 +145,12 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
     <div class="paid-left">
       <div class="paid-stamp">PAID</div>
       <div>
-        <div class="paid-caption">Amount Received</div>
+        <div class="paid-caption">Importe recibido</div>
         <div class="paid-amount">${fmt(amountPaid, currency)}</div>
       </div>
     </div>
     <div class="paid-date">
-      Paid on<strong>${fmtDate(paidOn)}</strong>
+      Pagado el<strong>${fmtDate(paidOn)}</strong>
       via ${escapeHtml(method)}
     </div>
   </div>
@@ -158,17 +158,17 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
   <!-- Meta row -->
   <div class="meta-row">
     <div class="meta-box">
-      <div class="meta-label">Received From</div>
+      <div class="meta-label">Recibido de</div>
       <div class="meta-value">${escapeHtml(inv.clientName)}${inv.clientCompany ? ` · ${escapeHtml(inv.clientCompany)}` : ''}</div>
       ${inv.clientEmail ? `<div class="meta-sub">${escapeHtml(inv.clientEmail)}</div>` : ''}
     </div>
     ${inv.projectTitle ? `
     <div class="meta-box">
-      <div class="meta-label">For</div>
+      <div class="meta-label">Concepto</div>
       <div class="meta-value">${escapeHtml(inv.projectTitle)}</div>
     </div>` : ''}
     <div class="meta-box">
-      <div class="meta-label">Payment Method</div>
+      <div class="meta-label">Forma de pago</div>
       <div class="meta-value">${escapeHtml(method)}</div>
     </div>
   </div>
@@ -177,9 +177,9 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
   <table>
     <thead>
       <tr>
-        <th style="width:64%">Description</th>
-        <th>Qty</th>
-        <th>Amount</th>
+        <th style="width:64%">Descripción</th>
+        <th>Cant.</th>
+        <th>Importe</th>
       </tr>
     </thead>
     <tbody>${lineRows}</tbody>
@@ -188,16 +188,16 @@ function buildReceiptHtml(inv: Invoice, method: string): string {
   <!-- Totals -->
   <div class="totals">
     <div class="totals-row"><span>Subtotal</span><span>${fmt(subtotal, currency)}</span></div>
-    ${inv.taxes ? `<div class="totals-row"><span>Taxes / Fees</span><span>${fmt(inv.taxes, currency)}</span></div>` : ''}
-    <div class="totals-row total"><span>Total Paid</span><span>${fmt(amountPaid, currency)}</span></div>
+    ${inv.taxes ? `<div class="totals-row"><span>Impuestos</span><span>${fmt(inv.taxes, currency)}</span></div>` : ''}
+    <div class="totals-row total"><span>Total pagado</span><span>${fmt(amountPaid, currency)}</span></div>
   </div>
 
-  <div class="notes">This receipt confirms that payment has been received in full. No balance remains outstanding. Keep this document for your records. Thank you for your business.</div>
+  <div class="notes">Este recibo confirma que el pago se ha recibido por completo y no queda nada pendiente. Guárdalo para tus registros. Gracias por tu confianza.</div>
 
   <!-- Footer -->
   <div class="footer">
-    <div>${BIZ.name} &nbsp;·&nbsp; Receipt ${rNo} &nbsp;·&nbsp; ${BIZ.email}</div>
-    <div style="color:#16a34a;font-weight:700">Paid in full · ${fmt(amountPaid, currency)}</div>
+    <div>${BIZ.name} &nbsp;·&nbsp; Recibo ${rNo} &nbsp;·&nbsp; ${BIZ.email}</div>
+    <div style="color:#16a34a;font-weight:700">Pagado por completo · ${fmt(amountPaid, currency)}</div>
   </div>
 
 </div>
@@ -215,7 +215,7 @@ async function pdfShift(html: string): Promise<Buffer> {
       Authorization: 'Basic ' + Buffer.from(`api:${apiKey}`).toString('base64'),
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ source: html, format: 'Letter', margin: '0' }),
+    body: JSON.stringify({ source: html, format: 'A4', margin: '0' }),
   })
 
   if (!res.ok) {
@@ -237,7 +237,7 @@ export async function GET(req: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
     const { data, error } = await sb.from('invoices').select('*').eq('id', id).single()
-    if (error || !data) return NextResponse.json({ error: 'Invoice not found', detail: error?.message }, { status: 404 })
+    if (error || !data) return NextResponse.json({ error: 'Factura no encontrada', detail: error?.message }, { status: 404 })
 
     const inv: Invoice = {
       id: data.id, number: data.number,
@@ -265,6 +265,6 @@ export async function GET(req: NextRequest) {
     })
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e)
-    return NextResponse.json({ error: 'Failed to generate receipt PDF', detail: message }, { status: 500 })
+    return NextResponse.json({ error: 'No se pudo generar el PDF del recibo', detail: message }, { status: 500 })
   }
 }

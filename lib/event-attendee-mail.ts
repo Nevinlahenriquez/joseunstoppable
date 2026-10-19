@@ -25,7 +25,7 @@ export function zonedTimeToUtcMs(dateStr: string, timeStr: string, timeZone: str
   const [y, mo, d] = dateStr.split('-').map(Number)
   const [h, mi] = (timeStr || '00:00').split(':').map(Number)
   const utcGuess = Date.UTC(y, mo - 1, d, h, mi)
-  const dtf = new Intl.DateTimeFormat('en-US', {
+  const dtf = new Intl.DateTimeFormat('es-ES', {
     timeZone, year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
   })
@@ -70,28 +70,28 @@ export function buildMail(ev: any, seat: any, kind: MailKind): { subject: string
     })
   }
   if (kind === 'followup') {
-    const name = escapeHtml(String(seat.name || '').trim() || 'there')
+    const name = escapeHtml(String(seat.name || '').trim() || '')
     const templated = String(ev.email_follow_up || '').trim()
     const body = templated
       ? applyTemplate(templated, { name, eventTitle: escapeHtml(title) })
       : defaultFollowUpBody({ name, eventTitle: escapeHtml(title), notes: typeof seat.notes === 'string' ? seat.notes : '' })
-    return { subject: `Thank you for joining ${title}`, html: emailShell({ title, preview: `What to do next after ${title}.`, body }) }
+    return { subject: `Gracias por venir a ${title}`, html: emailShell({ title, preview: `Qué hacer ahora después de ${title}.`, body }) }
   }
   const st = REMINDER_STAGES.find(s => s.kind === kind)
   if (!st) return null
-  const fmtDate = weekdayDate(ev.date, 'Date to be confirmed')
-  const fmtTime = String(ev.time || '').trim() || 'Time to be confirmed'
+  const fmtDate = weekdayDate(ev.date, 'Fecha por confirmar')
+  const fmtTime = String(ev.time || '').trim() || 'Hora por confirmar'
   const joinUrl = (String(ev.location_name || '').match(/https?:\/\/[^\s<"']+/) ?? [''])[0]
   const subjects: Record<number, [string, string]> = {
-    24: [`Tomorrow: ${title}`, `${fmtDate}, ${fmtTime}. One button to join is inside.`],
-    10: [`Today: ${title}`, `${fmtTime} today. One button to join is inside.`],
-    5: [`A few hours to go: ${title}`, `Starts at ${fmtTime}. One button to join is inside.`],
-    3: [`Coming up: ${title}`, `Starts at ${fmtTime}. One button to join is inside.`],
-    1: [`Starting soon: ${title}`, `Starts at ${fmtTime}. One button to join is inside.`],
+    24: [`Mañana: ${title}`, `${fmtDate}, ${fmtTime}. Dentro tienes el botón para unirte.`],
+    10: [`Hoy: ${title}`, `Hoy a las ${fmtTime}. Dentro tienes el botón para unirte.`],
+    5: [`Quedan pocas horas: ${title}`, `Empieza a las ${fmtTime}. Dentro tienes el botón para unirte.`],
+    3: [`Ya casi: ${title}`, `Empieza a las ${fmtTime}. Dentro tienes el botón para unirte.`],
+    1: [`Empieza enseguida: ${title}`, `Empieza a las ${fmtTime}. Dentro tienes el botón para unirte.`],
   }
   const [subject, preview] = subjects[st.hours]
   const vars = {
-    name: escapeHtml(String(seat.name || '').trim() || 'there'),
+    name: escapeHtml(String(seat.name || '').trim() || ''),
     eventTitle: escapeHtml(title),
     date: escapeHtml(fmtDate),
     time: escapeHtml(fmtTime),

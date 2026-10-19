@@ -10,16 +10,13 @@ import { TEMPLATES, templateFields, matchTemplate, type Template } from '@/lib/p
 import { currencyOptions } from '@/lib/fx'
 
 const SERVICES_PRESETS = [
-  'Full website redesign and development',
-  'AI automation and workflow setup',
-  'SEO strategy and implementation',
-  'Meta / Google advertising setup',
-  'Content strategy and creation framework',
-  'Email marketing system setup',
-  'Social media strategy',
-  'CRM setup and onboarding',
-  'Monthly strategy calls',
-  'Direct support throughout the program',
+  'Plan de fuerza personalizado en la app (3 h/semana)',
+  'Nutrición adaptada con recetas sencillas',
+  'WhatsApp diario conmigo',
+  'Check-in semanal y ajustes del plan',
+  'Llamadas de seguimiento',
+  'Coaching de mentalidad y hábitos',
+  'Garantía de devolución del 100%',
 ]
 
 export default function EditProposalPage({ params }: { params: Promise<{ id: string }> }) {
@@ -38,7 +35,7 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
   const [customService, setCustomService] = useState('')
   const [deliverables, setDeliverables] = useState<string[]>([''])
   const [milestones, setMilestones] = useState<PaymentMilestone[]>([{ label: '', amount: 0, note: '' }])
-  const [currency, setCurrency] = useState<Currency>('USD')
+  const [currency, setCurrency] = useState<Currency>('EUR')
   const [validDays, setValidDays] = useState(14)
   const [billingDay, setBillingDay] = useState<1 | 15>(1)
   const [paymentLink, setPaymentLink] = useState('')
@@ -146,12 +143,12 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
   const isLocked = proposal.status === 'signed'
 
   const lifecycleSteps: LifecycleStep[] = [
-    { key: 'sent', label: 'Proposal Sent', icon: 'ti-send', at: proposal.sentAt },
-    { key: 'viewed', label: 'Viewed by Client', icon: 'ti-eye', at: proposal.viewedAt },
-    { key: 'signed', label: 'Signed', icon: 'ti-writing-sign', at: proposal.signedAt },
-    { key: 'invoiced', label: 'Invoice Created', icon: 'ti-receipt', at: invoice?.createdAt },
-    { key: 'inv-viewed', label: 'Invoice Viewed', icon: 'ti-eye', at: invoice?.viewedAt },
-    { key: 'paid', label: 'Paid', icon: 'ti-cash', at: invoice?.status === 'paid' ? (invoice.paidAt ?? invoice.createdAt) : undefined },
+    { key: 'sent', label: 'Propuesta enviada', icon: 'ti-send', at: proposal.sentAt },
+    { key: 'viewed', label: 'Vista por el cliente', icon: 'ti-eye', at: proposal.viewedAt },
+    { key: 'signed', label: 'Firmada', icon: 'ti-writing-sign', at: proposal.signedAt },
+    { key: 'invoiced', label: 'Factura creada', icon: 'ti-receipt', at: invoice?.createdAt },
+    { key: 'inv-viewed', label: 'Factura vista', icon: 'ti-eye', at: invoice?.viewedAt },
+    { key: 'paid', label: 'Pagada', icon: 'ti-cash', at: invoice?.status === 'paid' ? (invoice.paidAt ?? invoice.createdAt) : undefined },
   ]
 
   const nextPhase = nextUnbilledPhase(proposal)
@@ -162,10 +159,10 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
   function invoiceCommission() {
     if (!proposal) return
     const n = Math.floor(Number(newClients))
-    if (!(n >= 1)) { setCommissionMsg('Type how many new clients came in.'); return }
+    if (!(n >= 1)) { setCommissionMsg('Escribe cuántos clientes nuevos llegaron.'); return }
     const { invoice: inv, billed, beyondCap } = createCommissionInvoice(proposal, n, period)
-    if (!inv) { setCommissionMsg(`All ${resultsMax} clients are already invoiced. The commission has ended.`); return }
-    if (beyondCap > 0) setCommissionMsg(`${billed} billed. ${beyondCap} more fall past client ${resultsMax}, where the commission ends.`)
+    if (!inv) { setCommissionMsg(`Los ${resultsMax} clientes ya están facturados. La comisión ha terminado.`); return }
+    if (beyondCap > 0) setCommissionMsg(`${billed} facturados. ${beyondCap} más quedan después del cliente ${resultsMax}, donde termina la comisión.`)
     router.push(`/admin/invoices/${inv.id}`)
   }
 
@@ -174,7 +171,7 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
       <div className="os-page-header">
         <div>
           <div className="os-page-title">
-            Edit Proposal
+            Editar propuesta
             {(proposal.version ?? 1) > 1 && (
               <span style={{ marginLeft: 10, background: '#0E71AC', color: '#fff', fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 20, letterSpacing: 0.5 }}>
                 v{proposal.version}
@@ -186,7 +183,7 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
           {isLocked && (
             <div style={{ background: 'var(--os-good-soft)', border: '1px solid #bbf7d0', borderRadius: 10, padding: '10px 16px', fontSize: 13, color: 'var(--os-good)', fontWeight: 600 }}>
-              <i className="ti ti-lock" /> Signed. Only the contact and payment details save from here; the price, scope and schedule are locked. Use Revise to change the terms.
+              <i className="ti ti-lock" /> Firmada. Aquí solo se guardan los datos de contacto y de pago; el precio, el alcance y el calendario están bloqueados. Usa Revisar para cambiar las condiciones.
             </div>
           )}
           {!results && <button
@@ -195,7 +192,7 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
             className="os-btn os-btn-primary"
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
           >
-            <i className="ti ti-receipt" /> {invoice ? 'Open invoice' : 'Create invoice from proposal'}
+            <i className="ti ti-receipt" /> {invoice ? 'Abrir factura' : 'Crear factura desde la propuesta'}
           </button>}
           {}
           {proposal.status === 'signed' && nextPhase > 0 && (
@@ -205,7 +202,7 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
               className="os-btn os-btn-primary"
               style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
-              <i className="ti ti-receipt" /> Invoice payment {nextPhase + 1}: {proposal.paymentSchedule[nextPhase].label} ({new Intl.NumberFormat('en-US', { style: 'currency', currency: proposal.currency }).format(proposal.paymentSchedule[nextPhase].amount)})
+              <i className="ti ti-receipt" /> Invoice payment {nextPhase + 1}: {proposal.paymentSchedule[nextPhase].label} ({new Intl.NumberFormat('es-ES', { style: 'currency', currency: proposal.currency }).format(proposal.paymentSchedule[nextPhase].amount)})
             </button>
           )}
         </div>
@@ -220,28 +217,28 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
       {results && (
         <div className="os-card" style={{ padding: '16px 18px', marginBottom: 16 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', marginBottom: 10 }}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--os-text-primary)' }}>Paid by results</div>
-            <div style={{ fontSize: 13, color: 'var(--os-text-muted)' }}>{Number.isFinite(resultsMax) ? `${resultsDone} of ${resultsMax} clients invoiced` : `${resultsDone} clients invoiced, no maximum`}</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--os-text-primary)' }}>Pago por resultados</div>
+            <div style={{ fontSize: 13, color: 'var(--os-text-muted)' }}>{Number.isFinite(resultsMax) ? `${resultsDone} de ${resultsMax} clientes facturados` : `${resultsDone} clientes facturados, sin máximo`}</div>
           </div>
           {isLocked ? (
             <>
               <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: 'var(--os-text-muted)' }}>
-                  New clients
+                  Clientes nuevos
                   <input className="os-input" type="number" min={1} inputMode="numeric" value={newClients}
                     onChange={e => { setNewClients(e.target.value); setCommissionMsg('') }} style={{ width: 120 }} />
                 </label>
                 <label style={{ display: 'flex', flexDirection: 'column', gap: 4, fontSize: 12, color: 'var(--os-text-muted)', flex: 1, minWidth: 160 }}>
-                  Period (optional, shown on the invoice)
+                  Periodo (opcional, aparece en la factura)
                   <input className="os-input" value={period} placeholder="octubre 2026" onChange={e => setPeriod(e.target.value)} />
                 </label>
                 <button type="button" className="os-btn os-btn-primary" onClick={invoiceCommission} disabled={resultsDone >= resultsMax}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <i className="ti ti-receipt" /> Invoice new clients
+                  <i className="ti ti-receipt" /> Facturar clientes nuevos
                 </button>
               </div>
               <div style={{ fontSize: 12.5, color: commissionMsg ? 'var(--os-warn)' : 'var(--os-text-muted)', marginTop: 8 }}>
-                {commissionMsg || 'Creates a draft invoice. Nothing is sent until you press Send on it.'}
+                {commissionMsg || 'Crea una factura en borrador. No se envía nada hasta que pulses Enviar en ella.'}
               </div>
             </>
           ) : (
@@ -258,11 +255,11 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
           <i className="ti ti-refresh" style={{ color: 'var(--os-accent)', fontSize: 18 }} />
           <div style={{ fontSize: 13, color: 'var(--os-text-muted)', flex: 1, minWidth: 220 }}>
             {rebuilt
-              ? <span style={{ color: 'var(--os-good)', fontWeight: 600 }}>Rewritten from the template. Read it through, then Save to keep it.</span>
-              : <>A revision copies the old wording. Pull in the current terms from a template instead.</>}
+              ? <span style={{ color: 'var(--os-good)', fontWeight: 600 }}>Reescrita desde la plantilla. Léela y pulsa Guardar para conservarla.</span>
+              : <>Una revisión copia el texto anterior. Puedes traer las condiciones actuales desde una plantilla.</>}
           </div>
           <select className="os-input" value={rebuildId} onChange={e => setRebuildId(e.target.value)} style={{ width: 'auto', minWidth: 200 }}>
-            <option value="">Choose a template…</option>
+            <option value="">Elige una plantilla…</option>
             {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
           </select>
           <button
@@ -271,7 +268,7 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
             disabled={!rebuildId}
             onClick={() => { const t = TEMPLATES.find(t => t.id === rebuildId); if (t) rebuildFromTemplate(t) }}
           >
-            Rebuild content
+            Rehacer contenido
           </button>
         </div>
       )}
@@ -279,10 +276,10 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
       <form className="os-form" onSubmit={submit}>
         {}
         <div className="os-card" style={{ padding: 24 }}>
-          <div className="os-section-divider" style={{ marginBottom: 20 }}>Client Information</div>
+          <div className="os-section-divider" style={{ marginBottom: 20 }}>Datos del cliente</div>
           <div className="os-form-row">
             <div className="os-form-group">
-              <label className="os-label">Client Name *</label>
+              <label className="os-label">Nombre del cliente *</label>
               <input className="os-input" required value={clientName} onChange={e => setClientName(e.target.value)} />
             </div>
             <div className="os-form-group">
@@ -291,27 +288,27 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
             </div>
           </div>
           <div className="os-form-group" style={{ marginTop: 16 }}>
-            <label className="os-label">Company</label>
+            <label className="os-label">Empresa</label>
             <input className="os-input" value={clientCompany} onChange={e => setClientCompany(e.target.value)} />
           </div>
         </div>
 
         {}
         <div className="os-card" style={{ padding: 24 }}>
-          <div className="os-section-divider" style={{ marginBottom: 20 }}>Proposal Content</div>
+          <div className="os-section-divider" style={{ marginBottom: 20 }}>Contenido de la propuesta</div>
           <div className="os-form-group">
-            <label className="os-label">Proposal Title *</label>
+            <label className="os-label">Título de la propuesta *</label>
             <input className="os-input" required value={title} onChange={e => setTitle(e.target.value)} />
           </div>
           <div className="os-form-group" style={{ marginTop: 16 }}>
-            <label className="os-label">Opening Message</label>
+            <label className="os-label">Mensaje de apertura</label>
             <textarea className="os-textarea" value={intro} onChange={e => setIntro(e.target.value)} style={{ minHeight: 140 }} />
           </div>
         </div>
 
         {}
         <div className="os-card" style={{ padding: 24 }}>
-          <div className="os-section-divider" style={{ marginBottom: 20 }}>Services Included</div>
+          <div className="os-section-divider" style={{ marginBottom: 20 }}>Servicios incluidos</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16 }}>
             {SERVICES_PRESETS.map(s => (
               <button key={s} type="button" onClick={() => toggleService(s)}
@@ -327,18 +324,18 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
             ))}
           </div>
           <div style={{ display: 'flex', gap: 10 }}>
-            <input className="os-input" value={customService} onChange={e => setCustomService(e.target.value)} placeholder="Add custom service..." onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomService() } }} />
+            <input className="os-input" value={customService} onChange={e => setCustomService(e.target.value)} placeholder="Añadir otro servicio..." onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addCustomService() } }} />
             <button type="button" className="os-btn os-btn-ghost" onClick={addCustomService}><i className="ti ti-plus" /></button>
           </div>
         </div>
 
         {}
         <div className="os-card" style={{ padding: 24 }}>
-          <div className="os-section-divider" style={{ marginBottom: 20 }}>What They Walk Away With</div>
+          <div className="os-section-divider" style={{ marginBottom: 20 }}>Lo que se lleva</div>
           <div className="os-milestones">
             {deliverables.map((d, i) => (
               <div key={i} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                <input className="os-input" value={d} onChange={e => updateDeliverable(i, e.target.value)} placeholder={`Deliverable ${i + 1}`} />
+                <input className="os-input" value={d} onChange={e => updateDeliverable(i, e.target.value)} placeholder={`Entregable ${i + 1}`} />
                 {deliverables.length > 1 && (
                   <button type="button" className="os-remove-btn" onClick={() => removeDeliverable(i)}><i className="ti ti-x" /></button>
                 )}
@@ -346,20 +343,20 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
             ))}
           </div>
           <button type="button" className="os-add-btn" style={{ marginTop: 10 }} onClick={addDeliverable}>
-            <i className="ti ti-plus" /> Add Deliverable
+            <i className="ti ti-plus" /> Añadir entregable
           </button>
         </div>
 
         {}
         <div className="os-card" style={{ padding: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-            <div className="os-section-divider" style={{ borderBottom: 'none', marginBottom: 0 }}>Payment Schedule</div>
+            <div className="os-section-divider" style={{ borderBottom: 'none', marginBottom: 0 }}>Calendario de pagos</div>
             <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
               <select className="os-select" value={currency} onChange={e => setCurrency(e.target.value as Currency)} style={{ width: 'auto', padding: '7px 12px' }}>
                 {}
                 {currencyOptions(currency).map(c => <option key={c} value={c}>{c}</option>)}
               </select>
-              <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--accent)' }}>{noCap ? 'Per client, no maximum' : `${currency} ${total.toLocaleString()}`}</div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: 'var(--accent)' }}>{noCap ? 'Por cliente, sin máximo' : `${total.toLocaleString('es-ES')} ${currency}`}</div>
             </div>
           </div>
           <div className="os-milestones">
@@ -367,8 +364,8 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
               <div key={i} style={{ background: 'var(--os-card-alt)', border: '1px solid var(--os-line)', borderRadius: 12, padding: '14px 16px' }}>
                 <div className="os-milestone-row" style={{ marginBottom: 8 }}>
                   <div>
-                    <label className="os-label" style={{ marginBottom: 4 }}>Label</label>
-                    <input className="os-input" value={m.label} onChange={e => updateMilestone(i, { label: e.target.value })} placeholder={`Month ${i + 1}`} />
+                    <label className="os-label" style={{ marginBottom: 4 }}>Concepto</label>
+                    <input className="os-input" value={m.label} onChange={e => updateMilestone(i, { label: e.target.value })} placeholder={`Mes ${i + 1}`} />
                   </div>
                   <div>
                     <label className="os-label" style={{ marginBottom: 4 }}>Amount ({currency})</label>
@@ -379,39 +376,39 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
                   </button>
                 </div>
                 <div>
-                  <label className="os-label" style={{ marginBottom: 4 }}>Note (optional)</label>
-                  <input className="os-input" value={m.note ?? ''} onChange={e => updateMilestone(i, { note: e.target.value })} placeholder="What happens in this phase..." />
+                  <label className="os-label" style={{ marginBottom: 4 }}>Nota (opcional)</label>
+                  <input className="os-input" value={m.note ?? ''} onChange={e => updateMilestone(i, { note: e.target.value })} placeholder="Qué pasa en esta fase..." />
                 </div>
               </div>
             ))}
           </div>
           <button type="button" className="os-add-btn" style={{ marginTop: 10 }} onClick={addMilestone}>
-            <i className="ti ti-plus" /> Add Payment
+            <i className="ti ti-plus" /> Añadir pago
           </button>
         </div>
 
         {}
         <div className="os-card" style={{ padding: 24 }}>
-          <div className="os-section-divider" style={{ marginBottom: 20 }}>Payment Details</div>
+          <div className="os-section-divider" style={{ marginBottom: 20 }}>Datos de pago</div>
           <div className="os-form-group">
-            <label className="os-label">Payment Link (optional)</label>
-            <input className="os-input" value={paymentLink} onChange={e => setPaymentLink(e.target.value)} placeholder="https://payment.link/your-link" />
+            <label className="os-label">Enlace de pago (opcional)</label>
+            <input className="os-input" value={paymentLink} onChange={e => setPaymentLink(e.target.value)} placeholder="https://enlace-de-pago..." />
           </div>
           <div className="os-form-group" style={{ marginTop: 16 }}>
-            <label className="os-label">Bank Transfer Information</label>
+            <label className="os-label">Datos para transferencia</label>
             <textarea className="os-textarea" value={bankInfo} onChange={e => setBankInfo(e.target.value)} style={{ minHeight: 90, fontFamily: 'monospace', fontSize: 13 }} />
           </div>
           <div className="os-form-group" style={{ marginTop: 16 }}>
-            <label className="os-label">Valid for (days)</label>
+            <label className="os-label">Válida durante (días)</label>
             <input className="os-input" type="number" value={validDays} onChange={e => setValidDays(Number(e.target.value))} style={{ maxWidth: 120 }} />
           </div>
           <div className="os-form-group" style={{ marginTop: 16 }}>
-            <label className="os-label">Monthly billing date</label>
+            <label className="os-label">Día de cobro mensual</label>
             <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
               {([1, 15] as const).map(day => (
                 <button key={day} type="button" onClick={() => setBillingDay(day)}
                   style={{ padding: '8px 20px', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer', background: billingDay === day ? 'var(--accent)' : 'var(--os-card)', color: billingDay === day ? '#fff' : 'var(--os-text-faint)', border: `1px solid ${billingDay === day ? 'var(--accent)' : 'var(--os-line)'}` }}>
-                  {day === 1 ? '1st of the month' : '15th of the month'}
+                  {day === 1 ? 'Día 1 de cada mes' : 'Día 15 de cada mes'}
                 </button>
               ))}
             </div>
@@ -419,9 +416,9 @@ export default function EditProposalPage({ params }: { params: Promise<{ id: str
         </div>
 
         <div className="os-doc-savebar" style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', paddingBottom: 40 }}>
-          <button type="button" className="os-btn os-btn-ghost" onClick={() => router.back()}>Cancel</button>
+          <button type="button" className="os-btn os-btn-ghost" onClick={() => router.back()}>Cancelar</button>
           <button type="submit" className="os-btn os-btn-primary" disabled={saving}>
-            <i className="ti ti-device-floppy" /> {saving ? 'Saving...' : 'Save Changes'}
+            <i className="ti ti-device-floppy" /> {saving ? 'Guardando...' : 'Guardar cambios'}
           </button>
         </div>
       </form>
