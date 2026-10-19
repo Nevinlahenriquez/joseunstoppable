@@ -41,6 +41,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/bookings', icon: 'bookings', label: 'Llamadas' },
       { href: '/admin/events',   icon: 'events', label: 'Eventos' },
       { href: '/admin/onboarding', icon: 'forms', label: 'Onboarding' },
+      { href: '/admin/portal',   icon: 'clients', label: 'Portal clientes' },
       { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(14,113,172,.14)', badgeColor: 'var(--os-accent)' },
       { href: '/admin/links',    icon: 'funnels', label: 'Link en bio' },
       { href: '/admin/attribution', icon: 'insights', label: 'Anuncios vs directo' },
@@ -54,6 +55,13 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/proposals', icon: 'proposals', label: 'Propuestas', badgeKey: 'proposals', badgeBg: 'rgba(232,165,22,.16)', badgeColor: 'var(--os-warn)' },
       { href: '/admin/invoices',  icon: 'invoices', label: 'Facturas', badgeKey: 'invoices', badgeBg: 'rgba(220,38,38,.12)', badgeColor: 'var(--os-bad)' },
       { href: '/admin/payments',  icon: 'payments', label: 'Links de pago' },
+    ],
+  },
+  {
+    id: 'settings',
+    title: 'Ajustes',
+    items: [
+      { href: '/admin/access', icon: 'access', label: 'Accesos al panel' },
     ],
   },
 ]

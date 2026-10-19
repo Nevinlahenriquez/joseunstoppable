@@ -109,10 +109,16 @@ function constantTimeEqual(a: string, b: string): boolean {
   return r === 0
 }
 
+// The owner passcode only has to be 8+ characters (it used to need 16, and a
+// shorter one was refused without saying why). Spaces pasted around it in
+// Vercel or on the login form are ignored.
+const MIN_PASSCODE_LEN = 8
+
 export function verifyAdminPassword(password: string): { email: string; role: Role } | null {
-  const expected = process.env.OS_ADMIN_PASSWORD
-  if (!expected || expected.length < MIN_SECRET_LEN || !password) return null
-  if (!constantTimeEqual(password, expected)) return null
+  const expected = (process.env.OS_ADMIN_PASSWORD ?? '').trim()
+  const given = (password ?? '').trim()
+  if (expected.length < MIN_PASSCODE_LEN || !given) return null
+  if (!constantTimeEqual(given, expected)) return null
   return { email: OWNER_EMAILS[0], role: 'admin' }
 }
 
@@ -151,10 +157,12 @@ export async function isOwnerRequest(req: NextRequest): Promise<boolean> {
   return session?.role === 'admin' && !session.staff
 }
 
-export async function createSessionToken(email: string, role: Role, staff = false): Promise<string> {
+// `db` marks an admin who signs in from the admin_users table (added from
+// /admin/access), whose email is not in the env lists.
+export async function createSessionToken(email: string, role: Role, staff = false, db = false): Promise<string> {
   const key = secretKey()
   if (!key) throw new Error('AUTH_SECRET is not configured')
-  return new SignJWT({ email, role, staff })
+  return new SignJWT({ email, role, staff, ...(db ? { src: 'db' } : {}) })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('30d')
@@ -190,6 +198,8 @@ export async function verifySessionToken(token: string | undefined): Promise<{ e
   if (!key) return null
   try {
     const { payload } = await jwtVerify(token, key)
+    // Sign-in links and portal cookies are signed with the same key; never accept one as a session.
+    if (payload.kind) return null
     const email = typeof payload.email === 'string' ? payload.email : ''
     if (!email) return null
 
@@ -197,8 +207,26 @@ export async function verifySessionToken(token: string | undefined): Promise<{ e
     const isKnownRole = claimed === 'admin' || claimed === 'editor' || claimed === 'partner' || claimed === 'client'
 
     let role: Role = isKnownRole ? claimed : roleForEmail(email)
-    if (role === 'admin' && !isAdminEmail(email)) role = roleForEmail(email)
+    if (role === 'admin' && !isAdminEmail(email) && payload.src !== 'db') role = roleForEmail(email)
     return { email, role, staff: payload.staff === true }
+  } catch {
+    return null
+  }
+}
+
+// Short signed tokens for emailed sign-in links and the client portal cookie.
+export async function signToken(payload: Record<string, unknown>, expiresIn: string): Promise<string> {
+  const key = secretKey()
+  if (!key) throw new Error('AUTH_SECRET is not configured')
+  return new SignJWT(payload).setProtectedHeader({ alg: 'HS256' }).setIssuedAt().setExpirationTime(expiresIn).sign(key)
+}
+
+export async function readToken(token: string | undefined, kind: string): Promise<Record<string, unknown> | null> {
+  const key = secretKey()
+  if (!token || !key) return null
+  try {
+    const { payload } = await jwtVerify(token, key)
+    return payload.kind === kind ? payload as Record<string, unknown> : null
   } catch {
     return null
   }

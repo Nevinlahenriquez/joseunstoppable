@@ -91,6 +91,22 @@ const TABLES: Record<string, Col[]> = {
     ['opened_at', 'timestamptz'], ['completed_at', 'timestamptz'],
   ],
   app_settings: [['value', 'jsonb'], ['updated_at', 'timestamptz default now()']],
+  // One row per client with portal access (id = lowercased email); token is their personal link.
+  portal_access: [
+    ['token', 'text'], ['email', 'text'], ['name', 'text'], ['deal_id', 'text'], ['active', 'boolean default true'],
+    ['app_url', 'text'], ['app_ready', 'boolean default false'], ['login_nonce', 'text'], ['invited_at', 'timestamptz'], ['last_login_at', 'timestamptz'],
+    ['created_at', 'timestamptz default now()'],
+  ],
+  // Questions from clients in the portal and José's answers.
+  portal_messages: [
+    ['email', 'text'], ['sender', 'text'], ['body', 'text'], ['read_at', 'timestamptz'],
+    ['created_at', 'timestamptz default now()'],
+  ],
+  // Extra admin logins added from /admin/access (id = lowercased email); password is a scrypt hash.
+  admin_users: [
+    ['name', 'text'], ['password_hash', 'text'], ['login_nonce', 'text'], ['last_login_at', 'timestamptz'],
+    ['created_at', 'timestamptz default now()'],
+  ],
 }
 
 const INDEXES = [
@@ -98,6 +114,8 @@ const INDEXES = [
   'create index if not exists attendees_event_idx on event_attendees (event_id)',
   'create index if not exists bookings_start_idx on bookings (start_at)',
   'create unique index if not exists onboardings_token_uq on onboardings (token)',
+  'create unique index if not exists portal_access_token_uq on portal_access (token)',
+  'create index if not exists portal_messages_email_idx on portal_messages (email, created_at)',
   'create unique index if not exists bookings_slot_uq on bookings (start_at) where status <> \'cancelled\'',
 ]
 
