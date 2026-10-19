@@ -164,3 +164,41 @@
 .ob .parq-q .chips{margin-top:0;flex-shrink:0;flex-wrap:nowrap}
 .ob .parq-q .chip span{min-width:52px;text-align:center;padding:8px 12px}
 @media (max-width:560px){.ob .parq-q{flex-direction:column;align-items:flex-start;gap:8px}}
+
+/* Welcome page: wider and bigger on desktop (many clients read it on a laptop). */
+.ob-welcome .wrap{max-width:1180px;padding:0 32px}
+.ob-welcome .bar-link{font-size:14px;font-weight:700;color:var(--sky-ink);text-decoration:none}
+.ob-welcome .hero{padding:56px 0 48px}
+.ob-welcome .hero .wrap{grid-template-columns:1.05fr .95fr;gap:56px}
+.ob-welcome h1{font-size:clamp(36px,5.2vw,64px)}
+.ob-welcome .lead{font-size:20px;line-height:1.6;max-width:34em;color:var(--text)}
+.ob-welcome .btn{font-size:18px;padding:19px 30px;border-radius:16px}
+.ob-welcome .btn-sky{background:linear-gradient(135deg,#2A98D6,#0E71AC);color:#fff}
+.ob-welcome .btn-sky:hover{background:linear-gradient(135deg,#0E71AC,#0C5E90)}
+.ob-welcome .meta{font-size:15px;margin-top:18px;gap:22px}
+.ob-welcome .hero-img{aspect-ratio:4/4.4}
+.ob-welcome .video{margin-top:0;aspect-ratio:16/10}
+.ob-welcome section{padding:24px 0 64px}
+.ob-welcome h2{font-size:clamp(26px,3vw,36px);margin-bottom:18px}
+.ob-welcome .welcome-steps{grid-template-columns:1fr 1fr;gap:16px}
+.ob-welcome .welcome-steps li{grid-template-columns:56px 1fr;gap:18px;padding:22px 24px;border-radius:20px;align-items:start}
+.ob-welcome .welcome-steps .num{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,#2A98D6,#0E71AC);color:#fff;font-weight:800;font-size:19px}
+.ob-welcome .welcome-steps li.done .num{background:#1F9D6B}
+.ob-welcome .welcome-steps b{font-size:19px;margin:4px 0 4px}
+.ob-welcome .welcome-steps span{font-size:16px;line-height:1.55}
+.ob-welcome footer{font-size:14px}
+@media (max-width:900px){
+.ob-welcome .hero .wrap{grid-template-columns:1fr;gap:28px}
+.ob-welcome .welcome-steps{grid-template-columns:1fr}
+}
+@media (max-width:720px){
+.ob-welcome .wrap{padding:0 18px}
+.ob-welcome .hero{padding:28px 0 28px}
+.ob-welcome .lead{font-size:17px}
+.ob-welcome .btn{font-size:16px;padding:16px 22px;width:100%}
+.ob-welcome .bar-link{font-size:13px}
+.ob-welcome .welcome-steps li{padding:16px 18px;grid-template-columns:44px 1fr;gap:14px}
+.ob-welcome .welcome-steps .num{width:44px;height:44px;font-size:16px;border-radius:13px}
+.ob-welcome .welcome-steps b{font-size:17px}
+.ob-welcome .welcome-steps span{font-size:15px}
+}

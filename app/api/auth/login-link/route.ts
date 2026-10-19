@@ -3,7 +3,7 @@ import { createAdminLinkToken, readToken, isAdminEmail, createSessionToken, SESS
 import { isKnownAdmin } from '@/lib/admin-users'
 import { serviceDb } from '@/lib/os-supabase'
 import { callerKey, checkThrottle, recordFailure, THROTTLED_MESSAGE } from '@/lib/login-throttle'
-import { sendEmail, SITE_URL, LOGO_URL } from '@/lib/email'
+import { sendEmail, emailShell, SITE_URL } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -12,16 +12,15 @@ function siteOrigin(): string {
 }
 
 function linkEmail(url: string): string {
-  return `<!doctype html><html><body style="margin:0;background:#07040f;font-family:Helvetica,Arial,sans-serif;">
-  <div style="max-width:480px;margin:0 auto;padding:40px 24px;">
-    <div style="border-radius:20px;padding:36px 30px;background:linear-gradient(135deg,#1a0b3d 0%,#0b2a4a 55%,#0E71AC 100%);color:#fff;">
-      <img src="${LOGO_URL}" alt="José Unstoppable" width="44" height="44" style="display:block;border-radius:11px;margin:0 0 22px;" />
-      <h1 style="font-size:22px;margin:0 0 10px;">Your sign-in link</h1>
-      <p style="font-size:15px;line-height:1.55;color:rgba(255,255,255,.8);margin:0 0 26px;">Tap the button to open your admin dashboard. The link works for 15 minutes.</p>
-      <a href="${url}" style="display:inline-block;padding:14px 26px;border-radius:12px;background:#fff;color:#1a0b3d;font-weight:700;font-size:15px;text-decoration:none;">Open the dashboard</a>
-      <p style="font-size:12px;color:rgba(255,255,255,.55);margin:28px 0 0;">If you didn't ask for this, ignore this email. Nobody can sign in without it.</p>
-    </div>
-  </div></body></html>`
+  return emailShell({
+    eyebrow: 'Panel de José',
+    title: 'Tu enlace para entrar',
+    preview: 'Un toque y estás dentro. Caduca en 15 minutos.',
+    body: '<p>Pulsa el botón para abrir tu panel. El enlace funciona durante <strong>15 minutos</strong> y solo una vez.</p>',
+    cta: { label: 'Abrir el panel', href: url },
+    note: 'Si no lo has pedido tú, ignora este email. Nadie puede entrar sin él.',
+    showFooterLinks: false,
+  })
 }
 
 // Sends a one-tap sign-in link to an admin email. The answer is the same for
