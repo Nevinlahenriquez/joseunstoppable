@@ -28,7 +28,7 @@ export default function AvisoLegal() {
       <p>Los contenidos y programas son de entrenamiento y hábitos y no sustituyen el consejo de un médico, nutricionista o psicólogo. Si tienes una lesión, una enfermedad o tomas medicación, consulta con un profesional sanitario antes de empezar.</p>
 
       <h2>Precios, contratación y garantía</h2>
-      <p>Los precios se indican en euros. La contratación de un programa se cierra tras la llamada gratuita, mediante propuesta y pago a través de un proveedor de pagos seguro. La garantía de devolución se aplica en los términos descritos en la propuesta: haber seguido el plan durante los 90 días, completando los entrenos y los check-ins semanales.</p>
+      <p>Los precios se indican en euros. La contratación de un programa se cierra tras la llamada gratuita, mediante propuesta y pago a través de un proveedor de pagos seguro. La garantía de devolución se aplica en los términos descritos en la propuesta: haber seguido el plan durante los 90 días, completando los entrenos y los check-ins semanales. Las condiciones completas están en los <Link href={LINKS.terms}>términos y condiciones</Link>.</p>
 
       <h2>Propiedad intelectual</h2>
       <p>Los textos, imágenes, logotipos y el método publicados en este sitio son propiedad de {OWNER.name} o se usan con permiso. No se permite su reproducción con fines comerciales sin autorización por escrito.</p>

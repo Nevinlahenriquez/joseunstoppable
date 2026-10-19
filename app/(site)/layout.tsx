@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import Header from '@/components/site/Header'
 import Footer from '@/components/site/Footer'
 import ViewTracker from '@/components/site/ViewTracker'
+import WhatsAppFab from '@/components/site/WhatsAppFab'
 import { LANG_BOOT_SCRIPT } from '@/lib/site'
 import './site.css'
 
@@ -32,6 +33,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <Header />
       <main className="site-main">{children}</main>
       <Footer />
+      <WhatsAppFab />
     </>
   )
 }
