@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://joseunstoppable.com'),
   title: 'José Unstoppable',
   robots: { index: false, follow: false },
+  icons: { icon: '/icon.png', apple: '/apple-icon.png' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
