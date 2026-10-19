@@ -123,6 +123,7 @@ export function ContactProfile({ email }: { email: string }) {
     ['Fecha clave', row.key_date],
     ['Compromiso', row.commitment !== null && row.commitment !== undefined ? `${row.commitment}/10` : null],
     ['Inversión', row.budget],
+    ['Listo para empezar', row.ready_to_change],
     ['Entrena', [row.training_days, row.training_place].filter(Boolean).join(' · ')],
   ]
   const shown = facts.filter(([, v]) => v !== null && v !== undefined && v !== '' && v !== 0)

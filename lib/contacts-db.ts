@@ -180,6 +180,8 @@ export function buildContacts(src: { deals: Rows; leads: Rows; bookings: Rows; o
       c.blocker = pick(qa, 'lo que más le frena', 'lo que mas le frena', 'qué le frena', 'que le frena') || c.blocker
       c.key_date = pick(qa, 'fecha clave') || c.key_date
       c.budget = pick(qa, 'inversión', 'inversion') || c.budget
+      c.ready_to_change = pick(qa, 'listo para', 'dispuesto') || c.ready_to_change
+      c.goal_detail = pick(qa, 'objetivo') || c.goal_detail
       const commit = pick(qa, 'compromiso')
       if (commit) c.commitment = num(commit)
     }
