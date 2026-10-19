@@ -14,6 +14,8 @@ import { getPeople } from '@/lib/people'
 import { isLikelySpam } from '@/lib/apply-guard'
 import { confirmAction } from '@/app/admin/ConfirmHost'
 import { EmailText } from '@/components/os/CopyEmail'
+import { activateOnboarding, OnboardingAnswers, OnboardingShare, StatusPill } from '@/components/os/Onboarding'
+import type { OnboardingRow } from '@/lib/onboarding'
 
 type ViewMode = 'pipeline' | 'table' | 'insights'
 
@@ -240,26 +242,10 @@ export default function DealsPage() {
 
   async function openOnboarding(deal: Deal) {
     setOnboarding({ deal, state: 'loading' })
-    try {
-      const res = await fetch('/api/os/learning-platform', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'send-welcome',
-          email: deal.clientEmail,
-          name: deal.clientName,
-        }),
-      })
-      const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data.ok) {
-        setOnboarding({ deal, state: 'error', error: data.error || `Could not send access (${res.status}).` })
-        return
-      }
-      logActivity(deal, 'note', 'Portal access sent')
-      setOnboarding({ deal, state: 'sent' })
-    } catch {
-      setOnboarding({ deal, state: 'error', error: 'Could not reach the server.' })
-    }
+    const r = await activateOnboarding({ name: deal.clientName, email: deal.clientEmail, phone: deal.clientPhone, dealId: deal.id })
+    if (!r.ok) { setOnboarding({ deal, state: 'error', error: r.error }); return }
+    if (!r.existing) logActivity(deal, 'note', 'Onboarding activado')
+    setOnboarding({ deal, state: 'ready', row: r.onboarding })
   }
 
   const headerSub =
@@ -503,7 +489,7 @@ export default function DealsPage() {
                 <button className="os-btn os-btn-sm" onClick={() => convertToProposal(selected)} style={{ background: 'var(--os-deep)', color: 'var(--os-on-deep)', flex: 1, minWidth: 165 }}>
                   <i className="ti ti-file-export" /> Convert to Proposal
                 </button>
-                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Get this client's onboarding link" style={{ background: '#2A98D6', color: '#3a2600', flex: 1, minWidth: 140 }}>
+                <button className="os-btn os-btn-sm" onClick={() => openOnboarding(selected)} title="Activa el onboarding de este cliente" style={{ background: '#2A98D6', color: '#3a2600', flex: 1, minWidth: 140 }}>
                   <i className="ti ti-clipboard-check" /> Onboarding
                 </button>
                 <button className="os-btn os-btn-sm os-btn-ghost" onClick={() => setStage(selected, 'completed')} style={{ color: 'var(--os-good)', borderColor: '#bbf7d0' }}><i className="ti ti-trophy" /> Won</button>
@@ -551,35 +537,30 @@ export default function DealsPage() {
 type OnboardingLink =
   | { deal: Deal; state: 'loading' }
   | { deal: Deal; state: 'error'; error: string }
-
-  | { deal: Deal; state: 'sent' }
+  | { deal: Deal; state: 'ready'; row: OnboardingRow }
 
 function OnboardingLinkModal({ link, onClose }: {
   link: OnboardingLink
   onClose: () => void
-  onShared?: () => void
 }) {
   const deal = link.deal
-  const firstName = deal.clientName.trim().split(/\s+/)[0] || 'there'
 
   return (
     <div style={{ position:'fixed', inset:0, zIndex:400, display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ position:'absolute', inset:0, background:'var(--os-overlay, rgba(26,14,0,.35))', backdropFilter:'blur(4px)' }} onClick={onClose} />
-      <div style={{ position:'relative', background:'var(--os-card)', borderRadius:20, padding:30, width:'100%', maxWidth:460, boxShadow:'0 24px 80px var(--os-line)' }}>
+      <div style={{ position:'relative', background:'var(--os-card)', borderRadius:20, padding:30, width:'100%', maxWidth:500, maxHeight:'90vh', overflowY:'auto', boxShadow:'0 24px 80px var(--os-line)' }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap:12, marginBottom:16 }}>
           <div>
-            <div style={{ fontFamily:'var(--font-sora), Sora, sans-serif', fontSize:18, fontWeight:800, color:'var(--os-text)' }}>
-              Portal access
+            <div style={{ display:'flex', alignItems:'center', gap:8, fontSize:18, fontWeight:800, color:'var(--os-text)' }}>
+              Onboarding {link.state === 'ready' && <StatusPill status={link.row.status} />}
             </div>
-            <div style={{ fontSize:13, color:'var(--os-text-faint)', marginTop:2 }}>
-              {deal.clientName}{deal.clientRole ? ` · ${deal.clientRole}` : ''}
-            </div>
+            <div style={{ fontSize:13, color:'var(--os-text-faint)', marginTop:2 }}>{deal.clientName}</div>
           </div>
           <button onClick={onClose} style={{ width:32, height:32, border:'none', background:'rgba(14,113,172,.1)', borderRadius:8, cursor:'pointer', fontSize:14, color:'var(--os-accent)' }}>✕</button>
         </div>
 
         {link.state === 'loading' && (
-          <p style={{ fontSize:14, color:'var(--os-text-muted)', margin:0 }}>Sending…</p>
+          <p style={{ fontSize:14, color:'var(--os-text-muted)', margin:0 }}>Activando…</p>
         )}
 
         {link.state === 'error' && (
@@ -588,18 +569,16 @@ function OnboardingLinkModal({ link, onClose }: {
           </div>
         )}
 
-        {link.state === 'sent' && (
+        {link.state === 'ready' && (link.row.status === 'completed' ? (
+          <OnboardingAnswers row={link.row} />
+        ) : (
           <>
-            <div style={{ background:'var(--os-good-soft, rgba(31,138,91,.12))', borderRadius:10, padding:'12px 14px', fontSize:14, color:'var(--os-good)', fontWeight:600, marginBottom:12 }}>
-              Sent to {deal.clientEmail}
-            </div>
-            <p style={{ fontSize:13.5, color:'var(--os-text-muted)', lineHeight:1.65, margin:0 }}>
-              {firstName} has their login link and their account is live. Their business details
-              are collected by the portal itself on first login, and they write straight back onto
-              this contact, so there is nothing else to send.
+            <p style={{ fontSize:13.5, color:'var(--os-text-muted)', lineHeight:1.6, margin:'0 0 12px' }}>
+              Su enlace personal está activo. Mándaselo y sus respuestas aparecerán en Onboarding y en su ficha.
             </p>
+            <OnboardingShare row={link.row} />
           </>
-        )}
+        ))}
       </div>
     </div>
   )

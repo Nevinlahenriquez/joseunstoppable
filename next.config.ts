@@ -10,7 +10,6 @@ const nextConfig: NextConfig = {
         { source: '/', destination: '/index.html' },
         { source: '/reserva', destination: '/reserva.html' },
         { source: '/masterclass', destination: '/masterclass.html' },
-        { source: '/onboarding', destination: '/onboarding.html' },
       ],
       afterFiles: [],
       fallback: [],

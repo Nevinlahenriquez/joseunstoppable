@@ -15,6 +15,7 @@ import { CrmDetail, genId, STAGES } from '../../deals/crm-shared'
 import type { Deal, Lead, ActivityType, ActivityEntry } from '@/lib/crm-types'
 import type { EventAttendee } from '@/lib/event-types'
 import { EmailText } from '@/components/os/CopyEmail'
+import { OnboardingCard } from '@/components/os/Onboarding'
 
 const money = (n?: number, cur?: string) => {
   if (n === undefined) return null
@@ -190,8 +191,8 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
             )}
           </div>
 
-          {}
-          {}
+          <OnboardingCard name={name} email={email} phone={phone} dealId={primaryDeal?.id} />
+
           <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
             <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Invoices</div>
             {invoices.length === 0 ? (
