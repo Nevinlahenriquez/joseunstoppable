@@ -42,23 +42,23 @@ export default function RelationshipTimeline({
   return (
     <div className="os-crm-section">
       <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-        <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Relationship history</div>
+        <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Historial</div>
         <span className="os-tag-chip active" title={STATUS_HINT[person.status]}>{STATUS_LABEL[person.status]}</span>
       </div>
 
       {person.totalBilled > 0 && (
         <div style={{ display: 'flex', gap: 16, padding: '8px 10px', background: 'var(--os-good-soft)', borderRadius: 10, margin: '10px 0' }}>
           <div>
-            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Billed</div>
+            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Facturado</div>
             <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-text)' }}>{money(person.totalBilled)}</div>
           </div>
           <div>
-            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Paid</div>
+            <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Pagado</div>
             <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-good)' }}>{money(person.totalPaid)}</div>
           </div>
           {person.totalBilled > person.totalPaid && (
             <div>
-              <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Outstanding</div>
+              <div style={{ fontSize: 10.5, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--os-text-faint)', fontWeight: 700 }}>Pendiente</div>
               <div style={{ fontWeight: 800, fontSize: 14, color: 'var(--os-bad)' }}>{money(person.totalBilled - person.totalPaid)}</div>
             </div>
           )}
@@ -123,7 +123,7 @@ export default function RelationshipTimeline({
 
       {person.events.length > limit && (
         <button className="os-btn os-btn-ghost os-btn-sm" style={{ marginTop: 8 }} onClick={() => setAll(v => !v)}>
-          {all ? 'Show less' : `Show all ${person.events.length}`}
+          {all ? 'Ver menos' : `Ver todo (${person.events.length})`}
         </button>
       )}
     </div>

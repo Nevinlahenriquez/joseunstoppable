@@ -24,7 +24,7 @@ export function useBookings(email?: string | null): BookingRow[] {
   return email ? rows : []
 }
 
-export function CallsList({ email, emptyText = 'No calls booked yet.' }: { email?: string | null; emptyText?: string }) {
+export function CallsList({ email, emptyText = 'Sin llamadas reservadas.' }: { email?: string | null; emptyText?: string }) {
   const rows = useBookings(email)
   const [now] = useState(() => Date.now())
   if (!rows.length) return <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>{emptyText}</div>

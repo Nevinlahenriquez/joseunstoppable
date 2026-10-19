@@ -30,16 +30,16 @@ function invoiceTotal(inv: Invoice): number {
   return sub + (inv.taxes ?? 0)
 }
 
-const money = (n: number, c = 'USD') => {
-  try { return new Intl.NumberFormat('en-US', { style: 'currency', currency: c, maximumFractionDigits: 0 }).format(n) }
+const money = (n: number, c = 'EUR') => {
+  try { return new Intl.NumberFormat('es-ES', { style: 'currency', currency: c, maximumFractionDigits: 0 }).format(n) }
   catch { return `${c} ${Math.round(n)}` }
 }
 
 const STYLE: Record<Action['kind'], { label: string; color: string; soft: string }> = {
-  money:   { label: 'Owed',      color: 'var(--os-bad)',    soft: 'var(--os-bad-soft)' },
-  cold:    { label: 'Going cold', color: 'var(--os-warn)',   soft: 'var(--os-warn-soft)' },
-  promise: { label: 'You said',  color: 'var(--os-accent)',  soft: 'var(--os-accent-soft)' },
-  silent:  { label: 'No reply',  color: 'var(--os-text-faint)', soft: 'var(--os-card-alt)' },
+  money:   { label: 'Por cobrar', color: 'var(--os-bad)',    soft: 'var(--os-bad-soft)' },
+  cold:    { label: 'Enfriándose', color: 'var(--os-warn)',   soft: 'var(--os-warn-soft)' },
+  promise: { label: 'Prometiste',color: 'var(--os-accent)',  soft: 'var(--os-accent-soft)' },
+  silent:  { label: 'Sin respuesta',color: 'var(--os-text-faint)', soft: 'var(--os-card-alt)' },
 }
 
 export function buildActions(deals: Deal[], invoices: Invoice[], proposals: Proposal[]): Action[] {
@@ -54,9 +54,9 @@ export function buildActions(deals: Deal[], invoices: Invoice[], proposals: Prop
     out.push({
       id: `inv-${inv.id}`,
       kind: 'money',
-      who: inv.clientName || inv.clientEmail || 'Client',
-      what: `${money(invoiceTotal(inv), inv.currency)} unpaid, invoice ${inv.number ?? ''}`.trim(),
-      when: late === 1 ? '1 day late' : `${late} days late`,
+      who: inv.clientName || inv.clientEmail || 'Cliente',
+      what: `${money(invoiceTotal(inv), inv.currency)} sin pagar, factura ${inv.number ?? ''}`.trim(),
+      when: late === 1 ? '1 día tarde' : `${late} días tarde`,
       urgent: late >= 7,
       href: '/admin/invoices',
     })
@@ -70,8 +70,8 @@ export function buildActions(deals: Deal[], invoices: Invoice[], proposals: Prop
       id: `cold-${d.id}`,
       kind: 'cold',
       who: d.clientName || d.clientEmail || 'Lead',
-      what: d.service || d.stage || 'In the pipeline',
-      when: h >= 48 ? `${Math.floor(h / 24)} days since contact` : `${Math.floor(h)}h since contact`,
+      what: d.service || d.stage || 'En el pipeline',
+      when: h >= 48 ? `${Math.floor(h / 24)} días sin contacto` : `${Math.floor(h)} h sin contacto`,
       urgent: h >= 96,
       href: `/admin/contacts/${encodeURIComponent(d.clientEmail || '')}`,
     })
@@ -87,7 +87,7 @@ export function buildActions(deals: Deal[], invoices: Invoice[], proposals: Prop
       kind: 'promise',
       who: d.clientName || d.clientEmail || 'Lead',
       what: d.nextStep,
-      when: late <= 0 ? 'Due today' : late === 1 ? '1 day overdue' : `${late} days overdue`,
+      when: late <= 0 ? 'Hoy' : late === 1 ? '1 día tarde' : `${late} días tarde`,
       urgent: late >= 3,
       href: `/admin/contacts/${encodeURIComponent(d.clientEmail || '')}`,
     })
@@ -100,9 +100,9 @@ export function buildActions(deals: Deal[], invoices: Invoice[], proposals: Prop
     out.push({
       id: `prop-${p.id}`,
       kind: 'silent',
-      who: p.clientName || p.clientEmail || 'Client',
-      what: `${p.title || 'Proposal'} sent, not signed`,
-      when: `${age} days ago`,
+      who: p.clientName || p.clientEmail || 'Cliente',
+      what: `${p.title || 'Propuesta'} enviada, sin firmar`,
+      when: `hace ${age} días`,
       urgent: age >= 10,
       href: '/admin/proposals',
     })
@@ -125,21 +125,21 @@ export default function ActionCenter({ deals, invoices, proposals }: Props) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: actions.length ? 14 : 0, flexWrap: 'wrap' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span className="os-card-title">What needs you today</span>
+            <span className="os-card-title">Para hoy</span>
             {urgent > 0 && (
               <span style={{ background: 'var(--os-bad-soft)', color: 'var(--os-bad)', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 800 }}>
-                {urgent} urgent
+                {urgent} {urgent === 1 ? 'urgente' : 'urgentes'}
               </span>
             )}
           </div>
           <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginTop: 4 }}>
             {actions.length === 0
-              ? 'Nothing overdue. Every lead has been touched and no invoice is late.'
-              : `${actions.length} thing${actions.length === 1 ? '' : 's'} waiting, most costly first.`}
+              ? 'Todo al día: ningún lead olvidado y ninguna factura atrasada.'
+              : `${actions.length} ${actions.length === 1 ? 'cosa pendiente' : 'cosas pendientes'}, lo más importante primero.`}
           </div>
         </div>
         <Link href="/admin/deals" className="os-btn os-btn-ghost os-btn-sm" style={{ padding: '7px 15px', fontSize: 12.5, textDecoration: 'none' }}>
-          Open pipeline
+          Abrir Leads
         </Link>
       </div>
 
@@ -160,7 +160,7 @@ export default function ActionCenter({ deals, invoices, proposals }: Props) {
             >
               {}
               <span style={{ width: 3, alignSelf: 'stretch', minHeight: 30, borderRadius: 3, background: s.color, flexShrink: 0 }} />
-              <span style={{
+              <span className="os-action-kind" style={{
                 background: s.soft, color: s.color, borderRadius: 999,
                 padding: '3px 10px', fontSize: 10.5, fontWeight: 800,
                 letterSpacing: '.06em', textTransform: 'uppercase', flexShrink: 0, whiteSpace: 'nowrap',
@@ -175,7 +175,7 @@ export default function ActionCenter({ deals, invoices, proposals }: Props) {
                   {a.what}
                 </span>
               </span>
-              <span style={{
+              <span className="os-action-when" style={{
                 fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap', flexShrink: 0,
                 color: a.urgent ? 'var(--os-bad)' : 'var(--os-text-faint)',
                 fontVariantNumeric: 'tabular-nums',
@@ -187,7 +187,7 @@ export default function ActionCenter({ deals, invoices, proposals }: Props) {
         })}
         {actions.length > shown.length && (
           <div style={{ paddingTop: 12, fontSize: 12.5, color: 'var(--os-text-faint)' }}>
-            and {actions.length - shown.length} more in the pipeline.
+            y {actions.length - shown.length} más en Leads.
           </div>
         )}
       </div>

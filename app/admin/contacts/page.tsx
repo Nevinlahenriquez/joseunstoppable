@@ -56,10 +56,10 @@ function statusMeta(v: string) {
 
 function timeAgo(iso: string) {
   const d = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000)
-  if (d === 0) return 'Today'
-  if (d === 1) return 'Yesterday'
-  if (d < 30) return `${d}d ago`
-  if (d < 365) return `${Math.floor(d / 30)}mo ago`
+  if (d === 0) return 'Hoy'
+  if (d === 1) return 'Ayer'
+  if (d < 30) return `hace ${d} d`
+  if (d < 365) return `hace ${Math.floor(d / 30)} m`
   return `${Math.floor(d / 365)}y ago`
 }
 
@@ -178,8 +178,8 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
       <div style={{ position: 'relative', background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', borderRadius: 20, padding: 32, width: '100%', maxWidth: 560, boxShadow: '0 24px 80px rgba(0,0,0,0.18)', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
           <div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>Import Contacts</div>
-            <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginTop: 2 }}>CSV with name, email, phone, company columns</div>
+            <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>Importar contactos</div>
+            <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginTop: 2 }}>CSV con columnas nombre, email, teléfono</div>
           </div>
           <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', background: 'var(--os-line)', borderRadius: 8, cursor: 'pointer', fontSize: 16, color: 'var(--os-text-faint)' }}>✕</button>
         </div>
@@ -188,8 +188,8 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
           <div style={{ textAlign: 'center', padding: '32px 0' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--os-good)', marginBottom: 8 }}>{done} contacts imported</div>
-            <div style={{ fontSize: 14, color: 'var(--os-text-faint)', marginBottom: 24 }}>They are now in your Contacts list</div>
-            <button onClick={onClose} className="os-btn os-btn-primary">Done</button>
+            <div style={{ fontSize: 14, color: 'var(--os-text-faint)', marginBottom: 24 }}>Ya están en tus contactos</div>
+            <button onClick={onClose} className="os-btn os-btn-primary">Listo</button>
           </div>
         ) : (
           <>
@@ -209,7 +209,7 @@ function CSVImportModal({ onClose, onImported }: { onClose: () => void; onImport
                 </div>
               ) : (
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--os-accent)' }}>Drop CSV here or click to browse</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--os-accent)' }}>Suelta el CSV aquí o pulsa para elegirlo</div>
                   <div style={{ fontSize: 12, color: 'var(--os-text-faint)', marginTop: 4 }}>Accepts: name, email, phone, company, notes</div>
                 </div>
               )}
@@ -295,18 +295,18 @@ function ContactModal({ contact, onClose, onSaved }: { contact?: Lead; onClose: 
       <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', backdropFilter: 'blur(4px)' }} onClick={onClose} />
       <div style={{ position: 'relative', background: 'var(--os-base-2, var(--os-card))', backgroundImage: 'var(--os-card-image, none)', borderRadius: 20, padding: 32, width: '100%', maxWidth: 480, boxShadow: '0 24px 80px rgba(0,0,0,0.15)', maxHeight: '90vh', overflowY: 'auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>{contact ? 'Edit Contact' : 'New Contact'}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--os-text)' }}>{contact ? 'Editar contacto' : 'Nuevo contacto'}</div>
           <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', background: 'var(--os-line)', borderRadius: 8, cursor: 'pointer', fontSize: 16, color: 'var(--os-text-faint)' }}>✕</button>
         </div>
         <form className="os-form" onSubmit={submit}>
           <div className="os-form-row">
             <div className="os-form-group">
               <label className="os-label">Full Name *</label>
-              <input className="os-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Jane Doe" />
+              <input className="os-input" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ana García" />
             </div>
             <div className="os-form-group">
               <label className="os-label">Email</label>
-              <input className="os-input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="jane@email.com" />
+              <input className="os-input" type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="ana@email.com" />
             </div>
           </div>
           <div className="os-form-row">
@@ -320,22 +320,22 @@ function ContactModal({ contact, onClose, onSaved }: { contact?: Lead; onClose: 
             </div>
           </div>
           <div className="os-form-group">
-            <label className="os-label">Status</label>
+            <label className="os-label">Estado</label>
             <select className="os-select" value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
               {CONTACT_STATUSES.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
           <div className="os-form-row">
             <div className="os-form-group">
-              <label className="os-label">Source</label>
+              <label className="os-label">Origen</label>
               <select className="os-select" value={form.source} onChange={e => setForm(f => ({ ...f, source: e.target.value }))}>
                 <option value="manual">Manual</option>
                 <option value="workshop">Workshop</option>
-                <option value="referral">Referral</option>
+                <option value="referral">Recomendación</option>
                 <option value="web-form">Formulario web</option>
-                <option value="social">Social Media</option>
+                <option value="social">Redes sociales</option>
                 <option value="whatsapp">WhatsApp</option>
-                <option value="csv-import">CSV Import</option>
+                <option value="csv-import">Importado CSV</option>
               </select>
             </div>
             <div className="os-form-group">
@@ -344,10 +344,10 @@ function ContactModal({ contact, onClose, onSaved }: { contact?: Lead; onClose: 
             </div>
           </div>
           <div className="os-form-group">
-            <label className="os-label">Notes</label>
-            <textarea className="os-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="What do they need? Where are they in their journey?" />
+            <label className="os-label">Notas</label>
+            <textarea className="os-textarea" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="¿Qué necesita? ¿En qué punto está?" />
           </div>
-          <button type="submit" className="os-btn os-btn-primary">{contact ? 'Save Changes' : 'Add Contact'}</button>
+          <button type="submit" className="os-btn os-btn-primary">{contact ? 'Guardar cambios' : 'Añadir contacto'}</button>
         </form>
       </div>
     </div>
@@ -506,30 +506,30 @@ export default function ContactsPage() {
 
   const hasSelection = selected.size > 0
   const tabs: { key: 'all' | PersonState; label: string; n: number }[] = [
-    { key: 'all', label: 'Everyone', n: visible.length },
+    { key: 'all', label: 'Todos', n: visible.length },
     ...PERSON_STATES.filter(st => st.value !== 'spam').map(st => ({
       key: st.value, label: st.label, n: visible.filter(r => r.states.includes(st.value)).length,
     })),
-    { key: 'spam' as const, label: 'Likely spam', n: spamCount },
+    { key: 'spam' as const, label: 'Posible spam', n: spamCount },
   ]
 
   return (
     <>
       <div className="os-page-header">
         <div>
-          <div className="os-page-title">Contacts</div>
+          <div className="os-page-title">Contactos</div>
           <div className="os-page-sub">
-            {visible.length} {visible.length === 1 ? 'person' : 'people'}
+            {visible.length} {visible.length === 1 ? 'persona' : 'personas'}
             {spamCount > 0 && ` · ${spamCount} filtered as spam`}
             {importCount > 0 && ` · ${importCount} imported`}
           </div>
         </div>
         <div className="os-page-actions" style={{ display: 'flex', gap: 10 }}>
           <button className="os-btn os-btn-ghost" onClick={() => setShowImport(true)}>
-            <i className="ti ti-upload" /> Import CSV
+            <i className="ti ti-upload" /> Importar CSV
           </button>
           <button className="os-btn os-btn-primary" onClick={() => { setEditContact(undefined); setShowAdd(true) }}>
-            <i className="ti ti-plus" /> Add Contact
+            <i className="ti ti-plus" /> Nuevo contacto
           </button>
         </div>
       </div>
@@ -565,13 +565,13 @@ export default function ContactsPage() {
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
-            placeholder="Search name, email, company, event..."
+            placeholder="Buscar nombre, email, evento…"
             style={{ width: '100%', padding: '9px 12px 9px 36px', border: '1.5px solid var(--os-line)', borderRadius: 10, fontSize: 14, outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--os-text)', background: 'var(--os-card)' }}
           />
         </div>
         {allCountries.length > 0 && (
           <select value={countryFilter} onChange={e => setCountryFilter(e.target.value)} style={selectStyle}>
-            <option value="all">All countries</option>
+            <option value="all">Todos los países</option>
             {allCountries.map(c => <option key={c} value={c}>{c}</option>)}
           </select>
         )}
@@ -582,7 +582,7 @@ export default function ContactsPage() {
           </select>
         )}
         <select value={lastContactedFilter} onChange={e => setLastContactedFilter(e.target.value)} style={selectStyle}>
-          <option value="all">Any time</option>
+          <option value="all">Cualquier fecha</option>
           <option value="7d">Active in last 7 days</option>
           <option value="30d">Active in last 30 days</option>
           <option value="stale">Nothing in 30+ days</option>
@@ -592,7 +592,7 @@ export default function ContactsPage() {
             {(['all', ...allTags]).map(t => (
               <button key={t} onClick={() => setTagFilter(t)}
                 style={{ padding: '6px 14px', borderRadius: 20, cursor: 'pointer', fontWeight: 600, fontSize: 12, background: tagFilter === t ? 'var(--os-accent)' : 'var(--os-card)', color: tagFilter === t ? '#fff' : 'var(--os-text-muted)', border: tagFilter === t ? 'none' : '1px solid var(--os-line)' }}>
-                {t === 'all' ? 'All tags' : t}
+                {t === 'all' ? 'Todas las etiquetas' : t}
               </button>
             ))}
           </div>
@@ -602,10 +602,10 @@ export default function ContactsPage() {
       {hasSelection && (
         <div style={{ background: 'var(--os-line)', border: '1px solid #c4b5fd', borderRadius: 12, padding: '10px 16px', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
           <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--os-accent)' }}>{selected.size} selected</span>
-          <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => exportCSV(true)}><i className="ti ti-download" /> Export selected</button>
+          <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => exportCSV(true)}><i className="ti ti-download" /> Exportar selección</button>
           <button className="os-btn os-btn-ghost os-btn-sm" onClick={sendBulkWhatsApp} title="WhatsApp has no true bulk send. This opens a chat with the first selected contact."><i className="ti ti-brand-whatsapp" /> WhatsApp first</button>
           <button className="os-btn os-btn-ghost os-btn-sm" style={{ color: '#e53e3e', borderColor: 'rgba(229,62,62,.35)' }} onClick={bulkDelete}><i className="ti ti-trash" /> Delete {selected.size}</button>
-          <button className="os-btn os-btn-ghost os-btn-sm" style={{ marginLeft: 'auto' }} onClick={() => setSelected(new Set())}>Clear</button>
+          <button className="os-btn os-btn-ghost os-btn-sm" style={{ marginLeft: 'auto' }} onClick={() => setSelected(new Set())}>Limpiar</button>
         </div>
       )}
 
@@ -613,8 +613,8 @@ export default function ContactsPage() {
         {filtered.length === 0 ? (
           <div className="os-empty">
             <i className="ti ti-users" />
-            <div className="os-empty-title">{search || stateFilter !== 'all' || tagFilter !== 'all' ? 'Nobody matches' : 'No contacts yet'}</div>
-            <div className="os-empty-sub">Import a CSV or add contacts manually to get started</div>
+            <div className="os-empty-title">{search || stateFilter !== 'all' || tagFilter !== 'all' ? 'Nadie coincide' : 'Aún no hay contactos'}</div>
+            <div className="os-empty-sub">Importa un CSV o añade contactos a mano</div>
           </div>
         ) : narrow ? (
 
@@ -626,7 +626,7 @@ export default function ContactsPage() {
                 <div className="os-pcard-top">
                   <div className="os-pcard-av" style={{ background: avatarBgOf(r.name || r.email) }}>{initialsOf(r.name || r.email)}</div>
                   <div style={{ minWidth: 0, flex: 1 }}>
-                    <div className="os-pcard-name">{r.name || r.email || 'Unnamed'}</div>
+                    <div className="os-pcard-name">{r.name || r.email || 'Sin nombre'}</div>
                     {r.company && <div className="os-pcard-sub">{r.company}</div>}
                   </div>
                 </div>
@@ -649,12 +649,12 @@ export default function ContactsPage() {
                   <th style={{ width: 34 }}>
                     <input type="checkbox" checked={selected.size === filtered.length && filtered.length > 0} onChange={selectAll} style={{ cursor: 'pointer' }} />
                   </th>
-                  <th>Contact</th>
-                  <th>States</th>
+                  <th>Contacto</th>
+                  <th>Estado</th>
                   <th>Company</th>
-                  <th>Phone</th>
-                  <th>Tags</th>
-                  <th>Last seen</th>
+                  <th>Teléfono</th>
+                  <th>Objetivos</th>
+                  <th>Última vez</th>
                   <th></th>
                 </tr>
               </thead>
@@ -718,7 +718,7 @@ export default function ContactsPage() {
       {filtered.length > 0 && (
         <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
           <button className="os-btn os-btn-ghost os-btn-sm" onClick={() => exportCSV()}>
-            <i className="ti ti-download" /> Export {filtered.length}
+            <i className="ti ti-download" /> Exportar {filtered.length}
           </button>
         </div>
       )}

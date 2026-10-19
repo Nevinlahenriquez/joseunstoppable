@@ -29,22 +29,22 @@ export type PersonState =
   | 'spam'
 
 export const PERSON_STATES: { value: PersonState; label: string; tone: 'good' | 'accent' | 'warn' | 'bad' | 'muted' }[] = [
-  { value: 'client',     label: 'Live client',      tone: 'good' },
+  { value: 'client',     label: 'Cliente activo',      tone: 'good' },
   { value: 'onboarding', label: 'Onboarding',       tone: 'good' },
   { value: 'circle',     label: 'Miembro',    tone: 'accent' },
-  { value: 'retainer',   label: 'On a retainer',    tone: 'good' },
-  { value: 'pipeline',   label: 'In lead pipeline', tone: 'accent' },
-  { value: 'booked',     label: 'Call booked',      tone: 'accent' },
-  { value: 'enquiry',    label: 'Enquiry',          tone: 'accent' },
-  { value: 'attendee',   label: 'Event attendee',   tone: 'warn' },
-  { value: 'attended',   label: 'Attended an event',tone: 'warn' },
-  { value: 'subscriber', label: 'Subscriber',       tone: 'muted' },
-  { value: 'proposal',   label: 'Proposal sent',    tone: 'accent' },
-  { value: 'invoiced',   label: 'Invoiced',         tone: 'good' },
-  { value: 'portal',     label: 'Portal access',    tone: 'good' },
-  { value: 'past',       label: 'Past client',      tone: 'muted' },
-  { value: 'lost',       label: 'Lost',             tone: 'muted' },
-  { value: 'spam',       label: 'Likely spam',      tone: 'bad' },
+  { value: 'retainer',   label: 'Cuota mensual',    tone: 'good' },
+  { value: 'pipeline',   label: 'En el pipeline', tone: 'accent' },
+  { value: 'booked',     label: 'Llamada reservada',      tone: 'accent' },
+  { value: 'enquiry',    label: 'Consulta',          tone: 'accent' },
+  { value: 'attendee',   label: 'Apuntado a evento',   tone: 'warn' },
+  { value: 'attended',   label: 'Fue a un evento',tone: 'warn' },
+  { value: 'subscriber', label: 'Suscriptor',       tone: 'muted' },
+  { value: 'proposal',   label: 'Propuesta enviada',    tone: 'accent' },
+  { value: 'invoiced',   label: 'Facturado',         tone: 'good' },
+  { value: 'portal',     label: 'Acceso al portal',    tone: 'good' },
+  { value: 'past',       label: 'Excliente',      tone: 'muted' },
+  { value: 'lost',       label: 'Perdido',             tone: 'muted' },
+  { value: 'spam',       label: 'Posible spam',      tone: 'bad' },
 ]
 
 export const stateMeta = (v: PersonState) =>

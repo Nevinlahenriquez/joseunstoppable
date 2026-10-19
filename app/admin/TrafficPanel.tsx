@@ -87,10 +87,10 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
   const t = data?.totals
   const stats = [
 
-    { label: 'Visitors', value: t ? nf.format(t.visitors) : '0', note: 'Unique people' },
-    { label: 'Page views', value: t ? nf.format(t.pageViews) : '0', note: 'Pages opened' },
-    { label: 'Leads', value: t ? nf.format(t.leads) : '0', note: 'Forms completed' },
-    { label: 'Conversion', value: t ? `${t.conversion}%` : '0%', note: 'Visitor to lead' },
+    { label: 'Visitas', value: t ? nf.format(t.visitors) : '0', note: 'Personas únicas' },
+    { label: 'Páginas vistas', value: t ? nf.format(t.pageViews) : '0', note: 'Páginas abiertas' },
+    { label: 'Leads', value: t ? nf.format(t.leads) : '0', note: 'Formularios enviados' },
+    { label: 'Conversión', value: t ? `${t.conversion}%` : '0%', note: 'De visita a lead' },
   ]
 
   const maxPage = Math.max(1, ...(data?.topPages ?? []).map(p => p.views))
@@ -108,13 +108,13 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
           padding: '14px 20px', marginBottom: 22, textDecoration: 'none',
         }}
       >
-        <span className="os-card-title" style={{ flexShrink: 0 }}>Funnel, 30 days</span>
+        <span className="os-card-title" style={{ flexShrink: 0 }}>Web, últimos 30 días</span>
 
         {}
         {ok && [
-          ['Visitors', nf.format(t!.visitors)],
-          ['Leads', nf.format(t!.leads)],
-          ['Converted', `${t!.conversion}%`],
+          ['visitas', nf.format(t!.visitors)],
+          ['leads', nf.format(t!.leads)],
+          ['conversión', `${t!.conversion}%`],
         ].map(([label, value]) => (
           <span key={label} style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
             <span style={{ fontFamily: 'var(--font-sora), Sora, sans-serif', fontWeight: 800, fontSize: 19, color: 'var(--os-text)', fontVariantNumeric: 'tabular-nums' }}>
@@ -124,14 +124,14 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
           </span>
         ))}
 
-        {loading && <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>Reading traffic</span>}
+        {loading && <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>Cargando…</span>}
         {!loading && !ok && (
           <span style={{ fontSize: 12.5, color: 'var(--os-text-faint)' }}>
-            No visitors recorded yet. This fills up once ads send traffic.
+            Aún no hay visitas registradas. Se llena cuando llegue tráfico.
           </span>
         )}
         <span style={{ marginLeft: 'auto', fontSize: 12.5, fontWeight: 700, color: 'var(--os-accent)', whiteSpace: 'nowrap' }}>
-          Full insights &rarr;
+          Ver más &rarr;
         </span>
       </Link>
     )
@@ -141,7 +141,7 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
     <section style={{ marginBottom: 22 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, flexWrap: 'wrap', gap: 10 }}>
         <div>
-          <div className="os-card-title">Traffic and funnels</div>
+          <div className="os-card-title">Tráfico y embudos</div>
           <div style={{ fontSize: 13, color: 'var(--os-text-faint)', marginTop: 3 }}>
             Where people came from, what they opened, and which funnel turned them into a lead.
           </div>
@@ -168,7 +168,7 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
       {}
       {!loading && data && !data.ok && (
         <div className="os-card" style={{ padding: '18px 20px', fontSize: 13.5, color: 'var(--os-text-muted)' }}>
-          Traffic data is not readable yet. {data.error ? `Reason: ${data.error}` : 'The analytics store is not configured.'}
+          Aún no se pueden leer los datos de tráfico. {data.error ? `Motivo: ${data.error}` : 'Falta configurar la analítica.'}
         </div>
       )}
 
@@ -192,7 +192,7 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
 
           <div className="os-card" style={{ padding: '20px 22px', marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div className="os-card-title">Visitors per day</div>
+              <div className="os-card-title">Visitas por día</div>
               {data?.capped && (
                 <div style={{ fontSize: 11, color: 'var(--os-warn)' }}>Showing the most recent 20,000 events</div>
               )}
@@ -202,29 +202,29 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 14, marginBottom: 14 }}>
             <div className="os-card" style={{ padding: '20px 22px' }}>
-              <div className="os-card-title" style={{ marginBottom: 10 }}>Most visited pages</div>
+              <div className="os-card-title" style={{ marginBottom: 10 }}>Páginas más vistas</div>
               {(data?.topPages ?? []).map(p => (
                 <BarRow key={p.path} label={p.path} value={p.views} max={maxPage} suffix="views" href={p.path} />
               ))}
               {!loading && !data?.topPages?.length && (
-                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nothing yet.</div>
+                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nada todavía.</div>
               )}
             </div>
 
             <div className="os-card" style={{ padding: '20px 22px' }}>
-              <div className="os-card-title" style={{ marginBottom: 10 }}>Where they came from</div>
+              <div className="os-card-title" style={{ marginBottom: 10 }}>De dónde vienen</div>
               {(data?.sources ?? []).map(s => (
                 <BarRow key={s.source} label={s.source} value={s.visitors} max={maxSource} suffix="people" />
               ))}
               {!loading && !data?.sources?.length && (
-                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nothing yet.</div>
+                <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Nada todavía.</div>
               )}
             </div>
           </div>
 
           <div className="os-card" style={{ padding: '20px 22px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <div className="os-card-title">Funnel performance</div>
+              <div className="os-card-title">Embudos</div>
               <Link href="/admin/funnel" className="os-btn os-btn-ghost os-btn-sm" style={{ padding: '6px 14px', fontSize: 12, textDecoration: 'none' }}>
                 All funnels
               </Link>
@@ -233,11 +233,11 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
               <table style={{ width: '100%', minWidth: 520 }}>
                 <thead>
                   <tr>
-                    <th style={{ padding: '8px 10px 8px 0' }}>Funnel</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Visitors</th>
+                    <th style={{ padding: '8px 10px 8px 0' }}>Embudo</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Visitas</th>
                     <th style={{ padding: '8px 10px', textAlign: 'right' }}>Leads</th>
-                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Sales</th>
-                    <th style={{ padding: '8px 0 8px 10px', width: '30%' }}>Conversion</th>
+                    <th style={{ padding: '8px 10px', textAlign: 'right' }}>Ventas</th>
+                    <th style={{ padding: '8px 0 8px 10px', width: '30%' }}>Conversión</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -267,7 +267,7 @@ export default function TrafficPanel({ compact = false }: { compact?: boolean })
                 </tbody>
               </table>
               {!loading && !data?.funnels?.length && (
-                <div style={{ fontSize: 13, color: 'var(--os-text-faint)', paddingTop: 8 }}>No funnel activity in this window.</div>
+                <div style={{ fontSize: 13, color: 'var(--os-text-faint)', paddingTop: 8 }}>Sin actividad en este periodo.</div>
               )}
             </div>
           </div>

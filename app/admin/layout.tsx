@@ -26,6 +26,8 @@ type NavItem = {
 }
 type NavGroup = { id: string; title: string; items: NavItem[] }
 
+// Inicio on its own, then four short sections that start closed; the one
+// holding the current page opens by itself.
 const NAV_GROUPS: NavGroup[] = [
   {
     id: 'home',
@@ -35,18 +37,14 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    id: 'sales',
-    title: 'Ventas',
+    id: 'clients',
+    title: 'Clientes',
     items: [
       { href: '/admin/deals',    icon: 'leads', label: 'Leads' },
       { href: '/admin/bookings', icon: 'bookings', label: 'Llamadas' },
-      { href: '/admin/events',   icon: 'events', label: 'Eventos' },
+      { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(14,113,172,.14)', badgeColor: 'var(--os-accent)' },
       { href: '/admin/onboarding', icon: 'forms', label: 'Onboarding' },
       { href: '/admin/portal',   icon: 'clients', label: 'Portal clientes' },
-      { href: '/admin/contacts', icon: 'contacts', label: 'Contactos', badgeKey: 'contacts', badgeBg: 'rgba(14,113,172,.14)', badgeColor: 'var(--os-accent)' },
-      { href: '/admin/links',    icon: 'funnels', label: 'Link en bio' },
-      { href: '/admin/attribution', icon: 'insights', label: 'Anuncios vs directo' },
-      { href: '/admin/offers',   icon: 'offers', label: 'Ofertas' },
     ],
   },
   {
@@ -59,6 +57,16 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
+    id: 'growth',
+    title: 'Marketing',
+    items: [
+      { href: '/admin/events',   icon: 'events', label: 'Eventos' },
+      { href: '/admin/links',    icon: 'funnels', label: 'Link en bio' },
+      { href: '/admin/offers',   icon: 'offers', label: 'Ofertas' },
+      { href: '/admin/attribution', icon: 'insights', label: 'Anuncios vs directo' },
+    ],
+  },
+  {
     id: 'settings',
     title: 'Ajustes',
     items: [
@@ -67,7 +75,9 @@ const NAV_GROUPS: NavGroup[] = [
   },
 ]
 
-const DEFAULT_OPEN = ['paid', 'sales']
+const DEFAULT_OPEN: string[] = []
+// v2: sections start closed; older saved choices kept them all open.
+const NAV_OPEN_KEY = 'ju_nav_open_v2'
 
 const TAB_BAR: NavItem[] = [
   { href: '/admin',          icon: 'dashboard', label: 'Inicio' },
@@ -101,9 +111,9 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
       {onClose ? (
         <div className="os-logo os-sheet-head">
           <div className="os-logo-text">
-            <div className="os-logo-name">Menu</div>
+            <div className="os-logo-name">Menú</div>
           </div>
-          <button className="os-sidebar-close" onClick={onClose} aria-label="Close menu">✕</button>
+          <button className="os-sidebar-close" onClick={onClose} aria-label="Cerrar menú">✕</button>
         </div>
       ) : (
         <div className="os-logo">
@@ -121,8 +131,8 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
           <button
             className="os-collapse-btn"
             onClick={onToggle}
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            title={collapsed ? 'Expand' : 'Collapse'}
+            aria-label={collapsed ? 'Abrir menú' : 'Plegar menú'}
+            title={collapsed ? 'Abrir' : 'Plegar'}
           >
             {collapsed ? '›' : '‹'}
           </button>
@@ -190,27 +200,20 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
       <div className="os-sidebar-footer">
         {!collapsed ? (
           <>
-            <div className="os-agent">
-              <div className="os-agent-avatar" style={who?.staff ? { background: 'linear-gradient(150deg,#0891b2,var(--os-good))' } : undefined}>{who?.staff ? 'T' : <Image src="/images/jose-avatar.jpg" alt="José" width={36} height={36} priority style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />}</div>
-              <div style={{ minWidth: 0 }}>
-                <div className="os-agent-name">{who?.label ?? 'José Unstoppable'}</div>
-                <div className="os-agent-role">{who?.sub ?? 'José Unstoppable'}</div>
-              </div>
-            </div>
-            {}
-            <ThemeToggle variant="row" />
-            <Link href="/" className="os-back-link" onClick={onClose}>
-              ← Back to website
+            <Link href="/" className="os-site-link" onClick={onClose}>
+              <span className="os-site-link-mark">José <b>Unstoppable</b></span>
+              <span className="os-site-link-sub">Volver a la web <i className="ti ti-arrow-up-right" /></span>
             </Link>
-            <a href="/api/auth/logout" className="os-back-link" style={{ color: 'var(--os-bad)' }}>
-              Sign out
-            </a>
+            <div className="os-footer-row">
+              <ThemeToggle />
+              <a href="/api/auth/logout" className="os-signout"><i className="ti ti-logout" /> Cerrar sesión</a>
+            </div>
           </>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
             <div className="os-agent-avatar" style={{ width: 30, height: 30, fontSize: 12 }}><Image src="/images/jose-avatar.jpg" alt="José" width={30} height={30} priority style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} /></div>
             <ThemeToggle />
-            <Link href="/" className="os-back-link" style={{ fontSize: 15, padding: 4 }} title="Back to website">←</Link>
+            <Link href="/" className="os-site-link-mini" title="Volver a la web"><i className="ti ti-world" /></Link>
           </div>
         )}
       </div>
@@ -240,7 +243,7 @@ export default function OsLayout({ children }: { children: React.ReactNode }) {
 
     const saved = localStorage.getItem('ju_sidebar_collapsed')
     if (saved === '1') setCollapsed(true)
-    const savedGroups = localStorage.getItem('ju_nav_open')
+    const savedGroups = localStorage.getItem(NAV_OPEN_KEY)
     if (savedGroups !== null) {
       try { setOpenGroups(JSON.parse(savedGroups) as string[]) } catch {  }
     }
@@ -263,7 +266,7 @@ export default function OsLayout({ children }: { children: React.ReactNode }) {
   function toggleGroup(id: string) {
     setOpenGroups(prev => {
       const next = prev.includes(id) ? prev.filter(g => g !== id) : [...prev, id]
-      localStorage.setItem('ju_nav_open', JSON.stringify(next))
+      localStorage.setItem(NAV_OPEN_KEY, JSON.stringify(next))
       return next
     })
   }
@@ -348,10 +351,10 @@ export default function OsLayout({ children }: { children: React.ReactNode }) {
           className={`os-tab os-tab-menu${menuOpen ? ' active' : ''}`}
           onClick={() => setMenuOpen(true)}
           aria-expanded={menuOpen}
-          aria-label="Open menu"
+          aria-label="Abrir menú"
         >
           <span className="os-tab-icon" aria-hidden="true"><OsIcon name="menu" size={22} strokeWidth={1.9} /></span>
-          <span className="os-tab-label">Menu</span>
+          <span className="os-tab-label">Menú</span>
         </button>
       </nav>
 
