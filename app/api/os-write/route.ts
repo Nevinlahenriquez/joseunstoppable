@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isAdminRequest } from '@/lib/auth'
+import { CLIENT_STAGES, ensureOnboardingForDeal, notifyClientClosed } from '@/lib/onboarding-server'
 
 export const runtime = 'nodejs'
 
@@ -25,8 +26,18 @@ export async function POST(req: NextRequest) {
 
     if (op === 'upsert') {
       if (!row || !row.id) return NextResponse.json({ ok: false, error: 'missing row' }, { status: 400 })
+      // A deal that just became a client starts its onboarding (link emailed to them).
+      const becameClient = table === 'deals' && CLIENT_STAGES.includes(String(row.stage ?? ''))
+      const before = becameClient ? (await sb.from('deals').select('stage').eq('id', row.id).maybeSingle()).data : null
       const { error } = await sb.from(table).upsert(row, { onConflict: 'id' })
       if (error) return NextResponse.json({ ok: false, error: error.message })
+      if (becameClient && !CLIENT_STAGES.includes(String(before?.stage ?? ''))) {
+        const [ob] = await Promise.all([
+          ensureOnboardingForDeal(sb, row as { id: string }).catch(() => null),
+          notifyClientClosed(row).catch(() => {}),
+        ])
+        if (ob) return NextResponse.json({ ok: true, onboarding: { token: ob.row.token, created: ob.created, emailed: ob.emailed } })
+      }
       return NextResponse.json({ ok: true })
     }
     if (op === 'delete') {

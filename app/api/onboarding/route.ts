@@ -4,6 +4,7 @@ import { detectSpam, SPAM_REJECTION } from '@/lib/anti-spam'
 import { sendEmail, wrapEmail, detailRows, OWNER_EMAIL, SITE_URL } from '@/lib/email'
 import { escapeHtml } from '@/lib/escape-html'
 import { answerRows, cleanAnswers, newToken, SECTIONS, sectionDone, str } from '@/lib/onboarding'
+import { writeAnswersToDeal } from '@/lib/onboarding-server'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -47,13 +48,14 @@ export async function POST(req: NextRequest) {
 
   if (token) {
     if (!TOKEN_RE.test(token)) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
-    const { data } = await db.from('onboardings').select('id, name, email, phone, completed_at').eq('token', token).maybeSingle()
+    const { data } = await db.from('onboardings').select('id, name, email, phone, deal_id, completed_at').eq('token', token).maybeSingle()
     if (!data) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
     firstTime = !data.completed_at
     const { error } = await db.from('onboardings')
       .update({ answers, status: 'completed', completed_at: now, opened_at: now, ...(data.name ? {} : { name: str(answers, 'nombre') }) })
       .eq('id', data.id)
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
+    if (data.deal_id) await writeAnswersToDeal(db, data.deal_id, answers).catch(() => {})
     row = data
   } else {
     const id = 'ob-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
