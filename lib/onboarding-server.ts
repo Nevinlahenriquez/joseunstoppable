@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import { sendEmail, wrapEmail, detailRows, firstNameOf, money, SITE_URL } from '@/lib/email'
+import { sendEmail, wrapEmail, emailShell, steps, detailRows, firstNameOf, money, SITE_URL } from '@/lib/email'
 import { escapeHtml } from '@/lib/escape-html'
 import { healthSummary, list, newToken, parqYes, str, type Answers, type OnboardingRow } from '@/lib/onboarding'
 
@@ -68,16 +68,26 @@ export async function ensureOnboarding(db: SupabaseClient, c: NewClient): Promis
 export async function emailOnboarding(db: SupabaseClient, row: Pick<OnboardingRow, 'id' | 'token' | 'name' | 'email' | 'status'>): Promise<boolean> {
   if (!row.email) return false
   const resend = row.status !== 'sent'
-  const html = wrapEmail(
-    'Tu onboarding',
-    `<p>Hola ${escapeHtml(firstNameOf(row.name, ''))},</p>` +
+  const first = firstNameOf(row.name, '')
+  const Hi = first ? first[0].toUpperCase() + first.slice(1) : ''
+  const html = emailShell({
+    eyebrow: resend ? 'Tu onboarding te espera' : 'Bienvenido/a al programa',
+    title: resend ? `${Hi ? Hi + ', te' : 'Te'} falta muy poco` : `${Hi ? Hi + ', ya' : 'Ya'} estás dentro. Empezamos.`,
+    preview: resend ? 'Lo que rellenaste está guardado. Sigue donde lo dejaste.' : 'Rellena tu onboarding y en 48-72 h tienes tu plan.',
+    body:
       (resend
-        ? '<p>Te dejo otra vez el enlace a tu onboarding. Lo que ya rellenaste está guardado, así que sigues donde lo dejaste (son 5 minutos).</p>'
-        : '<p>Bienvenido/a al equipo. Antes de preparar tu plan de entrenamiento y nutrición necesito conocerte bien, así que rellena tu onboarding (5 minutos). En tu página de bienvenida tienes un vídeo mío y los siguientes pasos.</p>') +
-      '<p>Cuando lo envíes, mándame por WhatsApp 3 fotos (frontal, perfil y espalda) y te escribo para agendar la llamada de bienvenida. Tu plan estará listo 48-72 h después de la llamada.</p>',
-    { label: resend ? 'Seguir con mi onboarding' : 'Abrir mi bienvenida', href: resend ? onboardingLink(row.token) : welcomeLink(row.token) },
-    'Empezamos: rellena tu onboarding',
-  )
+        ? '<p>Te dejo otra vez el enlace a tu onboarding. <strong>Todo lo que rellenaste está guardado</strong>, así que sigues justo donde lo dejaste. Son 5 minutos y es lo único que necesito para preparar tu plan.</p>'
+        : '<p>Gracias por confiar en mí. A partir de hoy trabajamos juntos con un plan de entrenamiento y nutrición <strong>hecho para ti</strong>, no una plantilla.</p><p>En tu página de bienvenida tienes un vídeo mío y el formulario de onboarding. Esto es lo que viene:</p>') +
+      steps([
+        ['Rellena tu onboarding', '5 minutos: tus datos, objetivo, salud y rutina. Se guarda mientras escribes.'],
+        ['Mándame 3 fotos por WhatsApp', 'Frontal, perfil y espalda, con buena luz.'],
+        ['Llamada de bienvenida', 'Te escribo para agendarla y fijamos tu objetivo a 30 días.'],
+        ['Tu plan en 48–72 h', 'Entrenamiento y nutrición a tu medida, dentro de Harbiz.'],
+      ]),
+    cta: { label: resend ? 'Seguir con mi onboarding' : 'Abrir mi bienvenida', href: resend ? onboardingLink(row.token) : welcomeLink(row.token) },
+    note: '¿Alguna duda? Responde a este email o escríbeme por WhatsApp.',
+    signOff: true,
+  })
   const ok = await sendEmail(row.email, resend ? 'Tu onboarding con José te está esperando' : 'Empezamos: tu onboarding con José', html).catch(() => false)
   if (ok) await db.from('onboardings').update({ last_sent_at: new Date().toISOString() }).eq('id', row.id)
   return ok
@@ -173,12 +183,12 @@ export async function notifyClientClosed(c: NewClient) {
   const name = (c.name ?? '').trim() || 'Cliente sin nombre'
   const value = Number(c.amount) || 0
   const currency = c.currency || 'EUR'
-  const html = wrapEmail('Nuevo cliente cerrado', `<p>José ha cerrado un cliente nuevo: <strong>${escapeHtml(name)}</strong>.</p>` + detailRows([
+  const html = wrapEmail(value ? `Nuevo cliente: ${money(value, currency)}` : 'Nuevo cliente cerrado', `<p>José ha cerrado un cliente nuevo: <strong>${escapeHtml(name)}</strong>.</p>` + detailRows([
     ['Cliente', name], ['Email', c.email], ['WhatsApp', c.phone], ['Servicio', c.service],
     ['Cómo', c.trigger === 'payment' ? 'Pago confirmado' : 'Marcado como cliente en el pipeline'],
     ['Importe', value ? money(value, currency) : 'Sin importe en la ficha'],
     ['Comisión 10 %', value ? money(value * 0.1, currency) : ''],
     ['Fecha', new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Europe/Madrid' })],
-  ]), { label: 'Abrir el panel', href: `${SITE_URL}/admin` })
+  ]), { label: 'Abrir el panel', href: `${SITE_URL}/admin` }, `${name} acaba de empezar el programa.`, 'Cliente cerrado')
   await Promise.allSettled(to.map(addr => sendEmail(addr, `Nuevo cliente: ${name}${value ? ` · ${money(value, currency)}` : ''}`, html)))
 }
