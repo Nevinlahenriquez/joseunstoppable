@@ -3,7 +3,7 @@ import { isAdminRequest } from '@/lib/auth'
 import { serviceDb, NO_DB, isMissingTable } from '@/lib/os-supabase'
 import { newToken, DEFAULT_WELCOME, WELCOME_SETTING, youtubeId, type WelcomeSettings } from '@/lib/onboarding'
 import { readSetting, writeSetting } from '@/lib/app-settings'
-import { ensureOnboarding } from '@/lib/onboarding-server'
+import { emailOnboarding, ensureOnboarding } from '@/lib/onboarding-server'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,13 +24,23 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ ok: !error, error: error?.message, onboardings: data ?? [], welcome })
 }
 
-// POST { name, email?, phone?, dealId? }: activate onboarding for a client.
+// POST { name, email?, phone?, dealId?, sendEmail? }: activate onboarding for a client.
 // A contact who already has one that is not finished gets the same link back.
 export async function POST(req: NextRequest) {
   if (!(await isAdminRequest(req))) return NextResponse.json({ ok: false }, { status: 401 })
   const db = await serviceDb()
   if (!db) return NextResponse.json(NO_DB, { status: 503 })
   const b = await req.json().catch(() => ({})) as Record<string, unknown>
+
+  // { send: id }: email (or re-email) the client their link.
+  if (b.send) {
+    const { data: row } = await db.from('onboardings').select('id, token, name, email, status').eq('id', cap(b.send, 80)).maybeSingle()
+    if (!row) return NextResponse.json({ ok: false, error: 'No existe ese onboarding.' }, { status: 404 })
+    if (!row.email) return NextResponse.json({ ok: false, error: 'Este cliente no tiene email. Mándaselo por WhatsApp.' }, { status: 400 })
+    const sent = await emailOnboarding(db, row)
+    return NextResponse.json(sent ? { ok: true, sentAt: new Date().toISOString() } : { ok: false, error: 'No se pudo enviar el email. Revisa RESEND_API_KEY en Vercel.' })
+  }
+
   const name = cap(b.name, 120)
   const email = cap(b.email, 160).toLowerCase()
   const phone = cap(b.phone, 40)
@@ -39,7 +49,7 @@ export async function POST(req: NextRequest) {
 
   // From a deal: the same path as marking it a client, so it never doubles up and the link is emailed.
   if (dealId) {
-    const ob = await ensureOnboarding(db, { dealId, name, email, phone, trigger: 'manual' })
+    const ob = await ensureOnboarding(db, { dealId, name, email, phone, trigger: 'manual', sendEmail: b.sendEmail !== false })
     if (!ob) return NextResponse.json({ ok: false, error: MISSING }, { status: 503 })
     return NextResponse.json({ ok: true, onboarding: ob.row, existing: !ob.created, emailed: ob.emailed })
   }
@@ -59,7 +69,8 @@ export async function POST(req: NextRequest) {
   const { error } = await db.from('onboardings').insert(row)
   if (isMissingTable(error)) return NextResponse.json({ ok: false, error: MISSING }, { status: 503 })
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
-  return NextResponse.json({ ok: true, onboarding: row })
+  const emailed = b.sendEmail && email ? await emailOnboarding(db, { ...row, status: 'sent' }) : false
+  return NextResponse.json({ ok: true, onboarding: row, emailed })
 }
 
 // DELETE ?id=: remove one (the link stops working).

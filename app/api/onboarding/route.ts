@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
     if (!data) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
     firstTime = !data.completed_at
     const { error } = await db.from('onboardings')
-      .update({ answers, status: 'completed', completed_at: now, opened_at: now, ...(data.name ? {} : { name: str(answers, 'nombre') }) })
+      .update({ answers, status: 'completed', completed_at: now, updated_at: now, ...(data.name ? {} : { name: str(answers, 'nombre') }) })
       .eq('id', data.id)
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
     if (data.deal_id) await writeAnswersToDeal(db, data.deal_id, answers).catch(() => {})
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     const id = 'ob-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7)
     const insert = {
       id, token: newToken(), name: str(answers, 'nombre').slice(0, 120), status: 'completed', answers,
-      source: 'link', created_at: now, opened_at: now, completed_at: now,
+      source: 'link', created_at: now, opened_at: now, completed_at: now, updated_at: now,
     }
     const { error } = await db.from('onboardings').insert(insert)
     if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })
@@ -89,12 +89,12 @@ async function savePartial(token: string, answers: ReturnType<typeof cleanAnswer
   const now = new Date().toISOString()
   if (token) {
     if (!TOKEN_RE.test(token)) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
-    const { data } = await db.from('onboardings').select('id, status, name, email').eq('token', token).maybeSingle()
+    const { data } = await db.from('onboardings').select('id, status, name, email, opened_at').eq('token', token).maybeSingle()
     if (!data) return NextResponse.json({ ok: false, error: 'not found' }, { status: 404 })
     if (data.status === 'completed') return NextResponse.json({ ok: true, token })
     const email = str(answers, 'email').toLowerCase()
     const { error } = await db.from('onboardings').update({
-      answers, status: 'opened', opened_at: now,
+      answers, status: 'opened', opened_at: data.opened_at || now, updated_at: now,
       ...(data.name ? {} : { name: str(answers, 'nombre').slice(0, 120) || null }),
       ...(!data.email && EMAIL_RE.test(email) ? { email } : {}),
     }).eq('id', data.id)
@@ -106,7 +106,7 @@ async function savePartial(token: string, answers: ReturnType<typeof cleanAnswer
   const row = {
     id: 'ob-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7), token: newToken(),
     name, email, phone: str(answers, 'whatsapp').slice(0, 40) || null, status: 'opened', answers, source: 'link',
-    created_at: now, opened_at: now,
+    created_at: now, opened_at: now, updated_at: now,
   }
   const { error } = await db.from('onboardings').insert(row)
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 })

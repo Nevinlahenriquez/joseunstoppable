@@ -21,6 +21,9 @@ export type OnboardingRow = {
   created_at: string
   opened_at: string | null
   completed_at: string | null
+  // Last autosave, and the last time the link was emailed.
+  updated_at?: string | null
+  last_sent_at?: string | null
 }
 
 export const STATUS_LABEL: Record<OnboardingStatus, string> = {
@@ -31,6 +34,21 @@ export const STATUS_LABEL: Record<OnboardingStatus, string> = {
 
 // Five short sections; only what José needs to write the plan is required.
 export const SECTIONS = ['Tus datos', 'Tu objetivo', 'Salud', 'Rutina y alimentación', 'Compromiso'] as const
+
+// The PAR-Q health screen (the same questions Harbiz asks): any "Sí" means the
+// client explains it and José checks before training them.
+export const PARQ: Array<{ k: string; q: string; short: string }> = [
+  { k: 'parq_1', q: '¿Te ha dicho alguna vez un médico que tienes un problema de corazón o de tensión arterial?', short: 'Corazón o tensión arterial' },
+  { k: 'parq_2', q: '¿Te ha recetado un médico algún fármaco para la tensión arterial u otro problema cardiocirculatorio?', short: 'Medicación para la tensión o el corazón' },
+  { k: 'parq_3', q: '¿Sientes dolor en el pecho al hacer actividad física, o lo has sentido en el último mes en reposo?', short: 'Dolor en el pecho' },
+  { k: 'parq_4', q: '¿Pierdes el equilibrio por mareos o has perdido el conocimiento en el último año?', short: 'Mareos o pérdida de conocimiento' },
+  { k: 'parq_5', q: '¿Tienes algún problema de huesos, articulaciones o espalda que pueda empeorar con el ejercicio?', short: 'Huesos, articulaciones o espalda' },
+  { k: 'parq_6', q: '¿Te han diagnosticado alguna enfermedad crónica (diabetes, asma, tiroides…) o tomas medicación habitual?', short: 'Enfermedad crónica o medicación' },
+  { k: 'parq_7', q: '¿Sabes, por experiencia propia o por consejo médico, de alguna otra razón física que te impida hacer ejercicio sin supervisión médica?', short: 'Otra razón para hacer ejercicio con supervisión' },
+]
+export const parqYes = (a: Answers) => PARQ.filter(p => str(a, p.k) === 'Sí')
+// Answered with the PAR-Q (new form) or the old "Nada que destacar" tick.
+const hasParq = (a: Answers) => PARQ.some(p => str(a, p.k))
 
 const REQUIRED: Record<number, string[]> = {
   1: ['nombre', 'email', 'edad', 'peso', 'altura'],
@@ -54,16 +72,45 @@ export function missingIn(a: Answers, sec: number): string[] {
   const out = REQUIRED[sec].filter(k => !str(a, k))
   if (sec === 1 && str(a, 'email') && !EMAIL_RE.test(str(a, 'email'))) out.push('email')
   if (sec === 2 && !list(a, 'objetivo').length && !str(a, 'objetivo_detalle')) out.push('objetivo_detalle')
-  if (sec === 3 && !list(a, 'salud_ok').length && !str(a, 'salud')) out.push('salud')
+  if (sec === 3 && !hasParq(a) && list(a, 'salud_ok').length) return out // answered on the older form
+  if (sec === 3) {
+    out.push(...PARQ.filter(p => !str(a, p.k)).map(p => p.k))
+    if (parqYes(a).length && !str(a, 'salud')) out.push('salud')
+  }
   return out
 }
 
 export const sectionDone = (a: Answers, sec: number) => missingIn(a, sec).length === 0
 
+// How far a client got, 0-100, by finished sections. Completed is always 100.
+export function progressOf(row: Pick<OnboardingRow, 'status' | 'answers'>): number {
+  if (row.status === 'completed') return 100
+  const a = row.answers ?? {}
+  const done = SECTIONS.filter((_, i) => sectionDone(a, i + 1)).length
+  return Math.round((done / SECTIONS.length) * 100)
+}
+
+// The tracking stage José filters by.
+export type Progress = 'not_opened' | 'started' | 'half' | 'completed'
+export function stageOf(row: Pick<OnboardingRow, 'status' | 'answers'>): Progress {
+  if (row.status === 'completed') return 'completed'
+  const pct = progressOf(row)
+  if (pct >= 50) return 'half'
+  if (row.status === 'opened' || (row.answers && Object.keys(row.answers).length)) return 'started'
+  return 'not_opened'
+}
+export const PROGRESS_LABEL: Record<Progress, string> = {
+  not_opened: 'Sin abrir',
+  started: 'Empezado',
+  half: 'Más de la mitad',
+  completed: 'Completado',
+}
+
 export const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
 const ALLOWED = [
-  'nombre', 'email', 'whatsapp', 'edad', 'peso', 'altura', 'cintura', 'cadera', 'pecho', 'brazo', 'pierna',
+  'nombre', 'email', 'whatsapp', 'sexo', 'edad', 'peso', 'altura',
+  ...PARQ.map(p => p.k), 'cintura', 'cadera', 'pecho', 'brazo', 'pierna',
   'objetivo', 'plazo', 'objetivo_detalle', 'salud_ok', 'salud', 'trabajo', 'comidas', 'sueno',
   'dias', 'lugar', 'gusta', 'no_gusta', 'compromiso', 'cambiar', 'porque',
 ]
@@ -85,6 +132,14 @@ export function cleanAnswers(raw: unknown): Answers {
   return out
 }
 
+// One line on their health: what they flagged in the PAR-Q plus their notes.
+export function healthSummary(a: Answers): string {
+  const yes = parqYes(a).map(p => p.short)
+  const notes = str(a, 'salud')
+  if (hasParq(a)) return [yes.length ? `⚠️ ${yes.join(', ')}` : 'PAR-Q: todo No', notes].filter(Boolean).join('\n')
+  return list(a, 'salud_ok').length ? 'Nada que destacar' : notes
+}
+
 export function buildMessage(a: Answers): string {
   const v = (k: string) => str(a, k)
   const cm = (k: string, label: string) => (v(k) ? `${label} ${v(k)} cm` : null)
@@ -92,7 +147,7 @@ export function buildMessage(a: Answers): string {
   const obj = list(a, 'objetivo')
   const L: string[] = []
   L.push('*ONBOARDING · JOSÉ UNSTOPPABLE*', '')
-  L.push(`*Nombre:* ${v('nombre')} (${v('edad')} años)`)
+  L.push(`*Nombre:* ${v('nombre')} (${[v('edad') && `${v('edad')} años`, v('sexo')].filter(Boolean).join(', ')})`)
   if (v('email')) L.push(`*Email:* ${v('email')}`)
   L.push('')
   L.push('*📏 Medidas*')
@@ -103,7 +158,7 @@ export function buildMessage(a: Answers): string {
   L.push(`Plazo: ${v('plazo')}`)
   if (v('objetivo_detalle')) L.push(v('objetivo_detalle'))
   L.push('', '*🩺 Salud*')
-  L.push(list(a, 'salud_ok').length ? 'Nada que destacar' : v('salud'))
+  L.push(healthSummary(a))
   L.push('', '*🕒 Rutina*')
   L.push(`Puede entrenar: ${v('dias')} · Dónde: ${v('lugar')}`)
   if (v('trabajo')) L.push(`Trabajo: ${v('trabajo')}`)
@@ -125,6 +180,7 @@ export function answerRows(a: Answers): Array<[string, string]> {
     .filter(([, k]) => v(k)).map(([l, k]) => `${l} ${v(k)} cm`).join(' · ')
   const rows: Array<[string, string]> = [
     ['Nombre', v('nombre')],
+    ['Sexo', v('sexo')],
     ['Email', v('email')],
     ['WhatsApp', v('whatsapp')],
     ['Edad', v('edad') && `${v('edad')} años`],
@@ -133,7 +189,7 @@ export function answerRows(a: Answers): Array<[string, string]> {
     ['Objetivos', list(a, 'objetivo').join(', ')],
     ['Plazo', v('plazo')],
     ['En sus palabras', v('objetivo_detalle')],
-    ['Salud', list(a, 'salud_ok').length ? 'Nada que destacar' : v('salud')],
+    ['Salud', healthSummary(a)],
     ['Trabajo', v('trabajo')],
     ['Comidas al día', v('comidas')],
     ['Sueño', v('sueno')],

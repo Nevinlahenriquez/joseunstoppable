@@ -2,12 +2,12 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { copyText } from '@/lib/clipboard'
-import { answerRows, STATUS_LABEL, type OnboardingRow, type OnboardingStatus } from '@/lib/onboarding'
+import { answerRows, progressOf, stageOf, PROGRESS_LABEL, STATUS_LABEL, type OnboardingRow, type OnboardingStatus, type Progress } from '@/lib/onboarding'
 
 // Dashboard side of the client onboarding: activate a personal link, send it
 // on WhatsApp, and read the answers once the client has filled it in.
 
-export type ActivateInput = { name: string; email?: string; phone?: string; dealId?: string }
+export type ActivateInput = { name: string; email?: string; phone?: string; dealId?: string; sendEmail?: boolean }
 export type ActivateResult = { ok: true; onboarding: OnboardingRow; existing?: boolean; emailed?: boolean } | { ok: false; error: string }
 
 export async function activateOnboarding(input: ActivateInput): Promise<ActivateResult> {
@@ -18,6 +18,17 @@ export async function activateOnboarding(input: ActivateInput): Promise<Activate
     const d = await r.json().catch(() => ({}))
     if (!r.ok || !d.ok) return { ok: false, error: d.error || `No se pudo activar (${r.status}).` }
     return { ok: true, onboarding: d.onboarding, existing: d.existing, emailed: d.emailed }
+  } catch {
+    return { ok: false, error: 'No hay conexión con el servidor.' }
+  }
+}
+
+// Email (or re-email) a client their onboarding link.
+export async function sendOnboardingEmail(id: string): Promise<{ ok: boolean; error?: string; sentAt?: string }> {
+  try {
+    const r = await fetch('/api/admin/onboarding', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ send: id }) })
+    const d = await r.json().catch(() => ({}))
+    return d.ok ? { ok: true, sentAt: d.sentAt } : { ok: false, error: d.error || `No se pudo enviar (${r.status}).` }
   } catch {
     return { ok: false, error: 'No hay conexión con el servidor.' }
   }
@@ -50,8 +61,38 @@ export function StatusPill({ status }: { status: OnboardingStatus }) {
   )
 }
 
-export function OnboardingShare({ row }: { row: Pick<OnboardingRow, 'token' | 'name' | 'phone'> }) {
+const PROGRESS_COLOR: Record<Progress, string> = {
+  not_opened: 'var(--os-text-faint)',
+  started: 'var(--os-warn)',
+  half: 'var(--os-accent)',
+  completed: 'var(--os-good)',
+}
+
+// "Más de la mitad · 60 %" with a bar, so José sees how far a client got.
+export function OnboardingProgress({ row, compact }: { row: Pick<OnboardingRow, 'status' | 'answers'>; compact?: boolean }) {
+  const pct = progressOf(row)
+  const stage = stageOf(row)
+  return (
+    <span style={{ display: 'inline-flex', flexDirection: 'column', gap: 4, minWidth: compact ? 96 : 140 }}>
+      <span style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 11.5, fontWeight: 700, color: PROGRESS_COLOR[stage], whiteSpace: 'nowrap' }}>
+        <span>{PROGRESS_LABEL[stage]}</span><span>{pct} %</span>
+      </span>
+      <span style={{ display: 'block', height: 5, borderRadius: 5, background: 'var(--os-line)', overflow: 'hidden' }}>
+        <span style={{ display: 'block', height: '100%', width: `${Math.max(pct, stage === 'not_opened' ? 0 : 4)}%`, background: PROGRESS_COLOR[stage], borderRadius: 5 }} />
+      </span>
+    </span>
+  )
+}
+
+export function OnboardingShare({ row }: { row: Pick<OnboardingRow, 'token' | 'name' | 'phone'> & Partial<Pick<OnboardingRow, 'id' | 'email' | 'last_sent_at'>> }) {
   const [copied, setCopied] = useState(false)
+  const [mail, setMail] = useState<{ busy?: boolean; msg?: string; bad?: boolean; at?: string | null }>({ at: row.last_sent_at })
+  async function sendMail() {
+    if (!row.id) return
+    setMail(m => ({ ...m, busy: true, msg: '' }))
+    const r = await sendOnboardingEmail(row.id)
+    setMail(r.ok ? { at: r.sentAt, msg: `Enviado a ${row.email}` } : { at: mail.at, msg: r.error, bad: true })
+  }
   const url = onboardingUrl(row.token)
   const wa = waNumber(row.phone)
   const waHref = `https://wa.me/${wa}?text=${encodeURIComponent(inviteText(row.name, url))}`
@@ -64,13 +105,23 @@ export function OnboardingShare({ row }: { row: Pick<OnboardingRow, 'token' | 'n
         </button>
       </div>
       <div style={{ display: 'flex', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
-        <a className="os-btn os-btn-primary os-btn-sm" href={waHref} target="_blank" rel="noopener noreferrer">
+        {row.id && row.email && (
+          <button className="os-btn os-btn-primary os-btn-sm" disabled={mail.busy} onClick={() => void sendMail()}>
+            <i className="ti ti-mail" /> {mail.busy ? 'Enviando…' : mail.at ? 'Reenviar por email' : 'Enviar por email'}
+          </button>
+        )}
+        <a className={`os-btn os-btn-sm ${row.id && row.email ? 'os-btn-ghost' : 'os-btn-primary'}`} href={waHref} target="_blank" rel="noopener noreferrer">
           <i className="ti ti-brand-whatsapp" /> {wa ? 'Enviar por WhatsApp' : 'Enviar por WhatsApp (elige el chat)'}
         </a>
         <a className="os-btn os-btn-ghost os-btn-sm" href={url} target="_blank" rel="noopener noreferrer">
           <i className="ti ti-external-link" /> Ver como cliente
         </a>
       </div>
+      {(mail.msg || mail.at) && (
+        <div style={{ marginTop: 8, fontSize: 12.5, color: mail.bad ? 'var(--os-bad)' : 'var(--os-text-faint)' }}>
+          {mail.msg || `Último email: ${fmtDateTime(mail.at)}`}
+        </div>
+      )}
     </div>
   )
 }
@@ -92,6 +143,8 @@ export function OnboardingAnswers({ row }: { row: OnboardingRow }) {
 
 export const fmtDate = (s?: string | null) =>
   s ? new Date(s).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }) : ''
+export const fmtDateTime = (s?: string | null) =>
+  s ? new Date(s).toLocaleString('es-ES', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : ''
 
 // The card on a contact's page: activate, share, or read their answers.
 export function OnboardingCard({ name, email, phone, dealId, refresh }: ActivateInput & { refresh?: string }) {
@@ -129,7 +182,7 @@ export function OnboardingCard({ name, email, phone, dealId, refresh }: Activate
     <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
         <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Onboarding</div>
-        {row && <StatusPill status={row.status} />}
+        {row && (row.status === 'completed' ? <StatusPill status={row.status} /> : <OnboardingProgress row={row} compact />)}
         {row?.completed_at && <span style={{ fontSize: 12, color: 'var(--os-text-faint)' }}>{fmtDate(row.completed_at)}</span>}
       </div>
       {!loaded ? (
