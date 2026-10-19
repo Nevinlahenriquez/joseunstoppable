@@ -126,6 +126,31 @@ export function OnboardingShare({ row }: { row: Pick<OnboardingRow, 'token' | 'n
   )
 }
 
+// The one link José can send anyone: they write their name and email, and
+// it lands on their contact (matched by email, or a new one).
+export function MainLink() {
+  const [copied, setCopied] = useState(false)
+  const url = `${typeof window === 'undefined' ? '' : window.location.origin}/onboarding`
+  const text = `¡Bienvenido/a al equipo! 💪 Rellena aquí tu onboarding (5 minutos) para que pueda preparar tu plan: ${url}`
+  return (
+    <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
+      <div className="os-card-title" style={{ marginBottom: 4 }}>Tu enlace de onboarding</div>
+      <p style={{ fontSize: 13, color: 'var(--os-text-faint)', margin: '0 0 12px', lineHeight: 1.5 }}>
+        El mismo para todos. El cliente pone su nombre y su email y queda unido a su ficha (o se crea una nueva). Lo ves aquí abajo y en su contacto mientras lo rellena.
+      </p>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
+        <input className="os-crm-input" readOnly value={url} onFocus={e => e.target.select()} style={{ flex: '1 1 220px', fontSize: 13, minWidth: 0 }} />
+        <button className="os-btn os-btn-primary os-btn-sm" onClick={() => { void copyText(url).then(ok => { setCopied(ok); setTimeout(() => setCopied(false), 1600) }) }}>
+          <i className="ti ti-copy" /> {copied ? 'Copiado' : 'Copiar enlace'}
+        </button>
+        <a className="os-btn os-btn-ghost os-btn-sm" href={`https://wa.me/?text=${encodeURIComponent(text)}`} target="_blank" rel="noopener noreferrer">
+          <i className="ti ti-brand-whatsapp" /> WhatsApp
+        </a>
+      </div>
+    </div>
+  )
+}
+
 export function OnboardingAnswers({ row }: { row: OnboardingRow }) {
   const rows = answerRows(row.answers ?? {})
   if (!rows.length) return <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Todavía no ha respondido.</div>

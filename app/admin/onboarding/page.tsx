@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { confirmAction } from '@/app/admin/ConfirmHost'
-import { activateOnboarding, fmtDate, fmtDateTime, OnboardingAnswers, OnboardingProgress, OnboardingShare, StatusPill } from '@/components/os/Onboarding'
+import { activateOnboarding, MainLink, fmtDate, fmtDateTime, OnboardingAnswers, OnboardingProgress, OnboardingShare, StatusPill } from '@/components/os/Onboarding'
 import { SearchSelect } from '@/components/os/SearchSelect'
 import { usePeople } from '@/components/os/usePeople'
 import { PROGRESS_LABEL, stageOf, type OnboardingRow, type Progress } from '@/lib/onboarding'
@@ -103,7 +103,7 @@ export default function OnboardingAdminPage() {
       <div className="os-page-header">
         <div>
           <h1 className="os-page-title">Onboarding</h1>
-          <p className="os-page-sub">Sale solo cuando confirmas el pago de un cliente. También puedes elegir un contacto y activarlo tú. Aquí ves cuánto ha rellenado cada uno; todo se guarda mientras escriben.</p>
+          <p className="os-page-sub">Sale solo cuando confirmas el pago de un cliente. También puedes mandar tu enlace de onboarding a quien quieras o activarlo para un contacto. Aquí ves cuánto ha rellenado cada uno; todo se guarda mientras escriben y queda en su ficha.</p>
         </div>
       </div>
 
@@ -117,6 +117,8 @@ export default function OnboardingAdminPage() {
           </button>
         ))}
       </div>
+
+      <MainLink />
 
       <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
         <div className="os-card-title" style={{ marginBottom: 12 }}>Activar onboarding</div>
