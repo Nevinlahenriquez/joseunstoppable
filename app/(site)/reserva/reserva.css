@@ -1,0 +1,23 @@
+/* /reserva: the pre-call form and booking flow. Every rule is scoped under
+   .pg-reserva because app router CSS is global. */
+.pg-reserva {
+  --f: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  background: #F1F8FD;
+  color: #0C2A43;
+  font-family: var(--f);
+  -webkit-font-smoothing: antialiased;
+}
+html:not([data-lang="en"]) .pg-reserva [data-en] { display: none !important; }
+html[data-lang="en"] .pg-reserva [data-es] { display: none !important; }
+.pg-reserva a { color: #0C2A43; }
+.pg-reserva a:hover { color: #5D6E7E; }
+.pg-reserva *, .pg-reserva *::before, .pg-reserva *::after { box-sizing: border-box; }
+.pg-reserva input:focus, .pg-reserva textarea:focus { outline: 3px solid #5BBCEE; outline-offset: 1px; }
+
+/* mobile polish */
+@media (max-width: 640px) {
+  .pg-reserva input, .pg-reserva select, .pg-reserva textarea { font-size: 16px !important; }
+  .pg-reserva .m-foot-pad { padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important; }
+}

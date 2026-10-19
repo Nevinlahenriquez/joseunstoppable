@@ -1,0 +1,26 @@
+html:has(.pg-masterclass) { scroll-behavior: smooth }
+
+.pg-masterclass {
+  --f: var(--font-jakarta), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  margin: 0;
+  background: #FFFFFF;
+  color: #0C2A43;
+  font-family: var(--f);
+  -webkit-font-smoothing: antialiased;
+  font-size: 17px;
+  line-height: 1.55;
+}
+html:not([data-lang="en"]) .pg-masterclass [data-en] { display: none !important }
+html[data-lang="en"] .pg-masterclass [data-es] { display: none !important }
+.pg-masterclass a { color: #0C2A43 }
+.pg-masterclass a:hover { color: #5D6E7E }
+.pg-masterclass, .pg-masterclass *, .pg-masterclass *::before, .pg-masterclass *::after { box-sizing: border-box }
+.pg-masterclass input:focus { outline: 3px solid #5BBCEE; outline-offset: 1px }
+.pg-masterclass .mc-cta:hover { background: #45B0E8 !important; color: #0C2A43 }
+
+/* mobile polish */
+@media (max-width: 640px) {
+  .pg-masterclass input, .pg-masterclass select, .pg-masterclass textarea { font-size: 16px !important }
+  .pg-masterclass .m-foot-pad { padding-bottom: calc(96px + env(safe-area-inset-bottom)) !important }
+}
