@@ -4,7 +4,7 @@ import { createHash } from 'crypto'
 import { detectSpam, SPAM_REJECTION } from '@/lib/anti-spam'
 import { escapeHtml } from '@/lib/escape-html'
 import {
-  APPLY_LABEL, APPLY_URL, EMAIL_FROM, INTERNAL_FROM, OWNER_EMAIL,
+  APPLY_LABEL, APPLY_URL, EMAIL_FROM, INTERNAL_FROM, OWNER_EMAIL, SITE_URL,
   detailRows, emailShell, quoteBlock, signature, type EmailCta,
 } from '@/lib/email'
 import { SPAM_TAG, leadVerdict } from '@/lib/apply-guard'
@@ -18,14 +18,15 @@ function sha256(v: string): string {
   return createHash('sha256').update(v.trim().toLowerCase()).digest('hex')
 }
 
-function capiContent(source?: string): string {
+function capiContent(source?: string, stage?: string): string {
+  if (stage === 'started') return 'Lead'
   const s = (source || '').toLowerCase()
   if (s.includes('reserva') || s.includes('booking') || s.includes('call')) return 'Llamada reservada'
   if (s.includes('masterclass') || s.includes('event')) return 'Registro evento'
   return 'Lead'
 }
 
-async function sendCapiLead(input: { email?: string; name?: string; whatsapp?: string; eventId?: string; fbp?: string; fbc?: string; pageUrl?: string; source?: string; ip: string; userAgent: string }): Promise<void> {
+async function sendCapiLead(input: { email?: string; name?: string; whatsapp?: string; eventId?: string; fbp?: string; fbc?: string; pageUrl?: string; source?: string; stage?: string; ip: string; userAgent: string }): Promise<void> {
   const token = process.env.META_CAPI_TOKEN
   if (!token) return
   const [firstName, ...rest] = (input.name || '').split(' ')
@@ -49,7 +50,7 @@ async function sendCapiLead(input: { email?: string; name?: string; whatsapp?: s
           fbp: input.fbp || undefined,
           fbc: input.fbc || undefined,
         },
-        custom_data: { content_name: capiContent(input.source), currency: 'EUR', value: 0 },
+        custom_data: { content_name: capiContent(input.source, input.stage), currency: 'EUR', value: 0 },
       }],
     }),
   })
@@ -72,6 +73,7 @@ const P = (html: string) => `<p style="margin:0 0 16px;">${html}</p>`
 
 type LeadInput = { name?: string; email?: string; whatsapp?: string; business?: string; message?: string; notes?: string; lang?: string; source?: string
   quarantined?: boolean
+  stage?: string
   revenue?: string
   spamReasons?: string[] }
 
@@ -89,6 +91,22 @@ function copyFor(lead: LeadInput, firstName: string): LeadCopy {
         + signature(),
       notifySubject: 'Nuevo registro al evento',
       notifyNote: 'Se registró desde la página del evento.',
+    }
+  }
+
+  // Name and email from the booking form's first screen: the call is not
+  // booked yet, so the email doubles as a way back to finish it.
+  if (lead.stage === 'started') {
+    return {
+      subject: 'Tu llamada con José, a un paso',
+      preview: 'Termina de elegir día y hora en un minuto.',
+      title: `${hola}, gracias por empezar`,
+      body: P('Has empezado a reservar tu llamada gratuita de 30 minutos. Si no llegaste a elegir día y hora, puedes terminarlo aquí en un minuto.')
+        + P('Si ya la reservaste, ignora este email: te llega la confirmación aparte.')
+        + signature(),
+      cta: { label: 'Terminar mi reserva', href: `${SITE_URL}/reserva` },
+      notifySubject: 'Nuevo lead (empezó la reserva)',
+      notifyNote: 'Dejó nombre y email en el formulario de llamada. Sus respuestas se van guardando en su ficha.',
     }
   }
 
@@ -174,6 +192,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { name, email, whatsapp, business, message, notes, lang, eventId, fbp, fbc, pageUrl, source, visitorId, referrer, landing } = body
+  const stage = body.stage === 'started' ? 'started' : undefined
   const revenue = typeof body.revenue === 'string' ? body.revenue.slice(0, 80) : ''
   if (!name && !email && !whatsapp) return NextResponse.json({ error: 'missing contact' }, { status: 400 })
 
@@ -228,10 +247,10 @@ export async function POST(req: NextRequest) {
       fbp: fbp || req.cookies.get('_fbp')?.value,
       fbc: fbc || req.cookies.get('_fbc')?.value,
       pageUrl: pageUrl || req.headers.get('referer') || undefined,
-      source,
+      source, stage,
     }).catch(() => {}),
 
-    sendEmails({ name, email, whatsapp, business, message, notes, lang, source, quarantined: isSpam, spamReasons: verdict.reasons, revenue }).catch(() => {}),
+    sendEmails({ name, email, whatsapp, business, message, notes, lang, source, stage, quarantined: isSpam, spamReasons: verdict.reasons, revenue }).catch(() => {}),
 
     isSpam ? Promise.resolve() : recordFunnelLead({
 

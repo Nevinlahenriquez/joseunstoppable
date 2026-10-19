@@ -475,3 +475,4 @@ body:has(.m-bar.show) .wa-fab a{bottom:calc(96px + env(safe-area-inset-bottom))}
 @media (max-width:900px){.wa-fab.on-booking{display:none}}
 @media (max-width:640px){.wa-fab a{right:16px;width:54px;height:54px}}
 @media (min-width:901px){.ftr{padding-bottom:96px}}
+.bk-nav .bk-tap{margin:0}

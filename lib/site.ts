@@ -42,3 +42,7 @@ export const WA_HELLO = {
 // without a flash: ?lang= wins, then the saved choice, then Spanish.
 export const LANG_BOOT_SCRIPT =
   "(function(){var l='es';try{l=new URLSearchParams(location.search).get('lang')||localStorage.getItem('unstoppable_lang')||'es';}catch(e){}if(l!=='en')l='es';document.documentElement.setAttribute('data-lang',l);document.documentElement.lang=l;})();"
+
+// What a lead wants, from the booking form's goal question. Saved as CRM tags
+// in this order, matching the form's options.
+export const GOAL_TAGS = ['Perder grasa', 'Ganar músculo', 'Ganar confianza', 'Más energía'] as const
