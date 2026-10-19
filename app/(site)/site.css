@@ -6,7 +6,7 @@
   --tint:#F1F8FD;--tint-2:#E2F2FB;--line:#DDE9F2;--white:#FFFFFF;
   --shadow:0 24px 60px -28px rgba(12,42,67,.22);
 }
-html{scroll-behavior:smooth;scroll-padding-top:84px}
+html{scroll-padding-top:84px}
 *{box-sizing:border-box}
 body{margin:0;background:var(--white);color:var(--text);font:400 18px/1.7 var(--f);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 html:not([data-lang="en"]) [data-en]{display:none!important}
@@ -284,7 +284,7 @@ h3{margin:0;font-family:var(--f);font-weight:700;font-size:21px;line-height:1.3;
 .site-main{display:block;min-height:60vh}
 .page-in{animation:page-in .28s ease-out both}
 @keyframes page-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-@media (prefers-reduced-motion:reduce){.page-in{animation:none}html{scroll-behavior:auto}}
+@media (prefers-reduced-motion:reduce){.page-in{animation:none}}
 
 /* language toggle: active state follows html[data-lang] so it is right on first paint */
 .lang button{background:transparent;color:var(--navy)}
