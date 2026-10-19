@@ -1,30 +1,42 @@
 import { headers } from 'next/headers'
 import type { Metadata } from 'next'
 import { activeLinks, logBioEvent } from '@/lib/bio-links'
+import './links.css'
 
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: 'José Unstoppable · Enlaces', robots: { index: false, follow: true } }
 
+// Shown until links are saved in the panel (/admin/links), so the page is never empty.
+const DEFAULT_LINKS = [
+  { id: 'reserva', label: 'Reserva tu llamada gratuita', href: '/reserva?ref=bio', highlight: true },
+  { id: 'story', label: 'Conoce mi historia', href: '/?ref=bio#story', highlight: false },
+  { id: 'method', label: 'El método', href: '/?ref=bio#method', highlight: false },
+  { id: 'masterclass', label: 'Masterclass gratuita', href: '/masterclass?ref=bio', highlight: false },
+  { id: 'home', label: 'Mi web', href: '/?ref=bio', highlight: false },
+]
+
 export default async function LinksPage() {
-  const links = await activeLinks()
+  const saved = await activeLinks()
+  const links = saved.length
+    ? saved.map(l => ({ id: l.id, label: l.label, href: `/l/${l.id}`, highlight: l.highlight }))
+    : DEFAULT_LINKS
   const h = await headers()
   await logBioEvent('view', '/links', h.get('referer'))
   return (
-    <main style={{ minHeight: '100dvh', background: '#0b0b0d', color: '#f4f1ea', fontFamily: 'system-ui, -apple-system, sans-serif', padding: '48px 16px' }}>
-      <div style={{ maxWidth: 440, margin: '0 auto', display: 'grid', gap: 14 }}>
-        <div style={{ textAlign: 'center', marginBottom: 12 }}>
-          <img src="/icon.png" alt="" width={72} height={72} style={{ borderRadius: 999 }} />
-          <h1 style={{ fontSize: 24, margin: '12px 0 4px' }}>José Unstoppable</h1>
-          <p style={{ margin: 0, color: '#bdb6a8' }}>Vuelve a gustarte en 90 días</p>
-        </div>
-        {links.length === 0 && <p style={{ textAlign: 'center', color: '#bdb6a8' }}>Pronto habrá enlaces aquí.</p>}
+    <main className="lt">
+      <div className="lt-col">
+        <header className="lt-head">
+          <img className="lt-avatar" src="/icon.png" alt="" width={96} height={96} />
+          <p className="lt-logo">José <b>Unstoppable</b></p>
+          <span className="lt-eyebrow">Coaching 1:1 online</span>
+          <h1 className="lt-title">Vuelve a gustarte <span>en 90&nbsp;días.</span></h1>
+        </header>
         {links.map(l => (
-          <a key={l.id} href={`/l/${l.id}`} style={{
-            display: 'block', textAlign: 'center', padding: '16px 18px', borderRadius: 14, textDecoration: 'none', fontWeight: 600, fontSize: 16,
-            background: l.highlight ? '#f2c14e' : 'rgba(255,255,255,.07)', color: l.highlight ? '#1a1300' : '#f4f1ea',
-            border: l.highlight ? 'none' : '1px solid rgba(255,255,255,.14)',
-          }}>{l.label}</a>
+          <a key={l.id} href={l.href} className={l.highlight ? 'lt-btn is-main' : 'lt-btn'}>
+            {l.label}<span className="arr" aria-hidden="true">→</span>
+          </a>
         ))}
+        <p className="lt-foot">© José Unstoppable</p>
       </div>
     </main>
   )
