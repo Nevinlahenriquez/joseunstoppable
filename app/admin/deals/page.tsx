@@ -108,6 +108,9 @@ export default function DealsPage() {
   useEffect(() => {
     reload()
     pullFromServer(true)
+    // /admin/deals?deal=<id> (from a contact page) opens that deal.
+    const linked = new URLSearchParams(window.location.search).get('deal')
+    if (linked) setSelectedId(linked)
 
     const interval = setInterval(() => pullFromServer(), 20000)
     const onFocus = () => pullFromServer()

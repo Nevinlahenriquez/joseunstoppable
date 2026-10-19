@@ -8,21 +8,9 @@ import { CONTACT_STATUSES, type LeadStatus } from '@/lib/crm-types'
 import { CrmDetail, QuickActions, genId, isOpenStage, fmtTs, ACTIVITY_ICON } from '@/app/admin/deals/crm-shared'
 import { buildPersonHistory, type PersonRecord } from '@/lib/client-history'
 import RelationshipTimeline from '@/components/os/RelationshipTimeline'
+import { CallsSection, OnboardingSummary } from '@/components/os/ContactExtras'
 import type { Deal, Lead, ActivityType, ActivityEntry } from '@/lib/crm-types'
 import type { EventAttendee } from '@/lib/event-types'
-
-export interface PersonBusiness {
-  name?: string; email?: string; phone?: string; company?: string
-  business_name?: string; role?: string
-  address?: string; country?: string; location?: string
-  niche?: string; offer_summary?: string
-  revenue_band?: string; reported_customers?: number
-  website?: string; instagram?: string; facebook_url?: string
-  linkedin_url?: string; tiktok_url?: string; youtube_url?: string; other_links?: string
-  program?: string; plan_name?: string; delivery_stage?: string
-  monthly_amount?: number; currency?: string
-  onboarded_at?: string; started_at?: string; last_login_at?: string
-}
 
 export interface ContactCardContact {
   id: string
@@ -85,34 +73,11 @@ function avatarColor(id: string) {
   return colors[h % colors.length]
 }
 
-function Fact({ label, value, href }: { label: string; value?: string | number | null; href?: string }) {
-  const v = typeof value === 'number' ? String(value) : (value ?? '').trim()
-  if (!v) return null
-  return (
-    <div style={{ display: 'flex', gap: 10, alignItems: 'baseline', padding: '5px 0', borderBottom: '1px solid var(--os-line)' }}>
-      <span style={{ flex: '0 0 116px', fontSize: 11, letterSpacing: '.04em', textTransform: 'uppercase', color: 'var(--os-text-faint)', fontWeight: 700 }}>{label}</span>
-      {href
-        ? <a href={href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: 'var(--os-accent)', overflowWrap: 'anywhere' }}>{v}</a>
-        : <span style={{ fontSize: 13, color: 'var(--os-text)', overflowWrap: 'anywhere' }}>{v}</span>}
-    </div>
-  )
-}
-
 export const ONBOARDING_UPDATE_MARKER = 'They updated their details in onboarding.'
 const DISMISS_KEY = 'ju_seen_member_updates'
 
 function dismissedIds(): string[] {
   try { return JSON.parse(localStorage.getItem(DISMISS_KEY) ?? '[]') } catch { return [] }
-}
-
-const asUrl = (v?: string | null) => {
-  const s = (v ?? '').trim()
-  if (!s) return undefined
-  if (/^https?:\/\//i.test(s)) return s
-  if (/^[a-z][a-z0-9+.-]*:/i.test(s)) return undefined
-  if (/\s/.test(s) || s.startsWith('@')) return undefined
-  if (!/^[^\s/]+\.[a-z]{2,}(\/|$)/i.test(s)) return undefined
-  return `https://${s}`
 }
 
 type EditKey = 'email' | 'phone' | 'company' | 'notes' | 'name' | 'status'
@@ -123,8 +88,6 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
   const [version, setVersion] = useState(0)
 
   const [dismissed, setDismissed] = useState<string[]>(() => (typeof window === 'undefined' ? [] : dismissedIds()))
-
-  const [biz, setBiz] = useState<{ key: string; row: PersonBusiness | null; error: boolean }>({ key: '', row: null, error: false })
 
   const resolved = useMemo<Resolved>(() => {
 
@@ -165,17 +128,6 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
       deals: getDeals(), leads: getLeads(), proposals: getProposals(), invoices: getInvoices(), attendees: getAttendees(),
     })
   }, [contact, resolved])
-
-  const bizEmail = contact?.email ?? resolved.deal?.clientEmail ?? resolved.lead?.email ?? resolved.attendee?.email ?? ''
-  useEffect(() => {
-    if (!bizEmail) return
-    let live = true
-    fetch(`/api/os/person-business?email=${encodeURIComponent(bizEmail)}`)
-      .then(r => r.json())
-      .then(d => { if (live) setBiz({ key: bizEmail, row: d?.ok ? (d.business ?? null) : null, error: !d?.ok }) })
-      .catch(() => { if (live) setBiz({ key: bizEmail, row: null, error: true }) })
-    return () => { live = false }
-  }, [bizEmail, version])
 
   useEffect(() => {
     if (!contact) return
@@ -250,15 +202,6 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
   const recentUpdate = [...(deal?.activity ?? []), ...(resolved.lead?.activity ?? [])]
     .find(a => a.text?.startsWith(ONBOARDING_UPDATE_MARKER) && !dismissed.includes(a.id))
 
-  const settled = !!bizEmail && biz.key === bizEmail
-  const b = settled ? biz.row : null
-
-  const bizFacts = b ? [
-    b.business_name || b.company, b.role, b.niche, b.offer_summary, b.revenue_band,
-    b.reported_customers, b.location || b.address || b.country,
-    b.website, b.instagram, b.facebook_url, b.linkedin_url, b.tiktok_url, b.youtube_url, b.other_links,
-  ].filter(v => (typeof v === 'number' ? true : Boolean((v ?? '').toString().trim()))).length : 0
-
   const color = avatarColor(contact.id)
 
   const contactEmail = deal?.clientEmail ?? form.email
@@ -328,38 +271,9 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
           {}
           <QuickActions deal={actionTarget} onLog={deal ? addActivity : undefined} />
 
-          {}
-          {settled && biz.error && (
-            <div className="os-crm-notice" data-tone="bad" style={{ fontSize: 12.5, color: 'var(--os-text-muted)' }}>
-              Their onboarding answers could not be loaded. This is not the same as them having answered nothing.
-            </div>
-          )}
-          {settled && !biz.error && bizFacts > 0 && (
-            <div className="os-crm-section">
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-                <div className="os-crm-section-title" style={{ marginBottom: 0 }}>Their business</div>
-                <span style={{ fontSize: 11, color: 'var(--os-text-faint)' }}>
-                  {b?.onboarded_at ? `Onboarded ${new Date(b.onboarded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : 'From their onboarding'}
-                </span>
-              </div>
-              <div style={{ marginTop: 8 }}>
-                <Fact label="Business" value={b?.business_name || b?.company} />
-                <Fact label="Their role" value={b?.role} />
-                <Fact label="Niche" value={b?.niche} />
-                <Fact label="What they sell" value={b?.offer_summary} />
-                <Fact label="Revenue" value={b?.revenue_band} />
-                <Fact label="Customers" value={b?.reported_customers} />
-                <Fact label="Where" value={[b?.location, b?.address, b?.country].filter(Boolean).join(' · ')} />
-                <Fact label="Website" value={b?.website} href={asUrl(b?.website)} />
-                <Fact label="Instagram" value={b?.instagram} href={asUrl(b?.instagram)} />
-                <Fact label="Facebook" value={b?.facebook_url} href={asUrl(b?.facebook_url)} />
-                <Fact label="LinkedIn" value={b?.linkedin_url} href={asUrl(b?.linkedin_url)} />
-                <Fact label="TikTok" value={b?.tiktok_url} href={asUrl(b?.tiktok_url)} />
-                <Fact label="YouTube" value={b?.youtube_url} href={asUrl(b?.youtube_url)} />
-                <Fact label="Other links" value={b?.other_links} />
-              </div>
-            </div>
-          )}
+          <OnboardingSummary email={contactEmail} />
+
+          <CallsSection email={contactEmail} />
 
           {deal ? (
             <CrmDetail deal={deal} layout="drawer" onPatch={patchDeal} onAddActivity={addActivity} />
@@ -367,7 +281,7 @@ export default function ContactCard({ contact, onClose, onSaveField }: Props) {
             <>
               {!writer && (
                 <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', background: 'var(--os-line)', borderRadius: 10, padding: '8px 12px', marginBottom: 14 }}>
-                  This person is only on a proposal or an invoice, so there is no contact record to edit yet. Add them to the pipeline below to start one.
+                  There is no contact record to edit for this person yet (they only booked a call, got onboarding, or are on a proposal or invoice). Add them to the pipeline below to start one.
                 </div>
               )}
               <div className="os-crm-section">
