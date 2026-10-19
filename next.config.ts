@@ -1,17 +1,8 @@
 import type { NextConfig } from 'next'
 
-// The public pages are Next.js pages in app/(site). The pages still served from static files in public/ keep
-// their clean addresses through these rewrites.
+// Every public page is a Next.js page now (app/(site), app/onboarding,
+// app/links); public/ only holds images and the demo dashboard.
 const nextConfig: NextConfig = {
-  async rewrites() {
-    return {
-      beforeFiles: [
-        { source: '/onboarding', destination: '/onboarding.html' },
-      ],
-      afterFiles: [],
-      fallback: [],
-    }
-  },
   async redirects() {
     return [
       { source: '/os/:path*', destination: '/admin/:path*', permanent: false },
@@ -20,6 +11,7 @@ const nextConfig: NextConfig = {
       { source: '/index', destination: '/', permanent: true },
       { source: '/reserva.html', destination: '/reserva', permanent: true },
       { source: '/masterclass.html', destination: '/masterclass', permanent: true },
+      { source: '/onboarding.html', destination: '/onboarding', permanent: true },
     ]
   },
 }
