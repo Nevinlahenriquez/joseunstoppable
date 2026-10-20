@@ -3484,3 +3484,67 @@
 .os-shell .os-sidebar * { box-sizing: border-box; }
 .os-shell .os-nav-item { max-width: 100%; }
 .os-shell .os-sidebar-desktop .os-sidebar:not(.os-sidebar-collapsed) { width: 264px; }
+
+/* ── Portal look across the whole dashboard ─────────────────────────────
+   The client portal (app/portal/portal.css) is the reference: a navy
+   gradient hero, white cards with large radius and a soft navy shadow,
+   tint inputs, bold rounded buttons. Same tokens, so the two read as one. */
+.os-shell .os-main { background: #F6FAFD; }
+.os-shell .os-page-header {
+  position: relative; overflow: hidden; isolation: isolate;
+  padding: 30px 32px; border-radius: 26px; margin-bottom: 22px;
+  background: radial-gradient(100% 120% at 0% 0%, #13466E 0%, transparent 60%),
+              radial-gradient(80% 100% at 100% 100%, #0E71AC 0%, transparent 60%),
+              linear-gradient(160deg, #0A1F33, #0C2A43);
+  box-shadow: 0 24px 60px -28px rgba(12,42,67,.45);
+  color: #fff;
+}
+.os-shell .os-page-header::after {
+  content: ""; position: absolute; z-index: -1; width: 280px; height: 280px; border-radius: 50%;
+  background: rgba(91,188,238,.16); filter: blur(10px); top: -140px; right: -60px; pointer-events: none;
+}
+.os-shell .os-page-header .os-page-title,
+.os-shell .os-page-header h1, .os-shell .os-page-header h2 { color: #fff !important; font-size: clamp(26px, 3.2vw, 38px); letter-spacing: -.03em; }
+.os-shell .os-page-header .os-page-sub,
+.os-shell .os-page-header p { color: rgba(255,255,255,.72) !important; }
+.os-shell .os-page-header .os-btn-primary,
+.os-shell .os-page-header .os-primary-btn { background: #fff; color: #0C2A43; box-shadow: 0 10px 24px -12px rgba(7,23,38,.6); }
+.os-shell .os-page-header .os-btn-primary:hover,
+.os-shell .os-page-header .os-primary-btn:hover { background: #E4F4FD; }
+.os-shell .os-page-header .os-btn:not(.os-btn-primary):not(.os-primary-btn),
+.os-shell .os-page-header .os-icon-btn {
+  background: rgba(255,255,255,.12); color: #fff; border: 1px solid rgba(255,255,255,.26); box-shadow: none;
+}
+.os-shell .os-page-header .os-btn:not(.os-btn-primary):not(.os-primary-btn):hover { background: rgba(255,255,255,.2); }
+.os-shell .os-page-header input, .os-shell .os-page-header select {
+  background: rgba(7,23,38,.4) !important; color: #fff !important; border-color: rgba(255,255,255,.2) !important;
+}
+.os-shell .os-page-header select option { color: #0C2A43; background: #fff; }
+
+.os-shell .os-card, .os-shell .os-stat-card {
+  border-radius: 22px; border: 1px solid #DDE9F2; background: #fff;
+  box-shadow: 0 24px 60px -32px rgba(12,42,67,.28);
+}
+.os-shell .os-card-header { border-bottom-color: #EEF4F9; }
+.os-shell .os-card-title { color: #0C2A43; }
+
+.os-shell .os-btn { border-radius: 13px; font-weight: 800; }
+.os-shell .os-btn-sm { border-radius: 11px; }
+
+.os-shell .os-input, .os-shell .os-select, .os-shell .os-textarea,
+.os-shell .os-crm-input, .os-shell .os-crm-textarea {
+  border-radius: 12px; background: #F1F8FD; border: 1.5px solid #DDE9F2; color: #0C2A43;
+}
+.os-shell .os-input:focus, .os-shell .os-select:focus, .os-shell .os-textarea:focus,
+.os-shell .os-crm-input:focus, .os-shell .os-crm-textarea:focus {
+  background: #fff; border-color: #5BBCEE; box-shadow: 0 0 0 4px rgba(91,188,238,.2);
+}
+.os-shell .os-empty { border-radius: 18px; }
+
+@media (min-width: 1024px) {
+  .os-shell .os-page-header { padding: 38px 40px; }
+}
+@media (max-width: 760px) {
+  .os-shell .os-page-header { padding: 22px 20px; border-radius: 22px; }
+  .os-shell .os-card, .os-shell .os-stat-card { border-radius: 18px; }
+}

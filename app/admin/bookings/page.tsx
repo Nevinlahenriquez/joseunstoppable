@@ -126,8 +126,10 @@ export default function BookingsPage() {
           {DAYS.map(([k, label]) => (
             <div key={k} className="os-form-row" style={{ display: 'grid', gridTemplateColumns: '120px 1fr', gap: 10, alignItems: 'center' }}>
               <label className="os-label">{label}</label>
-              <input className="os-input" value={(av.week[k] ?? []).join(', ')} placeholder="No disponible"
-                onChange={e => setAv({ ...av, week: { ...av.week, [k]: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } })} />
+              {/* Uncontrolled while typing: a controlled value rebuilt from the
+                  split list drops a typed comma or space before the next slot. */}
+              <input className="os-input" key={`${k}:${(av.week[k] ?? []).join(',')}`} defaultValue={(av.week[k] ?? []).join(', ')} placeholder="No disponible"
+                onBlur={e => setAv({ ...av, week: { ...av.week, [k]: e.target.value.split(',').map(s => s.trim()).filter(Boolean) } })} />
             </div>
           ))}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 12 }}>
