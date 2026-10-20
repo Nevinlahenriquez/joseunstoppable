@@ -8,8 +8,10 @@ import { PORTAL_SESSION_DAYS, portalPath, type PortalAccess, type PortalMessage 
 // Server side of the client portal: who counts as a client, their personal
 // link, the emailed sign-in link and everything the portal shows them.
 
-// Pipeline stages that make someone a client (contract signed or paying).
-const CLIENT_STAGES = ['signed', 'active', 'completed']
+// Only PAYING clients get a portal: a deal José moved to active/completed, or
+// a paid invoice. A signed contract or a filled onboarding alone is not
+// enough. José can still open a portal by hand from /admin/portal.
+const PAID_STAGES = ['active', 'completed']
 
 export const normEmail = (v: unknown) => (typeof v === 'string' ? v.trim().toLowerCase().slice(0, 160) : '')
 
@@ -21,13 +23,12 @@ function newAccess(email: string, name: string | null, dealId: string | null) {
   }
 }
 
-// Everyone who should have a portal: clients in the pipeline, signed
-// contracts and onboardings. Adds the missing ones, never touches the rest.
+// Everyone who should have a portal: paying clients only. Adds the missing
+// ones, never touches the rest.
 export async function syncAccess(db: SupabaseClient): Promise<number> {
-  const [deals, proposals, onboardings, existing] = await Promise.all([
-    db.from('deals').select('id, client_name, client_email, stage').in('stage', CLIENT_STAGES).limit(2000),
-    db.from('proposals').select('client_name, client_email, deal_id').eq('status', 'signed').is('deleted_at', null).limit(2000),
-    db.from('onboardings').select('name, email, deal_id').limit(2000),
+  const [deals, invoices, existing] = await Promise.all([
+    db.from('deals').select('id, client_name, client_email, stage').in('stage', PAID_STAGES).limit(2000),
+    db.from('invoices').select('client_name, client_email, status, paid_at').or('status.eq.paid,paid_at.not.is.null').is('deleted_at', null).limit(2000),
     db.from('portal_access').select('id').limit(5000),
   ])
   if (existing.error) return 0
@@ -39,15 +40,14 @@ export async function syncAccess(db: SupabaseClient): Promise<number> {
     add.set(e, newAccess(e, typeof name === 'string' ? name : null, typeof dealId === 'string' ? dealId : null))
   }
   for (const d of deals.data ?? []) consider(d.client_email, d.client_name, d.id)
-  for (const p of proposals.data ?? []) consider(p.client_email, p.client_name, p.deal_id)
-  for (const o of onboardings.data ?? []) consider(o.email, o.name, o.deal_id)
+  for (const i of invoices.data ?? []) if (i.status !== 'void') consider(i.client_email, i.client_name, null)
   if (!add.size) return 0
   const { error } = await db.from('portal_access').upsert([...add.values()], { onConflict: 'id', ignoreDuplicates: true })
   return error ? 0 : add.size
 }
 
 // The client's portal row, created on the spot when the email belongs to a
-// client who has none yet. Null for anyone who is not a client.
+// paying client who has none yet. Null for anyone who is not a paying client.
 export async function accessFor(db: SupabaseClient, email: string): Promise<PortalAccess | null> {
   const e = normEmail(email)
   if (!e) return null

@@ -173,3 +173,9 @@ a.pt-item:hover{border-color:var(--sky);transform:translateY(-1px)}
   .pt-app{display:flex;flex-direction:column}
   .pt-app .row{margin-top:auto}
 }
+
+/* Not a client yet: where to go instead */
+.pt-choices{display:grid;gap:10px;margin-top:22px}
+.pt a.pt-alt{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:14px;border:1.5px solid rgba(255,255,255,.22);color:#fff;text-decoration:none;font-weight:700;font-size:15px}
+.pt a.pt-alt:hover{background:rgba(255,255,255,.08)}
+.pt-link{background:none;border:0;color:rgba(255,255,255,.7);font:inherit;font-size:14px;text-decoration:underline;cursor:pointer;min-height:44px}
