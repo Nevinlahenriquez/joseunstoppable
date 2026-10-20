@@ -102,6 +102,8 @@ const TABLES: Record<string, Col[]> = {
     ['email', 'text'], ['sender', 'text'], ['body', 'text'], ['read_at', 'timestamptz'],
     ['created_at', 'timestamptz default now()'],
   ],
+  // Every email sent to a client (lib/email.ts), shown on their contact page.
+  email_log: [['email', 'text'], ['subject', 'text'], ['created_at', 'timestamptz default now()']],
   // Extra admin logins added from /admin/access (id = lowercased email); password is a scrypt hash.
   admin_users: [
     ['name', 'text'], ['password_hash', 'text'], ['login_nonce', 'text'], ['last_login_at', 'timestamptz'],
@@ -129,6 +131,7 @@ const INDEXES = [
   'create unique index if not exists onboardings_token_uq on onboardings (token)',
   'create unique index if not exists portal_access_token_uq on portal_access (token)',
   'create index if not exists portal_messages_email_idx on portal_messages (email, created_at)',
+  'create index if not exists email_log_email_idx on email_log (email, created_at)',
   'create index if not exists contacts_email_idx on contacts (email)',
   'create unique index if not exists bookings_slot_uq on bookings (start_at) where status <> \'cancelled\'',
 ]

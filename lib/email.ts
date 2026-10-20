@@ -47,11 +47,27 @@ export async function sendEmail(to: string, subject: string, html: string): Prom
       console.error(`[email] Resend refused ${res.status} sending to ${to}: ${body.slice(0, 300)}`)
       return false
     }
+    await logClientEmail(to, subject)
     return true
   } catch (err) {
     console.error('[email] send threw', err)
     return false
   }
+}
+
+// Every email a client receives lands in email_log, so the contact page shows
+// each touch point. José's own notifications are not logged. Never fails a send.
+async function logClientEmail(to: string, subject: string) {
+  if (isOwnerInbox(to)) return
+  try {
+    const { serviceDb } = await import('@/lib/os-supabase')
+    const db = await serviceDb()
+    if (!db) return
+    await db.from('email_log').insert({
+      id: 'em-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      email: to.trim().toLowerCase().slice(0, 160), subject: subject.slice(0, 300), created_at: new Date().toISOString(),
+    })
+  } catch { /* a missing table must never stop an email */ }
 }
 
 export function money(value: unknown, currency = 'EUR', fallback = ''): string {

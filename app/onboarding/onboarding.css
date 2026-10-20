@@ -202,3 +202,12 @@
 .ob-welcome .welcome-steps b{font-size:17px}
 .ob-welcome .welcome-steps span{font-size:15px}
 }
+
+/* Form page on desktop: use the width instead of a narrow column in a sea of white. */
+@media (min-width:1024px){
+.ob:not(.ob-welcome) .wrap{max-width:1180px;padding:0 32px}
+.ob:not(.ob-welcome) form{padding:12px 40px 36px}
+.ob:not(.ob-welcome) .formhead{padding:26px 40px}
+.ob:not(.ob-welcome) .hint{font-size:15px}
+.ob:not(.ob-welcome) .parq-q{font-size:15.5px}
+}
