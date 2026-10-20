@@ -181,3 +181,39 @@ export function ContactProfile({ email }: { email: string }) {
     </div>
   )
 }
+
+type Touch = { id: string; at: string; kind: 'email' | 'from-client' | 'to-client'; text: string }
+const TOUCH_LABEL: Record<Touch['kind'], { icon: string; label: string }> = {
+  email: { icon: 'ti-mail', label: 'Email enviado' },
+  'from-client': { icon: 'ti-message-circle', label: 'Mensaje del cliente' },
+  'to-client': { icon: 'ti-message-reply', label: 'Tu respuesta' },
+}
+
+// Every email this person received and every portal message, newest first.
+export function TouchpointsList({ email }: { email: string }) {
+  const [state, setState] = useState<{ items: Touch[]; note: string; loaded: boolean }>({ items: [], note: '', loaded: false })
+  useEffect(() => {
+    let live = true
+    fetch(`/api/admin/touchpoints?email=${encodeURIComponent(email)}`)
+      .then(r => r.json())
+      .then(d => { if (live) setState({ items: d.items ?? [], note: d.missing || d.error || '', loaded: true }) })
+      .catch(() => { if (live) setState({ items: [], note: 'No se pudo cargar.', loaded: true }) })
+    return () => { live = false }
+  }, [email])
+  if (!state.loaded) return <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Cargando…</div>
+  return (
+    <div>
+      {state.note && <div style={{ fontSize: 12.5, color: 'var(--os-text-faint)', marginBottom: 8 }}>{state.note}</div>}
+      {!state.items.length && !state.note && <div style={{ fontSize: 13, color: 'var(--os-text-faint)' }}>Aún no hay emails ni mensajes.</div>}
+      {state.items.map(t => (
+        <div key={t.kind + t.id} style={{ padding: '9px 2px', borderBottom: '1px solid var(--os-line)', display: 'flex', gap: 10 }}>
+          <i className={`ti ${TOUCH_LABEL[t.kind].icon}`} style={{ color: 'var(--os-text-muted)', marginTop: 2 }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 11.5, color: 'var(--os-text-faint)' }}>{TOUCH_LABEL[t.kind].label} · {fmtCall(t.at)}</div>
+            <div style={{ fontSize: 13.5, color: 'var(--os-text)', whiteSpace: 'pre-wrap', overflowWrap: 'anywhere' }}>{t.text}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}

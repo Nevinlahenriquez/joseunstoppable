@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { buildMessage, list, missingIn, parqYes, sectionDone, str, waLink, EMAIL_RE, PARQ, SECTIONS, type Answers } from '@/lib/onboarding'
+import { list, missingIn, parqYes, sectionDone, str, waLink, EMAIL_RE, PARQ, SECTIONS, type Answers } from '@/lib/onboarding'
 import './onboarding.css'
 
 const DRAFT_KEY = 'ju-onboarding-v1'
+// José's Harbiz invite link. Empty: José sends each client their own invitation.
+const HARBIZ_JOIN_URL = ''
 const STEPS = ['Formulario inicial', 'Llamada de bienvenida', 'Tu plan a medida', 'Primeros 7 días', 'Seguimiento continuo']
 
 const Tick = () => (
@@ -17,7 +19,7 @@ type Saved = 'idle' | 'saving' | 'saved' | 'failed'
 
 // The client onboarding: hero, the 5-step process, the 7-section form and
 // what comes next. With a token (a link José activated from the dashboard)
-// the answers are saved to his dashboard; WhatsApp then opens for the photos.
+// the answers are saved to his dashboard and the client portal opens.
 export default function OnboardingPage({ token, presetName = '' }: { token?: string; presetName?: string }) {
   const [a, setA] = useState<Answers>({})
   const [name, setName] = useState(presetName)
@@ -122,38 +124,43 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
       return
     }
     setShowErr(false)
-    setDone(true)
-    formRef.current?.scrollIntoView({ behavior: 'smooth' })
-    // WhatsApp opens straight away (inside the tap, so no popup blocker), the save runs beside it.
-    const url = waLink(buildMessage(a))
-    try { if (!window.open(url, '_blank')) location.href = url } catch { location.href = url }
     setSaved('saving')
+    // Only a confirmed save counts as sent: on failure the form stays, answers intact.
     try {
       const r = await fetch('/api/onboarding', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ token: linkGone ? undefined : liveToken || undefined, answers: a, hp: hp.current, elapsedMs: Date.now() - startedAt.current }),
       })
-      setSaved(r.ok ? 'saved' : 'failed')
       const d = await r.json().catch(() => null)
-      if (typeof d?.portal === 'string') setPortal(d.portal)
+      if (!r.ok || !d?.ok) { setSaved('failed'); return }
+      if (typeof d.portal === 'string') setPortal(d.portal)
+      setSaved('saved')
+      setDone(true)
+      formRef.current?.scrollIntoView({ behavior: 'smooth' })
     } catch {
       setSaved('failed')
     }
   }
 
   const cls = (k: string) => (bad.has(k) ? 'invalid' : undefined)
+  // What the field shows: the raw text, never trimmed, or a typed space vanishes
+  // on the next render and the space bar seems dead.
+  const raw = (k: string) => {
+    const v = a[k]
+    return Array.isArray(v) ? v.join(', ') : v ?? ''
+  }
   const input = (k: string, props: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <input name={k} className={cls(k)} value={str(a, k)} onChange={e => set(k, e.target.value)} {...props} />
+    <input name={k} className={cls(k)} value={raw(k)} onChange={e => set(k, e.target.value)} {...props} />
   )
   const unit = (k: string, u: string, props: React.InputHTMLAttributes<HTMLInputElement> = {}) => (
     <div className="unit">{input(k, { type: 'number', inputMode: 'decimal', step: '0.1', placeholder: '0', ...props })}<span>{u}</span></div>
   )
   const area = (k: string, placeholder: string) => (
-    <textarea name={k} className={cls(k)} value={str(a, k)} onChange={e => set(k, e.target.value)} placeholder={placeholder} />
+    <textarea name={k} className={cls(k)} value={raw(k)} onChange={e => set(k, e.target.value)} placeholder={placeholder} />
   )
   const select = (k: string, first: string, opts: string[]) => (
-    <select name={k} className={cls(k)} value={str(a, k)} onChange={e => set(k, e.target.value)}>
+    <select name={k} className={cls(k)} value={raw(k)} onChange={e => set(k, e.target.value)}>
       <option value="">{first}</option>
       {opts.map(o => <option key={o}>{o}</option>)}
     </select>
@@ -311,14 +318,14 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
 
                   <div className="photonote">
                     <div className="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0C2A43" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" /><circle cx="12" cy="13" r="4" /></svg></div>
-                    <div><b>Fotos de inicio:</b> al enviar se abrirá mi WhatsApp con tus respuestas. Justo después mándame ahí 3 fotos: <b>frontal, perfil y espalda</b>, con buena luz y ropa ajustada.</div>
+                    <div><b>Fotos de inicio:</b> cuando tengas tu acceso a Harbiz, sube ahí 3 fotos: <b>frontal, perfil y espalda</b>, con buena luz y ropa ajustada.</div>
                   </div>
 
                   <div className="submit">
                     <div className={`err${showErr ? ' show' : ''}`}>Te falta algún dato. Te lo he marcado en rojo.</div>
-                    <button type="submit" className="btn btn-sky">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="#0C2A43"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.3-.5 0-1 .2-3.4-.7-2.8-1.1-4.6-4-4.8-4.2-.1-.2-1.1-1.5-1.1-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 2c.1.2.1.4 0 .5l-.3.5-.4.5c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.3 2.4 1.5.3.1.5.1.6-.1l.9-1c.2-.3.4-.2.6-.1l1.9.9c.3.1.5.2.5.3.1.2.1.7-.1 1.4z" /></svg>
-                      Enviar a José por WhatsApp
+                    <div className={`err${saved === 'failed' ? ' show' : ''}`}>No se ha podido enviar. Tus respuestas siguen aquí: vuelve a pulsar el botón.</div>
+                    <button type="submit" className="btn btn-sky" disabled={saved === 'saving'}>
+                      {saved === 'saving' ? 'Enviando…' : 'Enviar mis respuestas'}
                     </button>
                     <p>Tus respuestas se guardan en este móvil mientras rellenas, por si cierras la página.</p>
                   </div>
@@ -326,20 +333,17 @@ export default function OnboardingPage({ token, presetName = '' }: { token?: str
               ) : (
                 <div className="thanks show">
                   <div className="big"><svg width="30" height="30" viewBox="0 0 12 12"><path d="M2 6.5l2.5 2.5L10 3.5" stroke="#fff" strokeWidth="1.6" fill="none" strokeLinecap="round" strokeLinejoin="round" /></svg></div>
-                  <h3>¡Paso 1 casi listo!</h3>
-                  <p>
-                    {saved === 'saved' ? 'Tus respuestas ya me han llegado. ' : ''}
-                    Si se ha abierto WhatsApp, solo te queda pulsar <b>enviar</b>. Después, en ese mismo chat:
-                  </p>
-                  {portal && <p><b>Tu portal de cliente ya está listo.</b> Te he mandado un email con cómo entrar.</p>}
+                  <h3>¡Paso 1 completado!</h3>
+                  <p>Tus respuestas ya le han llegado a José. Estos son tus siguientes pasos:</p>
                   <ul className="checklist">
-                    <li><em>1</em>Envía el mensaje con tus respuestas</li>
-                    <li><em>2</em>Mándame 3 fotos: frontal, perfil y espalda</li>
-                    <li><em>3</em>Te escribo para agendar la llamada de bienvenida</li>
+                    <li><em>1</em>{portal ? 'Entra en tu portal de cliente: ahí tienes tus facturas, tu contrato y un sitio para escribirme' : 'Te llega un email para entrar en tu portal de cliente'}</li>
+                    <li><em>2</em>{HARBIZ_JOIN_URL ? <>Crea tu perfil en <a href={HARBIZ_JOIN_URL} target="_blank" rel="noopener">Harbiz</a>, la app de tu seguimiento diario</> : 'Te mando tu invitación a Harbiz, la app de tu seguimiento diario, para que crees tu perfil'}</li>
+                    <li><em>3</em>Sube en Harbiz tus 3 fotos de inicio: frontal, perfil y espalda</li>
+                    <li><em>4</em>Te escribo para agendar la llamada de bienvenida</li>
                   </ul>
                   <div className="btns">
                     {portal && <a className="btn btn-sky" href={portal}>Entrar a mi portal de cliente →</a>}
-                    <a className={`btn ${portal ? 'btn-ghost' : 'btn-sky'}`} href={waLink(buildMessage(a))} target="_blank" rel="noopener">Abrir WhatsApp de nuevo</a>
+                    {HARBIZ_JOIN_URL && <a className={`btn ${portal ? 'btn-ghost' : 'btn-sky'}`} href={HARBIZ_JOIN_URL} target="_blank" rel="noopener">Crear mi perfil en Harbiz</a>}
                     <button type="button" className="btn btn-ghost" onClick={() => { setDone(false); setSaved('idle') }}>Editar respuestas</button>
                   </div>
                 </div>

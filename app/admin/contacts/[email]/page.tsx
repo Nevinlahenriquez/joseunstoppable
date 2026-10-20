@@ -16,7 +16,7 @@ import type { Deal, Lead, ActivityType, ActivityEntry } from '@/lib/crm-types'
 import type { EventAttendee } from '@/lib/event-types'
 import { EmailText } from '@/components/os/CopyEmail'
 import { OnboardingCard } from '@/components/os/Onboarding'
-import { CallsList, ContactProfile } from '@/components/os/ContactExtras'
+import { CallsList, ContactProfile, TouchpointsList } from '@/components/os/ContactExtras'
 import { bookingsFor, onboardingsFor, hydrateContactSources } from '@/lib/contact-sources'
 import { hydrateFromSupabase } from '@/lib/crm-store'
 import { hydrateEvents } from '@/lib/event-store'
@@ -210,6 +210,11 @@ export default function ContactWorkspace({ params }: { params: Promise<{ email: 
           <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
             <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Llamadas</div>
             <CallsList email={email} />
+          </div>
+
+          <div className="os-card" style={{ padding: '20px 24px', marginBottom: 20 }}>
+            <div className="os-crm-section-title" style={{ marginBottom: 14 }}>Emails y mensajes</div>
+            <TouchpointsList email={email} />
           </div>
 
           <OnboardingCard name={name} email={email} phone={phone} dealId={primaryDeal?.id} refresh={primaryDeal?.stage} />

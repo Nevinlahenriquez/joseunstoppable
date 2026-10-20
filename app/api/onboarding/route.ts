@@ -87,8 +87,14 @@ export async function POST(req: NextRequest) {
   const html = wrapEmail(
     firstTime ? 'Onboarding completado' : 'Onboarding actualizado',
     `<p>${escapeHtml(name)} ${firstTime ? 'ha rellenado' : 'ha actualizado'} su onboarding.</p>` +
+      (firstTime
+        ? '<p><strong>Siguientes pasos:</strong></p><ol>' +
+          '<li>Revisa sus respuestas y la salud (PAR-Q) en su ficha.</li>' +
+          '<li>Mándale su invitación a Harbiz.</li>' +
+          '<li>Agenda la llamada de bienvenida.</li></ol>'
+        : '') +
       detailRows([['Email', row.email], ['WhatsApp', row.phone], ...answerRows(answers)]),
-    { label: 'Abrir onboarding', href: `${SITE_URL}/admin/onboarding` },
+    { label: 'Abrir su ficha', href: row.email ? `${SITE_URL}/admin/contacts/${encodeURIComponent(row.email)}` : `${SITE_URL}/admin/onboarding` },
   )
   await sendEmail(OWNER_EMAIL, `${firstTime ? 'Onboarding' : 'Onboarding actualizado'}: ${name}`, html).catch(() => false)
 
