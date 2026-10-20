@@ -62,6 +62,10 @@ h3{margin:0;font-family:var(--f);font-weight:700;font-size:21px;line-height:1.3;
 .lang button{min-width:42px;height:36px;border:0;border-radius:999px;font:700 13px var(--f);letter-spacing:.04em;cursor:pointer}
 .hdr-cta{display:inline-flex;align-items:center;min-height:44px;padding:0 20px;border-radius:999px;background:var(--navy);color:#fff;text-decoration:none;font:700 15px var(--f)}
 .hdr-cta:hover{background:#163C5C;color:#fff}
+.hdr-login{display:inline-flex;align-items:center;min-height:44px;padding:0 4px;color:var(--muted);text-decoration:none;font:600 15px var(--f);white-space:nowrap}
+.hdr-login:hover{color:var(--navy)}
+.hdr-login{gap:7px}
+@media (max-width:620px){.hdr-login{min-width:40px;justify-content:center}.hdr-login-t{display:none}}
 
 /* hero */
 .hero{padding:clamp(40px,6vw,80px) 0 clamp(64px,8vw,104px);background:radial-gradient(1100px 520px at 85% -10%,var(--tint-2),transparent 60%),var(--white)}

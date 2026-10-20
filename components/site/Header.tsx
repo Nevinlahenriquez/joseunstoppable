@@ -26,6 +26,10 @@ export default function Header() {
         </nav>
         <div className="hdr-r">
           <LangToggle />
+          <Link className="hdr-login" href="/portal" aria-label="Acceso clientes">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></svg>
+            <span className="hdr-login-t"><span data-es>Acceso clientes</span><span data-en>Client login</span></span>
+          </Link>
           {!onBooking && (
             <Link className="hdr-cta" href={LINKS.book}><span data-es>Reservar llamada</span><span data-en>Book a call</span></Link>
           )}
