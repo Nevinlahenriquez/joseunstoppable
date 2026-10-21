@@ -40,11 +40,15 @@ const cookie = (n: string) => { const m = document.cookie.match('(?:^|; )' + n +
 const validEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim())
 const validPhone = (v: string) => v.replace(/\D/g, '').length >= 9
 
+// Anti-spam: when the form appeared, and a hidden field only bots fill in.
+let shownAt = 0
+const honeypot = () => (document.getElementById('bk-hp') as HTMLInputElement | null)?.value ?? ''
+
 function post(path: string, body: Record<string, unknown>) {
   try {
     fetch(path, {
       method: 'POST', keepalive: true, headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ ...body, pageUrl: location.href, referrer: document.referrer || '', fbc: cookie('_fbc'), fbp: cookie('_fbp'), landing: cookie('ju_src'), visitorId: cookie('ju_vid') }),
+      body: JSON.stringify({ ...body, hp: honeypot(), elapsedMs: shownAt ? Date.now() - shownAt : undefined, pageUrl: location.href, referrer: document.referrer || '', fbc: cookie('_fbc'), fbp: cookie('_fbp'), landing: cookie('ju_src'), visitorId: cookie('ju_vid') }),
     }).catch(() => {})
   } catch {}
 }
@@ -85,6 +89,7 @@ export default function BookingFlow() {
   const advancing = useRef(false)
 
   useEffect(() => {
+    shownAt = Date.now()
     fetch('/api/booking').then(r => r.json()).then(j => {
       if (j?.ok && Array.isArray(j.days) && j.days.length) setAvail(j.days)
     }).catch(() => {})
@@ -214,6 +219,7 @@ export default function BookingFlow() {
 
         {st.type === 'start' && (
           <>
+            <input id="bk-hp" name="bk_company_url" type="text" tabIndex={-1} autoComplete="off" aria-hidden="true" defaultValue="" style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }} />
             <label className="bk-field"><span><T es="Nombre y apellido" en="First and last name" /></span><input value={name} onChange={e => setName(e.target.value)} autoComplete="name" autoFocus /></label>
             <label className="bk-field"><span>Email</span><input value={email} onChange={e => setEmail(e.target.value)} type="email" autoComplete="email" inputMode="email" placeholder={es ? 'tu@email.com' : 'you@email.com'} /></label>
             <label className="bk-field"><span><T es="WhatsApp (opcional)" en="WhatsApp (optional)" /></span><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" autoComplete="tel" inputMode="tel" placeholder="+34 600 000 000" /></label>

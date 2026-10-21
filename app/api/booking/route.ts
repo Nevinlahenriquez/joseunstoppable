@@ -8,6 +8,9 @@ import { sendCapiEvent } from '@/lib/meta-capi'
 import { sendEmail, wrapEmail, detailRows, firstNameOf, OWNER_EMAIL, SITE_URL } from '@/lib/email'
 import { escapeHtml } from '@/lib/escape-html'
 import { googleCalendarUtcUrl } from '@/lib/calendar-links'
+import { detectSpam, SPAM_REJECTION } from '@/lib/anti-spam'
+import { looksGenerated, looksLikeDirectPost } from '@/lib/apply-guard'
+import { TOO_MANY, clientIp, overLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
@@ -37,12 +40,25 @@ export async function GET() {
 
 // POST: book a slot.
 export async function POST(req: NextRequest) {
+  if (overLimit('booking:' + clientIp(req.headers), 5, 60 * 60_000)) return NextResponse.json({ ok: false, ...TOO_MANY }, { status: 429 })
   const b = await req.json().catch(() => ({})) as Record<string, unknown>
+  if (detectSpam(b).spam) return NextResponse.json({ ok: false, ...SPAM_REJECTION.body }, { status: SPAM_REJECTION.status })
   const name = cap(b.name, 120), email = cap(b.email, 160).toLowerCase(), whatsapp = cap(b.whatsapp, 40)
   const start = cap(b.start, 40)
   if (!name || (!email && !whatsapp)) return NextResponse.json({ ok: false, error: 'Faltan tus datos.' }, { status: 400 })
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return NextResponse.json({ ok: false, error: 'Revisa tu email.' }, { status: 400 })
+  // Gibberish names posted straight at the API, not through the form, never
+  // reach the calendar or anyone's inbox. Real visitors with unusual names are not affected.
+  if (looksLikeDirectPost(b) && looksGenerated({ name, email }).level !== 'clean') return NextResponse.json({ ok: false, ...SPAM_REJECTION.body }, { status: SPAM_REJECTION.status })
   const db = await serviceDb()
   if (!db) return NextResponse.json({ ok: false, error: 'La agenda no está conectada todavía.' }, { status: 503 })
+
+  // One person holds at most two upcoming calls, so a script can't fill the agenda.
+  if (email) {
+    const { count } = await db.from('bookings').select('id', { count: 'exact', head: true })
+      .eq('email', email).neq('status', 'cancelled').gte('start_at', new Date().toISOString())
+    if ((count ?? 0) >= 2) return NextResponse.json({ ok: false, error: 'Ya tienes una llamada reservada. Revisa tu email o escríbeme por WhatsApp.' }, { status: 409 })
+  }
 
   const av = await readSetting<Availability>('availability', DEFAULT_AVAILABILITY)
   const answers = cap(b.answers, 4000)

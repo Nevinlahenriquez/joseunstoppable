@@ -9,6 +9,7 @@ import {
 } from '@/lib/email'
 import { SPAM_TAG, leadVerdict } from '@/lib/apply-guard'
 import { funnelIdFromPath, recordFunnelLead } from '@/lib/funnel-log'
+import { TOO_MANY, clientIp, overLimit } from '@/lib/rate-limit'
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? ''
 const FROM = EMAIL_FROM
@@ -185,6 +186,9 @@ async function sendEmails(lead: LeadInput): Promise<void> {
 }
 
 export async function POST(req: NextRequest) {
+  if (overLimit('lead:' + clientIp(req.headers), 10, 10 * 60_000)) {
+    return NextResponse.json(TOO_MANY, { status: 429 })
+  }
   const body = await req.json().catch(() => ({}))
 
   if (detectSpam(body).spam) {
