@@ -58,7 +58,7 @@ export default function Privacidad() {
       <p>Puedes pedir acceso, rectificación, supresión, oposición, limitación y portabilidad de tus datos, y retirar tu consentimiento en cualquier momento, escribiendo a <a href={`mailto:${OWNER.email}`}>{OWNER.email}</a>. Si crees que no hemos atendido bien tu solicitud, puedes reclamar ante la Agencia Española de Protección de Datos (<a href="https://www.aepd.es" target="_blank" rel="noopener">aepd.es</a>).</p>
 
       <h2>Cookies</h2>
-      <p>Este sitio usa solo cookies propias: una con un identificador anónimo de visita y otra con la campaña por la que llegaste, que ayudan a saber qué anuncios y páginas funcionan. Tu idioma preferido se guarda en tu propio navegador. No usamos cookies de publicidad de terceros. Puedes borrarlas o bloquearlas desde la configuración de tu navegador.</p>
+      <p>Este sitio usa solo cookies propias: una con un identificador anónimo de visita y otra con la campaña por la que llegaste, que ayudan a saber qué anuncios y páginas funcionan. Tu idioma preferido se guarda en tu propio navegador. Solo si lo aceptas en el aviso de cookies, se activa también el píxel de Meta (Facebook e Instagram), que guarda sus propias cookies para medir qué anuncios funcionan; si lo rechazas, no se carga. Puedes cambiar tu elección borrando las cookies de este sitio, y borrarlas o bloquearlas desde la configuración de tu navegador.</p>
 
       <p>Consulta también el <Link href={LINKS.legal}>aviso legal</Link>.</p>
     </LegalPage>

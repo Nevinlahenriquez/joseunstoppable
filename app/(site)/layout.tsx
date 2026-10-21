@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import Header from '@/components/site/Header'
 import Footer from '@/components/site/Footer'
 import ViewTracker from '@/components/site/ViewTracker'
+import MetaPixel from '@/components/site/MetaPixel'
 import WhatsAppFab from '@/components/site/WhatsAppFab'
 import { INSTAGRAM_URL, LANG_BOOT_SCRIPT, OWNER, SITE_URL } from '@/lib/site'
 import './site.css'
@@ -48,6 +49,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       <main className="site-main">{children}</main>
       <Footer />
       <WhatsAppFab />
+      <MetaPixel />
     </>
   )
 }
