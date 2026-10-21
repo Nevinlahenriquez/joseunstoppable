@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { T } from '@/components/site/bits'
 import useLang from '@/components/site/useLang'
+import { newEventId, trackMeta } from '@/components/site/MetaPixel'
 import { GOAL_TAGS, LINKS, PRICE, WHATSAPP } from '@/lib/site'
 
 type Opt = [es: string, en: string]
@@ -144,7 +145,9 @@ export default function BookingFlow() {
     if (st.type === 'start') {
       if (!started.current) {
         started.current = true
-        post('/api/lead', { ...contact(), source: 'reserva', stage: 'started', message: 'Empezó el formulario de llamada.' })
+        const leadId = newEventId('lead')
+        post('/api/lead', { ...contact(), source: 'reserva', stage: 'started', message: 'Empezó el formulario de llamada.', eventId: leadId })
+        trackMeta('Lead', leadId)
       }
       setStep(1); return
     }
@@ -154,7 +157,9 @@ export default function BookingFlow() {
     }
     if (st.type === 'slot') {
       const call = days[day!].toISOString().slice(0, 10) + ' ' + times[time!]
-      post('/api/booking', { ...contact(), start: slotStart, slotLabel: call, answers: answersEs(next), qualified: true })
+      const bookingId = newEventId('bk')
+      post('/api/booking', { ...contact(), start: slotStart, slotLabel: call, answers: answersEs(next), qualified: true, eventId: bookingId })
+      trackMeta('Schedule', bookingId)
       setResult('booked'); sendWa(summary(slotLabel)); return
     }
     saveProgress(next, 'Paso alcanzado: ' + STEPS[step + 1].tagEs + '.')

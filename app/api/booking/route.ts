@@ -111,7 +111,7 @@ export async function POST(req: NextRequest) {
     crm,
     sendEmail(OWNER_EMAIL, `Llamada reservada: ${name} · ${when}`, ownerHtml),
     clientHtml ? sendEmail(email, `Tu llamada con José: ${when}`, clientHtml) : Promise.resolve(),
-    sendCapiEvent({ eventName: 'Schedule', eventId: id, email, name, phone: whatsapp, fbc: fbc || undefined, fbp: cap(b.fbp, 300) || undefined, pageUrl, ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim(), userAgent: req.headers.get('user-agent') ?? undefined, customData: { content_name: 'Llamada reservada' } }),
+    sendCapiEvent({ eventName: 'Schedule', eventId: cap(b.eventId, 60) || id, email, name, phone: whatsapp, fbc: fbc || undefined, fbp: cap(b.fbp, 300) || undefined, pageUrl, ip: req.headers.get('x-forwarded-for')?.split(',')[0]?.trim(), userAgent: req.headers.get('user-agent') ?? undefined, customData: { content_name: 'Llamada reservada' } }),
   ])
   return NextResponse.json({ ok: true, id, when, meetUrl: meetUrl ?? null })
 }

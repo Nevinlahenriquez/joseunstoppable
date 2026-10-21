@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { T } from '@/components/site/bits'
 import { currentLang } from '@/components/site/LangToggle'
+import { trackMeta } from '@/components/site/MetaPixel'
+import { registrationEventId } from '@/lib/registration-event-id'
 
 type Props = { eventId: string; paid: boolean; priceLabel: string; seatsLeft: number | null; capacity: number; full: boolean; waitlist: boolean }
 
@@ -47,6 +49,7 @@ export default function RegisterForm({ eventId, paid, priceLabel, seatsLeft, cap
       }
       setWaitlisted(d.waitlisted === true)
       setTicket(typeof d.ticketCode === 'string' ? d.ticketCode : '')
+      if (typeof d.ticketCode === 'string' && d.ticketCode) trackMeta('CompleteRegistration', registrationEventId(d.ticketCode))
       setState('done')
     } catch {
       setState('error')

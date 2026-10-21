@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { T, WHATSAPP } from '@/components/site/bits'
 import { currentLang } from '@/components/site/LangToggle'
+import { trackMeta } from '@/components/site/MetaPixel'
 
 type Props = { startISO: string; minutes: number; time: string; dateEs: string; dateEn: string; taken: number; capacity: number; eventId: string }
 
@@ -47,6 +48,7 @@ export default function MasterclassForm(p: Props) {
       }),
     }).catch(() => {})
 
+    trackMeta('Lead', p.eventId)
     setWaUrl(url)
     setDone(true)
     try { if (!window.open(url, '_blank')) location.href = url } catch { location.href = url }
