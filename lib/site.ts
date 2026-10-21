@@ -1,6 +1,8 @@
 // Shared facts for the public site pages.
 
-export const SITE_URL = 'https://joseunstoppable.com'
+// The address search engines index. joseunstoppable.com redirects here (Vercel domain
+// setting), so canonicals, sitemap and share links must use www to avoid redirects.
+export const SITE_URL = 'https://www.joseunstoppable.com'
 export const WHATSAPP = '34649764886'
 export const PRICE = 497
 
