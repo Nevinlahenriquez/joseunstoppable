@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { clientIp, overLimit } from '@/lib/rate-limit'
 
 export const runtime = 'nodejs'
 
@@ -7,6 +8,7 @@ const STEPS = new Set(['view', 'click', 'lead', 'purchase'])
 const cap = (s: unknown, n: number) => (typeof s === 'string' ? s.slice(0, n) : null)
 
 export async function POST(req: NextRequest) {
+  if (overLimit('track:' + clientIp(req.headers), 120, 60_000)) return NextResponse.json({ ok: false }, { status: 429 })
   try {
     const body = (await req.json().catch(() => ({}))) as Record<string, unknown>
     const step = typeof body.step === 'string' ? body.step : ''

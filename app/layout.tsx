@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
+import { SITE_URL } from '@/lib/site'
 
 // Plus Jakarta Sans, self-hosted so pages never wait on Google Fonts.
 const jakarta = localFont({
@@ -12,9 +13,11 @@ const jakarta = localFont({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://joseunstoppable.com'),
+  metadataBase: new URL(SITE_URL),
   title: 'José Unstoppable',
   robots: { index: false, follow: false },
+  // Search Console ownership tag: set GOOGLE_SITE_VERIFICATION in Vercel and redeploy.
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
   icons: { icon: '/icon.png', apple: '/apple-icon.png' },
 }
 
