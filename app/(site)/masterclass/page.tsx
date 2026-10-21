@@ -13,8 +13,7 @@ export const revalidate = 600
 export const metadata: Metadata = {
   title: 'Masterclass gratuita · José Unstoppable',
   description: 'En 45 minutos te enseño el método exacto para perder la barriga después de los 40 sin vivir en el gimnasio.',
-  robots: { index: true, follow: true },
-  openGraph: { title: 'Masterclass gratuita · José Unstoppable', images: ['/images/jose.jpg'] },
+  alternates: { canonical: '/masterclass' },
 }
 
 const TZ = 'Europe/Madrid'

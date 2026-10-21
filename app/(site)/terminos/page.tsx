@@ -5,6 +5,7 @@ import { LINKS, OWNER, PRICE, WA_HELLO, waLink } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Términos y condiciones · José Unstoppable',
+  description: 'Condiciones del programa de coaching 1:1 online de José Unstoppable: pagos, garantía y cancelaciones.',
   alternates: { canonical: LINKS.terms },
 }
 

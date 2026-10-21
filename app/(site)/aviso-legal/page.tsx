@@ -5,6 +5,7 @@ import { LINKS, OWNER, SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Aviso legal · José Unstoppable',
+  description: 'Datos del titular y condiciones de uso de joseunstoppable.com.',
   alternates: { canonical: LINKS.legal },
 }
 

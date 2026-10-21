@@ -13,6 +13,12 @@ import RegisterForm from './RegisterForm'
 // Edits made in /admin show up within a minute without rebuilding the site.
 export const revalidate = 60
 
+// Pages are built on first visit and then served from the cache, so an ad
+// sending thousands of people at once costs one database read a minute.
+export async function generateStaticParams() {
+  return []
+}
+
 type Loaded = { ev: CrmEvent; seatsLeft: number | null; past: boolean }
 
 async function loadEvent(slug: string): Promise<Loaded | null> {

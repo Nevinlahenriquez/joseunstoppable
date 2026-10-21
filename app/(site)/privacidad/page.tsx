@@ -5,6 +5,7 @@ import { LINKS, OWNER } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'Política de privacidad · José Unstoppable',
+  description: 'Cómo trata José Unstoppable tus datos personales, para qué los usa y cómo ejercer tus derechos.',
   alternates: { canonical: LINKS.privacy },
 }
 

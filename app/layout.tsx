@@ -15,6 +15,8 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://joseunstoppable.com'),
   title: 'José Unstoppable',
   robots: { index: false, follow: false },
+  // Search Console ownership tag: set GOOGLE_SITE_VERIFICATION in Vercel and redeploy.
+  verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
   icons: { icon: '/icon.png', apple: '/apple-icon.png' },
 }
 
