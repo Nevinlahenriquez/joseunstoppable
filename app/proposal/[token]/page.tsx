@@ -200,8 +200,8 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
     : isRecurring
     ? `${fmt(monthlyAmount, proposal.currency)} per month · ${schedule.length} months`
     : schedule.length > 1
-      ? `${fmt(proposal.total, proposal.currency)} one-time fee · ${schedule.length} payments`
-      : `${fmt(proposal.total, proposal.currency)} · one payment`
+      ? L(`${fmt(proposal.total, proposal.currency)} one-time fee · ${schedule.length} payments`, `${fmt(proposal.total, proposal.currency)} pago único · ${schedule.length} pagos`)
+      : L(`${fmt(proposal.total, proposal.currency)} · one payment`, `${fmt(proposal.total, proposal.currency)} · un solo pago`)
 
   const introParts = (proposal.intro || '').split(/\n\s*\n/)
   const promise = introParts[0] || ''
@@ -502,14 +502,14 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                   {}
                   <p style={{ fontSize: 13.5, color: '#444', lineHeight: 1.8, margin: '0 0 16px' }}>
                     {isSinglePayment
-                      ? 'One payment covers everything laid out in this agreement. No setup fee, no monthly cost, and nothing further owed once the project is complete.'
+                      ? L('One payment covers everything laid out in this agreement. No setup fee, no monthly cost, and nothing further owed once the project is complete.', 'Un solo pago cubre todo lo que recoge este acuerdo. Sin cuota de alta, sin mensualidades y sin nada más que pagar durante el proceso.')
                       : 'A single flat monthly retainer covers everything laid out in this agreement, the full build and its ongoing management. It is invoiced at the start of each month, with no setup fee and no separate build cost.'}
                   </p>
                   <div className="no-break retainer-box" style={{ display: 'flex', alignItems: 'baseline', gap: 10, background: '#12002a', borderRadius: 12, padding: '26px 30px' }}>
                     <span style={{ fontSize: 40, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{fmt(monthlyAmount, proposal.currency)}</span>
-                    <span style={{ fontSize: 16, fontWeight: 600, color: '#b9a6ee' }}>{isSinglePayment ? 'one payment' : '/ month'}</span>
+                    <span style={{ fontSize: 16, fontWeight: 600, color: '#b9a6ee' }}>{isSinglePayment ? L('one payment', 'pago único') : '/ month'}</span>
                     <span className="side-note" style={{ marginLeft: 'auto', fontSize: 12.5, color: '#c9bdf0', fontWeight: 500, maxWidth: 210, textAlign: 'right', lineHeight: 1.5 }}>
-                      {isSinglePayment ? 'Everything in the scope above, included.' : 'Build, management, and everything in the scope above, included.'}
+                      {isSinglePayment ? L('Everything in the scope above, included.', 'Todo lo anterior, incluido.') : 'Build, management, and everything in the scope above, included.'}
                     </span>
                   </div>
                 </>
@@ -536,7 +536,10 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                 ) : isRecurring ? (
                   <>Payment of the first monthly retainer activates this agreement and work begins within 48 hours. Each subsequent month is invoiced at the start of that month. All assets, accounts, and intellectual property created under this agreement belong to you from day one. Either party may pause or discontinue with 30 days written notice; work completed to that point remains billable. Our goal is a long-term partnership, not a one-time project.</>
                 ) : (
-                  <>The first payment activates this agreement and work begins straight away. All assets, accounts, and intellectual property created under this agreement belong to you from day one. If either of us needs to stop, work completed to that point remains billable and anything finished is yours to keep.</>
+                  <>{L(
+                    'The first payment activates this agreement and work begins straight away. All assets, accounts, and intellectual property created under this agreement belong to you from day one. If either of us needs to stop, work completed to that point remains billable and anything finished is yours to keep.',
+                    'El pago activa este acuerdo y empezamos de inmediato. Todo el material que recibes (planes, rutinas, recetas y guías) es tuyo para siempre. Si en algún momento alguno de los dos necesita parar, lo hablamos con calma; el trabajo hecho hasta ese momento no se reembolsa, salvo lo que cubra la garantía.',
+                  )}</>
                 )}
               </div>
             </div>
@@ -577,10 +580,10 @@ export default function ProposalPage({ params }: { params: Promise<Params> }) {
                   <>
                     <div style={{ ...SIG_FONT, fontSize: 34, color: '#12002a', lineHeight: 1, marginBottom: 12 }}>{displaySigner}</div>
                     <div style={{ borderTop: '1px solid #ddd', paddingTop: 8, fontWeight: 800, fontSize: 14, color: '#12002a' }}>{displaySigner}</div>
-                    <div style={{ fontSize: 12, color: '#888' }}>Electronically signed{displayDate ? ` · ${displayDate}` : ''}</div>
+                    <div style={{ fontSize: 12, color: '#888' }}>{L('Electronically signed', 'Firmado electrónicamente')}{displayDate ? ` · ${displayDate}` : ''}</div>
                   </>
                 ) : isPdf ? (
-                  <div style={{ ...SIG_FONT, fontSize: 30, color: '#c4bdd4', lineHeight: 1 }}>Awaiting signature</div>
+                  <div style={{ ...SIG_FONT, fontSize: 30, color: '#c4bdd4', lineHeight: 1 }}>{L('Awaiting signature', 'Pendiente de firma')}</div>
                 ) : (
                   <>
                     <div style={{ minHeight: 46, marginBottom: 6, display: 'flex', alignItems: 'flex-end' }}>
