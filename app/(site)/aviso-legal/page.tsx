@@ -4,7 +4,7 @@ import LegalPage from '@/components/site/LegalPage'
 import { LINKS, OWNER, SITE_URL } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Aviso legal · José Unstoppable',
+  title: 'Aviso legal · Jose Unstoppable',
   alternates: { canonical: LINKS.legal },
 }
 

@@ -4,7 +4,7 @@ import LegalPage from '@/components/site/LegalPage'
 import { LINKS, OWNER } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Política de privacidad · José Unstoppable',
+  title: 'Política de privacidad · Jose Unstoppable',
   alternates: { canonical: LINKS.privacy },
 }
 

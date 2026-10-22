@@ -18,7 +18,7 @@ type Step = {
 }
 
 // Name and email first, so the visitor is a lead after one screen. Every later
-// step is one tap and saves as it goes, so an unfinished form still reaches José.
+// step is one tap and saves as it goes, so an unfinished form still reaches Jose.
 const STEPS: Step[] = [
   { id: 'start', type: 'start', tagEs: 'Empezamos', tagEn: "Let's start", es: '¿Cómo te llamas y dónde te escribo?', en: 'What is your name and where can I reach you?' },
   { id: 'goal', type: 'multi', tagEs: 'Tu objetivo', tagEn: 'Your goal', es: '¿Qué quieres conseguir?', en: 'What do you want to achieve?', hintEs: 'Puedes elegir varias.', hintEn: 'Choose as many as apply.', options: [['Perder grasa', 'Lose fat'], ['Ganar músculo', 'Build muscle'], ['Ganar confianza', 'Gain confidence'], ['Más energía y salud', 'More energy and health']] },
@@ -29,7 +29,7 @@ const STEPS: Step[] = [
   { id: 'slot', type: 'slot', tagEs: 'Agenda', tagEn: 'Schedule', es: 'Elige día y hora para tu llamada', en: 'Pick a day and time for your call' },
 ]
 
-// Shown when the agenda can't be reached: weekdays and José's usual hours.
+// Shown when the agenda can't be reached: weekdays and Jose's usual hours.
 const FALLBACK_TIMES = ['10:00', '12:00', '17:00', '19:00']
 
 type Answers = { goal: number[]; goalNote: string } & Partial<Record<Pick, number>>
@@ -56,7 +56,7 @@ function fallbackDays() {
   return out
 }
 
-// José's copy of the answers, always in Spanish.
+// Jose's copy of the answers, always in Spanish.
 function answersEs(a: Answers) {
   return [
     ['Objetivo', a.goal.map(i => optOf('goal', i, 0)).join(', ') + (a.goalNote.trim() ? ' — ' + a.goalNote.trim() : '')],
@@ -128,8 +128,8 @@ export default function BookingFlow() {
       ['What holds me back', optOf('blocker', a.blocker, 1)], ['Ready for 90 days', optOf('ready', a.ready, 1)], ['Investment', optOf('invest', a.invest, 1)],
     ]
     const head = label
-      ? (es ? `Hola José, soy ${name.trim()}. Acabo de reservar mi llamada gratuita: ${label}.` : `Hi José, I'm ${name.trim()}. I just booked my free call: ${label}.`)
-      : (es ? `Hola José, soy ${name.trim()}. Acabo de rellenar el formulario.` : `Hi José, I'm ${name.trim()}. I just filled in the form.`)
+      ? (es ? `Hola Jose, soy ${name.trim()}. Acabo de reservar mi llamada gratuita: ${label}.` : `Hi Jose, I'm ${name.trim()}. I just booked my free call: ${label}.`)
+      : (es ? `Hola Jose, soy ${name.trim()}. Acabo de rellenar el formulario.` : `Hi Jose, I'm ${name.trim()}. I just filled in the form.`)
     return head + '\n\n' + rows.filter(r => r[1]).map(r => '• ' + r[0] + ': ' + r[1]).join('\n')
   }
 
@@ -196,7 +196,7 @@ export default function BookingFlow() {
         <h2 className="disp bk-title">{es ? `Gracias por tu sinceridad, ${firstName}.` : `Thank you for your honesty, ${firstName}.`}</h2>
         <p className="bk-p">{es ? 'Parece que ahora mismo no es el momento ideal para la llamada. Mientras tanto, la masterclass gratuita te ayuda a empezar, y cuando estés listo, aquí estaré.' : "It looks like right now isn't the ideal moment for the call. Meanwhile, the free masterclass will help you get started, and when you're ready, I'll be here."}</p>
         <Link className="btn btn-y bk-full" href={LINKS.webinar}>{es ? 'Ver la masterclass gratuita' : 'Watch the free masterclass'}<span className="arr">→</span></Link>
-        <a className="btn bk-wa" href={fallbackWa} target="_blank" rel="noopener">{es ? 'Escribir a José por WhatsApp' : 'Message José on WhatsApp'}</a>
+        <a className="btn bk-wa" href={fallbackWa} target="_blank" rel="noopener">{es ? 'Escribir a Jose por WhatsApp' : 'Message Jose on WhatsApp'}</a>
       </div>
     </div>
   )
@@ -219,7 +219,7 @@ export default function BookingFlow() {
             <label className="bk-field"><span><T es="WhatsApp (opcional)" en="WhatsApp (optional)" /></span><input value={phone} onChange={e => setPhone(e.target.value)} type="tel" autoComplete="tel" inputMode="tel" placeholder="+34 600 000 000" /></label>
             <label className="bk-consent">
               <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} />
-              <span>{es ? <>Acepto la <Link href={LINKS.privacy} target="_blank">política de privacidad</Link>. José usará mis datos solo para preparar la llamada.</> : <>I accept the <Link href={LINKS.privacy} target="_blank">privacy policy</Link>. José will only use my details to prepare the call.</>}</span>
+              <span>{es ? <>Acepto la <Link href={LINKS.privacy} target="_blank">política de privacidad</Link>. Jose usará mis datos solo para preparar la llamada.</> : <>I accept the <Link href={LINKS.privacy} target="_blank">privacy policy</Link>. Jose will only use my details to prepare the call.</>}</span>
             </label>
           </>
         )}

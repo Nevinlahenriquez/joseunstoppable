@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
   openGraph: {
     type: 'website',
-    siteName: 'José Unstoppable',
+    siteName: 'Jose Unstoppable',
     locale: 'es_ES',
     images: [{ url: '/images/jose.jpg', width: 1200, height: 1286, alt: 'Jose Sanchez' }],
   },
@@ -23,7 +23,7 @@ export const viewport: Viewport = {
   themeColor: '#FFFFFF',
 }
 
-// Tells search engines who José is and where else he is online.
+// Tells search engines who Jose is and where else he is online.
 const PROFILE = {
   '@context': 'https://schema.org',
   '@type': 'Person',

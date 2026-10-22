@@ -5,7 +5,7 @@ import Footer from '@/components/site/Footer'
 import { LANG_BOOT_SCRIPT } from '@/lib/site'
 import './(site)/site.css'
 
-export const metadata: Metadata = { title: 'Página no encontrada · José Unstoppable' }
+export const metadata: Metadata = { title: 'Página no encontrada · Jose Unstoppable' }
 
 // Any unknown address lands here, in the site's own frame.
 export default function NotFound() {

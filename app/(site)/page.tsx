@@ -1,33 +1,31 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import FreeCallsNote from '@/components/site/FreeCallsNote'
 import MobileBar from '@/components/site/MobileBar'
 import VideoFrame from '@/components/site/VideoFrame'
 import { T } from '@/components/site/bits'
-import { INTRO_VIDEO, LINKS, OWNER, PRICE, WA_HELLO, waLink } from '@/lib/site'
+import { INSIDE_SHOTS, INSIDE_VIDEO, INTRO_VIDEO, JOSE_BEFORE_AFTER, PHOTO_TESTIMONIALS, TECHNIQUE_VIDEOS, VIDEO_TESTIMONIALS } from '@/lib/home-content'
+import { LINKS, OWNER, PRICE, WA_HELLO, waLink } from '@/lib/site'
 import hero from '@/public/images/jose.jpg'
 import avatar from '@/public/images/jose-avatar.jpg'
 import './home.css'
 
 export const metadata: Metadata = {
-  title: 'José Unstoppable · Vuelve a gustarte en 90 días',
-  description: 'Coaching 1:1 online para hombres de 30 a 50. 3 horas de entreno a la semana, nutrición que encaja en tu vida y José a tu lado cada día.',
+  title: 'Jose Unstoppable · Vuelve a gustarte en 90 días',
+  description: 'Coaching 1:1 online para hombres de 30 a 50. 3 horas de entreno a la semana, nutrición que encaja en tu vida y Jose a tu lado cada día.',
   alternates: { canonical: '/' },
 }
 
-// Fill these in as testimonials come in. A video slot plays once `video` has
-// a YouTube, Vimeo or .mp4 link; a card shows its photos once `before` and
-// `after` point at images in public/images.
-const VIDEO_TESTIMONIALS: { video: string; name: string; result: string }[] = [
-  { video: '', name: '', result: '' },
-  { video: '', name: '', result: '' },
-  { video: '', name: '', result: '' },
-]
-const WRITTEN_TESTIMONIALS: { before: string; after: string; quote: string; name: string }[] = [
-  { before: '', after: '', quote: '', name: '' },
-  { before: '', after: '', quote: '', name: '' },
-  { before: '', after: '', quote: '', name: '' },
-]
+// Videos, photos and results live in lib/home-content.ts. Each block below
+// shows only once it has something real to show.
+const videoTestimonials = VIDEO_TESTIMONIALS.filter(t => t.video).slice(0, 3)
+const photoTestimonials = PHOTO_TESTIMONIALS.filter(t => t.before && t.after).slice(0, 6)
+const hasTestimonials = videoTestimonials.length + photoTestimonials.length > 0
+const insideShots = INSIDE_SHOTS.filter(s => s.src)
+const techniqueVideos = TECHNIQUE_VIDEOS.filter(Boolean).slice(0, 2)
+const hasInside = !!INSIDE_VIDEO || insideShots.length + techniqueVideos.length > 0
+const hasJoseBeforeAfter = !!(JOSE_BEFORE_AFTER.before && JOSE_BEFORE_AFTER.after)
 
 function Ck() {
   return (
@@ -47,9 +45,8 @@ function Arr() {
 
 function IntroVideo() {
   return (
-    <VideoFrame src={INTRO_VIDEO} label="Ver vídeo: quién soy">
-      <Image src={hero} alt="" fill sizes="(max-width: 900px) 100vw, 60vw" />
-      <span className="h-vsoon"><T es="Vídeo muy pronto" en="Video coming soon" /></span>
+    <VideoFrame src={INTRO_VIDEO} label="Ver vídeo: quién soy" className="v">
+      <Image src={hero} alt="" fill sizes="(max-width: 900px) 90vw, 380px" />
       <span className="h-vcap">
         <small><T es="Empieza aquí" en="Start here" /></small>
         <b><T es="Quién soy y cómo te voy a ayudar" en="Who I am and how I'll help you" /></b>
@@ -76,11 +73,16 @@ export default function Home() {
             </p>
             <div className="h-ctas">
               <Link className="btn btn-y" href={LINKS.book}><T es="Reserva tu llamada gratuita" en="Book your free call" /><Arr /></Link>
-              <a className="btn btn-line h-play" href="#empieza">
-                <span className="pi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z" /></svg></span>
-                <T es="Empieza aquí: quién soy" en="Start here: who I am" />
-              </a>
+              {INTRO_VIDEO ? (
+                <a className="btn btn-line h-play" href="#empieza">
+                  <span className="pi" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z" /></svg></span>
+                  <T es="Empieza aquí: quién soy" en="Start here: who I am" />
+                </a>
+              ) : (
+                <a className="btn btn-line" href="#story"><T es="Conoce mi historia" en="Read my story" /></a>
+              )}
             </div>
+            <FreeCallsNote />
             <ul className="h-ticks">
               <li><Ck /><T es="+100 personas acompañadas" en="100+ people coached" /></li>
               <li><Ck /><T es="Garantía de resultados" en="Results guarantee" /></li>
@@ -88,7 +90,7 @@ export default function Home() {
             </ul>
           </div>
           <div className="h-media">
-            <div className="h-photo"><Image src={hero} alt={`${OWNER.name}, coach de José Unstoppable, en el gimnasio`} fill priority sizes="(max-width: 900px) 100vw, 46vw" placeholder="blur" /></div>
+            <div className="h-photo"><Image src={hero} alt={`${OWNER.name}, coach de Jose Unstoppable, en el gimnasio`} fill priority sizes="(max-width: 900px) 100vw, 46vw" placeholder="blur" /></div>
             <div className="h-float h-hours">
               <span className="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg></span>
               <span><b>3 h</b><T es="de entreno a la semana" en="of training a week" /></span>
@@ -114,7 +116,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="empieza" className="h-intro tint">
+      {INTRO_VIDEO && <section id="empieza" className="h-intro tint">
         <div className="wrap">
           <div className="h-intro-copy">
             <span className="eyebrow"><T es="Empieza aquí" en="Start here" /></span>
@@ -127,9 +129,9 @@ export default function Home() {
             </p>
             <Link className="btn btn-y" href={LINKS.book}><T es="Reserva tu llamada gratuita" en="Book your free call" /><Arr /></Link>
           </div>
-          <IntroVideo />
+          <div className="h-intro-video"><IntroVideo /></div>
         </div>
-      </section>
+      </section>}
 
       <section className="sec">
         <div className="wrap">
@@ -167,14 +169,20 @@ export default function Home() {
               </blockquote>
             </div>
             <div className="h-story-body">
-              <p className="lead"><T es="Me llamo José, tengo 31 años y hoy ayudo a hombres a reconstruirse desde cero. Pero no hace tanto, el que necesitaba ayuda era yo." en="I'm José, I'm 31, and today I help men rebuild themselves from scratch. But not long ago, I was the one who needed help." /></p>
+              {hasJoseBeforeAfter && (
+                <div className="h-jba">
+                  <figure><Image src={JOSE_BEFORE_AFTER.before} alt={`${OWNER.name} antes`} fill sizes="(max-width: 900px) 45vw, 330px" /><figcaption><T es="Antes" en="Before" /></figcaption></figure>
+                  <figure className="now"><Image src={JOSE_BEFORE_AFTER.after} alt={`${OWNER.name} hoy`} fill sizes="(max-width: 900px) 45vw, 330px" /><figcaption><T es="Hoy" en="Today" /></figcaption></figure>
+                </div>
+              )}
+              <p className="lead"><T es="Me llamo Jose, tengo 31 años y hoy ayudo a hombres a reconstruirse desde cero. Pero no hace tanto, el que necesitaba ayuda era yo." en="I'm Jose, I'm 31, and today I help men rebuild themselves from scratch. But not long ago, I was the one who needed help." /></p>
               <p><T es={<>Trabajaba de camarero en Marbella. Ganaba dinero, pero esa vida no me llenaba y no era la que yo quería. Bebía demasiado, mis hábitos eran un desastre y eso me costó más de una multa de tráfico. <strong>Tenía un físico del que me avergonzaba, cero propósito, cero ahorros y la autoestima por los suelos.</strong></>} en={<>I was a waiter in Marbella. I made money, but that life didn&apos;t fulfil me and it wasn&apos;t the one I wanted. I drank too much, my habits were a mess, and it cost me more than one traffic fine. <strong>I was ashamed of my body, with zero purpose, zero savings and my self-esteem on the floor.</strong></>} /></p>
               <p className="h-basta"><T es="A principios de 2025, después de otra multa, dije basta." en="In early 2025, after yet another fine, I said enough." /></p>
               <p><T es={<>Durante mucho tiempo creí que si arreglaba lo del pelo, volvería la seguridad. Nada más lejos de la realidad. Lo que de verdad me hizo sentirme orgulloso al mirarme al espejo fue construir <strong>un físico que admiro, unos hábitos que admiro y una mentalidad que no se rinde.</strong></>} en={<>For a long time I believed that if I fixed my hair, the confidence would come back. Couldn&apos;t have been more wrong. What actually made me proud of the man in the mirror was building <strong>a body I admire, habits I admire and a mindset that doesn&apos;t quit.</strong></>} /></p>
               <p><T es="Hoy voy por la calle sin camiseta sin pensármelo, viajo donde quiero y hablo con cualquier chica sin vergüenza. Mi vida sexual cambió por completo, porque por fin me gusto a mí mismo. Y ya no me aparto en las fotos." en="Today I walk down the street shirtless without a second thought, travel wherever I want and talk to any woman without feeling awkward. My sex life changed completely, because I finally like myself. And I no longer step out of photos." /></p>
               <p><T es={<>A mí me costó años de prueba y error. <strong>A ti no tiene por qué.</strong> Sé lo que es vivir amargado con tu cuerpo, sin confianza y sin ganas de nada, porque yo estuve ahí. Por eso hago esto: para que recorras el mismo camino en tiempo récord, sabiendo que vas en la dirección correcta y con alguien al lado que te entiende de verdad.</>} en={<>It took me years of trial and error. <strong>It doesn&apos;t have to take you that long.</strong> I know what it&apos;s like to live bitter about your body, with no confidence and no drive, because I&apos;ve been there. That&apos;s why I do this: so you can walk the same road in record time, knowing you&apos;re heading the right way, with someone beside you who truly gets it.</>} /></p>
               <p><T es="Quiero que seas imparable, como lo soy yo hoy. Que vivas tu mejor vida y disfrutes de tu cuerpo. Porque te lo mereces." en="I want you to become unstoppable, like I am today. To live your best life and enjoy your body. Because you deserve it." /></p>
-              <div className="h-sign"><span className="sig">{OWNER.name}</span><T es="Fundador de José Unstoppable" en="Founder, José Unstoppable" /></div>
+              <div className="h-sign"><span className="sig">{OWNER.name}</span><T es="Fundador de Jose Unstoppable" en="Founder, Jose Unstoppable" /></div>
             </div>
           </div>
           <div className="h-ba">
@@ -261,6 +269,42 @@ export default function Home() {
         </div>
       </section>
 
+      {hasInside && (
+        <section id="por-dentro" className="sec h-inside">
+          <div className="wrap">
+            <div className="h-split">
+              <div className="head">
+                <span className="eyebrow"><T es="Así es por dentro" en="See inside" /></span>
+                <h2 className="disp"><T es={<>Esto es lo que vas a tener <span className="hl">en tu móvil.</span></>} en={<>This is what you get <span className="hl">on your phone.</span></>} /></h2>
+              </div>
+              <p className="lead"><T es="Antes de llamarme, mira cómo funciona: tus entrenos, tu nutrición, mis correcciones y cómo te acompaño cada semana." en="Before you call, see how it works: your workouts, your nutrition, my corrections and how I support you every week." /></p>
+            </div>
+            <div className="h-inside-grid">
+              {INSIDE_VIDEO && (
+                <div className="h-inside-video">
+                  <VideoFrame src={INSIDE_VIDEO} label="Ver la app por dentro" className="v">
+                    <span className="h-vcap"><small><T es="La app por dentro" en="Inside the app" /></small><b><T es="Así es un día de entreno" en="A training day, step by step" /></b></span>
+                  </VideoFrame>
+                </div>
+              )}
+              {insideShots.map(shot => (
+                <figure key={shot.src} className="h-shot">
+                  <div className="h-phone"><Image src={shot.src} alt={shot.es} fill sizes="(max-width: 640px) 45vw, 240px" /></div>
+                  <figcaption><T es={shot.es} en={shot.en} /></figcaption>
+                </figure>
+              ))}
+              {techniqueVideos.map((v, i) => (
+                <div key={v} className="h-inside-video">
+                  <VideoFrame src={v} label={`Ver corrección de técnica ${i + 1}`} className="v">
+                    <span className="h-vcap"><small><T es="Corrección de técnica" en="Technique check" /></small><b><T es="Así corrijo tus ejercicios" en="How I correct your lifts" /></b></span>
+                  </VideoFrame>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       <section className="sec">
         <div className="wrap">
           <div className="head">
@@ -297,43 +341,45 @@ export default function Home() {
         </div>
       </section>
 
-      <section id="testimonios" className="sec">
-        <div className="wrap">
-          <div className="h-split">
-            <div className="head">
-              <span className="eyebrow"><T es="Testimonios" en="Testimonials" /></span>
-              <h2 className="disp"><T es={<>Hombres reales. <span className="hl">Cambios reales.</span></>} en={<>Real men. <span className="hl">Real change.</span></>} /></h2>
-            </div>
-            <p className="lead"><T es="No te lo cuento yo. Te lo cuentan ellos: dónde estaban, qué hicieron y cómo se ven hoy." en="Don't take my word for it. Hear it from them: where they were, what they did and how they look today." /></p>
-          </div>
-          <div className="h-tvideos">
-            {VIDEO_TESTIMONIALS.map((t, i) => (
-              <div key={i} className="h-tvideo">
-                <VideoFrame src={t.video} label={`Ver testimonio ${i + 1}`}>
-                  <span className="h-vsoon"><T es="Próximamente" en="Coming soon" /></span>
-                  <span className="h-vcap"><small><T es="Testimonio en vídeo" en="Video testimonial" /></small></span>
-                </VideoFrame>
-                <div className="h-tmeta">
-                  <b>{t.name || <T es="Nombre, edad" en="Name, age" />}</b>
-                  <span>{t.result || <T es="Resultado en 90 días" en="Result in 90 days" />}</span>
-                </div>
+      {hasTestimonials && (
+        <section id="testimonios" className="sec">
+          <div className="wrap">
+            <div className="h-split">
+              <div className="head">
+                <span className="eyebrow"><T es="Testimonios" en="Testimonials" /></span>
+                <h2 className="disp"><T es={<>Hombres reales. <span className="hl">Cambios reales.</span></>} en={<>Real men. <span className="hl">Real change.</span></>} /></h2>
               </div>
-            ))}
+              <p className="lead"><T es="No te lo cuento yo. Te lo cuentan ellos: dónde estaban, qué hicieron y cómo se ven hoy." en="Don't take my word for it. Hear it from them: where they were, what they did and how they look today." /></p>
+            </div>
+            {videoTestimonials.length > 0 && (
+              <div className="h-tvideos">
+                {videoTestimonials.map((t, i) => (
+                  <div key={t.video} className="h-tvideo">
+                    <VideoFrame src={t.video} label={`Ver testimonio de ${t.name || i + 1}`}>
+                      <span className="h-vcap"><small><T es="Testimonio en vídeo" en="Video testimonial" /></small><b>{t.name}</b></span>
+                    </VideoFrame>
+                    {t.result && <div className="h-tmeta"><span>{t.result}</span></div>}
+                  </div>
+                ))}
+              </div>
+            )}
+            {photoTestimonials.length > 0 && (
+              <div className="h-tquotes">
+                {photoTestimonials.map(t => (
+                  <figure key={t.before} className="h-tcard">
+                    <div className="h-tba">
+                      <div className="h-tph"><Image src={t.before} alt={`${t.name} antes`} fill sizes="(max-width: 900px) 45vw, 180px" /><span className="lbl"><T es="Antes" en="Before" /></span></div>
+                      <div className="h-tph after"><Image src={t.after} alt={`${t.name} después`} fill sizes="(max-width: 900px) 45vw, 180px" /><span className="lbl"><T es="Después" en="After" /></span></div>
+                    </div>
+                    {t.quote && <blockquote>{t.quote}</blockquote>}
+                    <figcaption><b>{t.name}</b>{t.result && <span>{t.result}</span>}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="h-tquotes">
-            {WRITTEN_TESTIMONIALS.map((t, i) => (
-              <figure key={i} className="h-tcard">
-                <div className="h-tba">
-                  <div className="h-tph">{t.before ? <Image src={t.before} alt="Antes" fill sizes="200px" /> : <span><T es="Antes" en="Before" /></span>}</div>
-                  <div className="h-tph after">{t.after ? <Image src={t.after} alt="Después" fill sizes="200px" /> : <span><T es="Después" en="After" /></span>}</div>
-                </div>
-                <blockquote>{t.quote || <T es="Aquí irá la experiencia de un cliente, contada con sus propias palabras." en="A client's experience will go here, in their own words." />}</blockquote>
-                <figcaption><b>{t.name || <T es="Nombre, edad" en="Name, age" />}</b><span><T es="90 días" en="90 days" /></span></figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section id="offer" className="sec tint">
         <div className="wrap">
@@ -405,10 +451,13 @@ export default function Home() {
           <h2 className="disp"><T es={<>Dentro de 90 días puedes seguir igual. <span className="hl">O puedes volver a gustarte.</span></>} en={<>In 90 days you can still be the same. <span className="hl">Or you can like yourself again.</span></>} /></h2>
           <Link className="btn btn-y" href={LINKS.book}><T es="Reservar mi llamada gratuita" en="Book my free call" /><Arr /></Link>
           <p className="micro"><T es="30 minutos · Gratis · Sin compromiso" en="30 minutes · Free · No commitment" /></p>
-          <div className="h-final-video">
-            <IntroVideo />
-            <p><T es="¿Aún no me conoces? Empieza aquí y mira quién soy." en="Don't know me yet? Start here and see who I am." /></p>
-          </div>
+          <FreeCallsNote className="on-dark" />
+          {INTRO_VIDEO && (
+            <div className="h-final-video">
+              <IntroVideo />
+              <p><T es="¿Aún no me conoces? Empieza aquí y mira quién soy." en="Don't know me yet? Start here and see who I am." /></p>
+            </div>
+          )}
         </div>
       </section>
 
