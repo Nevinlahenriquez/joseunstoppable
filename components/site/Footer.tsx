@@ -5,7 +5,7 @@ export default function Footer() {
   return (
     <footer className="ftr">
       <div className="wrap">
-        <Link href="/" className="logo"><span className="mk">J</span><span>José<b>Unstoppable</b></span></Link>
+        <Link href="/" className="logo"><span className="mk">J</span><span>Jose<b>Unstoppable</b></span></Link>
         <span>© {new Date().getFullYear()} {OWNER.name}</span>
         <nav>
           <a data-es href={waLink(WA_HELLO.es)} target="_blank" rel="noopener">WhatsApp</a>

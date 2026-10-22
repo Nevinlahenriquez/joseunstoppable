@@ -4,10 +4,6 @@ export const SITE_URL = 'https://joseunstoppable.com'
 export const WHATSAPP = '34649764886'
 export const PRICE = 497
 
-// Paste the link to the "Quién soy" video here (YouTube, Vimeo or an .mp4).
-// It plays in the "Empieza aquí" block at the top and bottom of the home page.
-export const INTRO_VIDEO = ''
-
 export const LINKS = {
   home: '/',
   book: '/reserva',
@@ -24,7 +20,7 @@ export const INSTAGRAM_URL = 'https://www.instagram.com/joseunstoppable/'
 // and a contact address; lines stay hidden until they are filled in.
 export const OWNER = {
   name: 'Jose Sanchez',
-  brand: 'José Unstoppable',
+  brand: 'Jose Unstoppable',
   email: 'hola@joseunstoppable.com',
   nif: '',
   address: '',
@@ -33,13 +29,13 @@ export const OWNER = {
 export type Lang = 'es' | 'en'
 
 export function waLink(text?: string, phone: string = WHATSAPP) {
-  const msg = text ?? 'Hola José, quiero saber más sobre el programa'
+  const msg = text ?? 'Hola Jose, quiero saber más sobre el programa'
   return 'https://wa.me/' + phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(msg)
 }
 
 export const WA_HELLO = {
-  es: 'Hola José, quiero saber más sobre el programa',
-  en: 'Hi José, I want to know more about the program',
+  es: 'Hola Jose, quiero saber más sobre el programa',
+  en: 'Hi Jose, I want to know more about the program',
 }
 
 // Runs before first paint so the page shows in the visitor's language

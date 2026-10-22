@@ -9,13 +9,13 @@ const Icon = () => (
   </svg>
 )
 
-// Floating WhatsApp button so a visitor can reach José from any page.
+// Floating WhatsApp button so a visitor can reach Jose from any page.
 export default function WhatsAppFab() {
   const path = usePathname()
   return (
     <div className={path === LINKS.book ? 'wa-fab on-booking' : 'wa-fab'}>
-      <a data-es href={waLink(WA_HELLO.es)} target="_blank" rel="noopener" aria-label="Escribir a José por WhatsApp"><Icon /></a>
-      <a data-en href={waLink(WA_HELLO.en)} target="_blank" rel="noopener" aria-label="Message José on WhatsApp"><Icon /></a>
+      <a data-es href={waLink(WA_HELLO.es)} target="_blank" rel="noopener" aria-label="Escribir a Jose por WhatsApp"><Icon /></a>
+      <a data-en href={waLink(WA_HELLO.en)} target="_blank" rel="noopener" aria-label="Message Jose on WhatsApp"><Icon /></a>
     </div>
   )
 }

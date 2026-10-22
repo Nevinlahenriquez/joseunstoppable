@@ -20,7 +20,7 @@ const serif = Instrument_Serif({ subsets: ['latin', 'latin-ext'], weight: '400',
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://joseunstoppable.com'),
-  title: 'José Unstoppable',
+  title: 'Jose Unstoppable',
   robots: { index: false, follow: false },
   icons: { icon: '/icon.png', apple: '/apple-icon.png' },
 }

@@ -7,7 +7,7 @@ export default function LegalPage({ title, updated, children }: { title: string;
           <span className="eyebrow">Legal</span>
           <h1 className="disp">{title}</h1>
           <p className="micro">Última actualización: {updated}</p>
-          <p className="micro" data-en>This page is in Spanish, the language of the contract. Message José on WhatsApp for an English summary.</p>
+          <p className="micro" data-en>This page is in Spanish, the language of the contract. Message Jose on WhatsApp for an English summary.</p>
         </div>
         <div className="prose">{children}</div>
       </div>

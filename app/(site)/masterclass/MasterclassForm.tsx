@@ -32,8 +32,8 @@ export default function MasterclassForm(p: Props) {
     const es = lang === 'es'
     const dateLabel = es ? p.dateEs : p.dateEn
     const text = (es
-      ? `Hola José, soy ${name.trim()}. Me apunto a la masterclass gratuita del ${dateLabel} a las ${p.time} CET.`
-      : `Hi José, I'm ${name.trim()}. Please save my seat for the free masterclass on ${dateLabel} at ${p.time} CET.`)
+      ? `Hola Jose, soy ${name.trim()}. Me apunto a la masterclass gratuita del ${dateLabel} a las ${p.time} CET.`
+      : `Hi Jose, I'm ${name.trim()}. Please save my seat for the free masterclass on ${dateLabel} at ${p.time} CET.`)
       + `\n\n• WhatsApp: ${phone.trim()}\n• Email: ${email.trim() || '—'}`
     const url = `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`
 
@@ -55,7 +55,7 @@ export default function MasterclassForm(p: Props) {
   if (done) {
     const start = new Date(p.startISO)
     const end = new Date(start.getTime() + p.minutes * 6e4)
-    const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Masterclass José Unstoppable')}&dates=${gcalStamp(start)}/${gcalStamp(end)}`
+    const gcal = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent('Masterclass Jose Unstoppable')}&dates=${gcalStamp(start)}/${gcalStamp(end)}`
     return (
       <>
         <span className="done-mark" aria-hidden="true">✓</span>

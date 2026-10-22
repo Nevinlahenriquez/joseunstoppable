@@ -38,9 +38,9 @@ async function loadEvent(slug: string): Promise<Loaded | null> {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const loaded = await loadEvent((await params).slug)
-  if (!loaded) return { title: 'Evento · José Unstoppable' }
+  if (!loaded) return { title: 'Evento · Jose Unstoppable' }
   const { ev } = loaded
-  const title = ev.seoTitle || `${ev.title} · José Unstoppable`
+  const title = ev.seoTitle || `${ev.title} · Jose Unstoppable`
   const description = ev.seoDescription || ev.tagline
   return { title, description, openGraph: { title, description, images: [eventImage(ev)] }, robots: { index: true, follow: true } }
 }
@@ -96,7 +96,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
                 <div className="fact"><span><T es="Dónde" en="Where" /></span><b>{where || <T es="Por confirmar" en="To be confirmed" />}</b></div>
               </div>
               <div className="ev-media">
-                {/* eslint-disable-next-line @next/next/no-img-element -- event images can be any URL José pastes in /admin */}
+                {/* eslint-disable-next-line @next/next/no-img-element -- event images can be any URL Jose pastes in /admin */}
                 <img src={eventImage(ev)} alt="" />
               </div>
             </div>

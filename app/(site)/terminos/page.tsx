@@ -4,7 +4,7 @@ import LegalPage from '@/components/site/LegalPage'
 import { LINKS, OWNER, PRICE, WA_HELLO, waLink } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'Términos y condiciones · José Unstoppable',
+  title: 'Términos y condiciones · Jose Unstoppable',
   alternates: { canonical: LINKS.terms },
 }
 
@@ -14,7 +14,7 @@ export default function Terminos() {
       <p>Estas condiciones regulan la contratación de los programas de coaching de {OWNER.brand}. Al contratar un programa confirmas que las has leído y las aceptas. Los datos del titular están en el <Link href={LINKS.legal}>aviso legal</Link>.</p>
 
       <h2>1. El servicio</h2>
-      <p>El Programa Imparable es un servicio de coaching online 1:1 de entrenamiento y hábitos con una duración de 90 días (3 meses). Incluye, según se detalle en tu propuesta, un plan de entrenamiento y hábitos personalizado, ajustes del plan y check-ins semanales de seguimiento con José, y contacto por WhatsApp para dudas.</p>
+      <p>El Programa Imparable es un servicio de coaching online 1:1 de entrenamiento y hábitos con una duración de 90 días (3 meses). Incluye, según se detalle en tu propuesta, un plan de entrenamiento y hábitos personalizado, ajustes del plan y check-ins semanales de seguimiento con Jose, y contacto por WhatsApp para dudas.</p>
       <p>El contenido exacto, las fechas de inicio y la forma de seguimiento se recogen en la propuesta que recibes después de la llamada gratuita. Si algo de la propuesta es distinto de estas condiciones, manda la propuesta.</p>
 
       <h2>2. Cómo se contrata</h2>
