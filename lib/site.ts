@@ -4,6 +4,10 @@ export const SITE_URL = 'https://joseunstoppable.com'
 export const WHATSAPP = '34649764886'
 export const PRICE = 497
 
+// Paste the link to the "Quién soy" video here (YouTube, Vimeo or an .mp4).
+// It plays in the "Empieza aquí" block at the top and bottom of the home page.
+export const INTRO_VIDEO = ''
+
 export const LINKS = {
   home: '/',
   book: '/reserva',
@@ -19,7 +23,7 @@ export const INSTAGRAM_URL = 'https://www.instagram.com/joseunstoppable/'
 // Owner details for the legal pages. Spanish law (LSSI) asks for the tax ID
 // and a contact address; lines stay hidden until they are filled in.
 export const OWNER = {
-  name: 'José Sánchez',
+  name: 'Jose Sanchez',
   brand: 'José Unstoppable',
   email: 'hola@joseunstoppable.com',
   nif: '',

@@ -6,8 +6,9 @@ import LangToggle from './LangToggle'
 import { LINKS } from '@/lib/site'
 
 const NAV = [
-  { href: '/#story', es: 'Mi historia', en: 'My story' },
+  { href: '/#empieza', es: 'Empieza aquí', en: 'Start here' },
   { href: '/#method', es: 'El método', en: 'The method' },
+  { href: '/#testimonios', es: 'Testimonios', en: 'Testimonials' },
   { href: '/#offer', es: 'Precio', en: 'Pricing' },
   { href: '/#faq', es: 'Preguntas', en: 'FAQ' },
 ]
@@ -18,7 +19,7 @@ export default function Header() {
   return (
     <header className="hdr">
       <div className="wrap">
-        <Link href="/" className="logo" aria-label="José Unstoppable">José <b>Unstoppable</b></Link>
+        <Link href="/" className="logo" aria-label="José Unstoppable"><span className="mk">J</span><span>José<b>Unstoppable</b></span></Link>
         <nav className="nav">
           {NAV.map(n => (
             <Link key={n.href} href={n.href}><span data-es>{n.es}</span><span data-en>{n.en}</span></Link>

@@ -26,10 +26,10 @@ export default function Reserva() {
             <li><b>3</b><span data-es>José te confirma por WhatsApp</span><span data-en>José confirms on WhatsApp</span></li>
           </ol>
           <div className="bk-jose">
-            <Image src={avatar} alt="José Sánchez" width={60} height={60} priority />
+            <Image src={avatar} alt="Jose Sanchez" width={60} height={60} priority />
             <div>
               <strong><span data-es>«Sin presión. Si no es para ti, te lo diré con sinceridad.»</span><span data-en>“No pressure. If it&apos;s not for you, I&apos;ll tell you honestly.”</span></strong>
-              <span>José Sánchez · <span data-es>+100 personas ayudadas</span><span data-en>100+ people helped</span></span>
+              <span>Jose Sanchez · <span data-es>+100 personas ayudadas</span><span data-en>100+ people helped</span></span>
             </div>
           </div>
         </div>
