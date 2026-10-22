@@ -121,11 +121,11 @@ export default function MasterclassPage() {
         <section className="sec">
           <div className="wrap host">
             <div className="host-img">
-              <Image src="/images/jose.jpg" alt="José Sánchez" fill sizes="(max-width: 900px) 100vw, 500px" style={{ objectFit: 'cover' }} />
+              <Image src="/images/jose.jpg" alt="Jose Sanchez" fill sizes="(max-width: 900px) 100vw, 500px" style={{ objectFit: 'cover' }} />
             </div>
             <div className="host-copy">
               <span className="eyebrow"><T es="Tu anfitrión" en="Your host" /></span>
-              <h2 className="disp">José Sánchez</h2>
+              <h2 className="disp">Jose Sanchez</h2>
               <p className="lead">
                 <T
                   es="Hace un año no me reconocía en el espejo. Cambié mis hábitos, mi mentalidad y mi físico en 6 meses, y desde entonces he ayudado a más de 100 personas a hacer lo mismo."
