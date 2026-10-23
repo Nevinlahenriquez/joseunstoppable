@@ -4,7 +4,7 @@ import {
   Inbox, Tag, Filter, Ticket, Clapperboard, FileEdit, FolderKanban, Handshake,
   MessageSquare, CalendarDays, GraduationCap, KeyRound, Video, TrendingUp,
   Globe, Stethoscope, Menu, Flame, CircleDollarSign, CheckCircle2, Sparkles, Send,
-  Radar, Repeat, type LucideIcon,
+  Radar, Repeat, Dumbbell, Library, Apple, Palette, type LucideIcon,
 } from 'lucide-react'
 
 export const OS_ICONS = {
@@ -42,6 +42,10 @@ export const OS_ICONS = {
   insight: Sparkles,
   salesEngine: Send,
   outbound: Repeat,
+  training: Dumbbell,
+  library: Library,
+  nutrition: Apple,
+  brand: Palette,
 } satisfies Record<string, LucideIcon>
 
 export type OsIconName = keyof typeof OS_ICONS

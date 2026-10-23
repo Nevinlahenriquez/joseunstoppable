@@ -122,6 +122,12 @@ const TABLES: Record<string, Col[]> = {
     ['notes', 'text'], ['invoiceshift_customer_id', 'text'], ['invoiceshift_synced_at', 'timestamptz'],
     ['first_seen', 'timestamptz'], ['last_seen', 'timestamptz'], ['updated_at', 'timestamptz'],
   ],
+  // The coaching app (delivery). One shape for every table: the record lives in
+  // `data`, so a new field never needs a migration. See lib/coach/types.ts.
+  ...Object.fromEntries(
+    ['coaches', 'clients', 'exercises', 'workouts', 'logs', 'metrics', 'photos', 'nutrition', 'messages', 'checkins', 'resources']
+      .map(t => [`coach_${t}`, [['coach_id', 'text'], ['client_id', 'text'], ['data', 'jsonb'], ['created_at', 'timestamptz default now()']] as Col[]]),
+  ),
 }
 
 const INDEXES = [
@@ -134,6 +140,12 @@ const INDEXES = [
   'create index if not exists email_log_email_idx on email_log (email, created_at)',
   'create index if not exists contacts_email_idx on contacts (email)',
   'create unique index if not exists bookings_slot_uq on bookings (start_at) where status <> \'cancelled\'',
+  ...['clients', 'workouts', 'logs', 'metrics', 'photos', 'nutrition', 'messages', 'checkins', 'resources']
+    .map(t => `create index if not exists coach_${t}_client_idx on coach_${t} (coach_id, client_id)`),
+  // Progress photos: a PRIVATE storage bucket. Only the server hands out signed links.
+  `do $$ begin
+     insert into storage.buckets (id, name, public) values ('coach-photos', 'coach-photos', false) on conflict (id) do nothing;
+   exception when others then null; end $$`,
 ]
 
 export function schemaStatements(): string[] {
