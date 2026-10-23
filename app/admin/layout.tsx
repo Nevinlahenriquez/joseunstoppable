@@ -73,11 +73,30 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/admin/access', icon: 'access', label: 'Accesos al panel' },
     ],
   },
+  {
+    id: 'coaching',
+    title: 'Entrenamiento',
+    items: [
+      { href: '/admin/coaching',           icon: 'training', label: 'Clientes' },
+      { href: '/admin/coaching/library',   icon: 'library', label: 'Ejercicios' },
+      { href: '/admin/coaching/templates', icon: 'programs', label: 'Plantillas' },
+      { href: '/admin/coaching/nutrition', icon: 'nutrition', label: 'Nutrición' },
+      { href: '/admin/coaching/brand',     icon: 'brand', label: 'Tu app' },
+    ],
+  },
 ]
 
 const DEFAULT_OPEN: string[] = []
 // v2: sections start closed; older saved choices kept them all open.
 const NAV_OPEN_KEY = 'ju_nav_open_v2'
+
+const ALL_HREFS = NAV_GROUPS.flatMap(g => g.items.map(i => i.href))
+/** The longest nav address that matches wins, so /admin/coaching/library lights Ejercicios, not Clientes. */
+function isNavActive(href: string, path: string): boolean {
+  if (href === '/admin') return path === '/admin'
+  if (path !== href && !path.startsWith(href + '/')) return false
+  return !ALL_HREFS.some(h => h.length > href.length && h.startsWith(href) && (path === h || path.startsWith(h + '/')))
+}
 
 const TAB_BAR: NavItem[] = [
   { href: '/admin',          icon: 'dashboard', label: 'Inicio' },
@@ -151,7 +170,7 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
               .filter(g => g.items.length)
           : NAV_GROUPS
         ).map((group, gi) => {
-          const hasActive = group.items.some(i => (i.href === '/admin' ? path === '/admin' : path.startsWith(i.href)))
+          const hasActive = group.items.some(i => isNavActive(i.href, path))
 
           const open = collapsed || !group.title || openGroups.includes(group.id) || hasActive
           return (
@@ -169,7 +188,7 @@ function Sidebar({ collapsed, onToggle, onClose, counts, openGroups, onToggleGro
             )}
             {group.title && collapsed && gi > 0 && <div className="os-nav-group-divider" />}
             {open && group.items.map(item => {
-              const active = item.href === '/admin' ? path === '/admin' : path.startsWith(item.href)
+              const active = isNavActive(item.href, path)
               const badge = item.badgeKey ? counts[item.badgeKey] : 0
               return (
                 <Link
